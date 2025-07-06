@@ -1,7 +1,7 @@
 export default {
   translation: {
     common: {
-      appName: 'RestaurantHub',
+      appName: 'Kollab',
       weeklySchedule: 'Planning Hebdomadaire',
       week: 'Semaine',
       today: "Aujourd'hui",

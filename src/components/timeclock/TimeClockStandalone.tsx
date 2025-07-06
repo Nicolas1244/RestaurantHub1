@@ -366,9 +366,9 @@ const TimeClockStandalone: React.FC<TimeClockStandaloneProps> = ({
       <footer className="bg-gray-800 text-white p-4">
         <div className="container mx-auto text-center text-sm">
           <p>
-            {i18n.language === 'fr' 
-              ? 'Système de Badgeuse - RestaurantHub' 
-              : 'Time Clock System - RestaurantHub'}
+            {i18n.language === 'fr'
+              ? 'Système de Badgeuse - Kollab'
+              : 'Time Clock System - Kollab'}
           </p>
           <p className="text-gray-400 text-xs mt-1">
             {i18n.language === 'fr' 

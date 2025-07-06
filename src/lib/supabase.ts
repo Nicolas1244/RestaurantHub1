@@ -27,7 +27,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
   global: {
     headers: {
-      'X-Client-Info': 'restauranthub@1.0.0',
+      'X-Client-Info': 'kollab@1.0.0',
     },
   },
 });
