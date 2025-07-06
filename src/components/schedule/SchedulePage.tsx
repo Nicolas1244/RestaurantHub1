@@ -41,6 +41,7 @@ const SchedulePage: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   
   // CRITICAL: Labor law compliance panel state - default to collapsed (false)
+  // Weather forecast is always shown by default
   const [showCompliancePanel, setShowCompliancePanel] = useState(false);
   
   // CRITICAL: State for manual save button

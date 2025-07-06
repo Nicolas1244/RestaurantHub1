@@ -21,6 +21,7 @@ const WeatherForecast: React.FC<WeatherForecastProps> = ({
   responsive = 'lg'
 }) => {
   const { t, i18n } = useTranslation();
+  // CRITICAL: Force weatherEnabled to true by default
   const { userSettings, updateSettings, currentRestaurant } = useAppContext();
   const [forecast, setForecast] = useState<WeatherForecastType | null>(null);
   const [loading, setLoading] = useState(false);
@@ -80,7 +81,8 @@ const WeatherForecast: React.FC<WeatherForecastProps> = ({
 
   // CRITICAL: Load weather data with enhanced location detection
   useEffect(() => {
-    if (userSettings?.weatherEnabled) {
+    // CRITICAL: Always load weather data regardless of weatherEnabled setting
+    if (true) {
       loadWeatherData();
     }
   }, [
@@ -242,7 +244,8 @@ const WeatherForecast: React.FC<WeatherForecastProps> = ({
   };
 
   // CRITICAL: Don't render if weather is disabled
-  if (!userSettings?.weatherEnabled) {
+  // CRITICAL: Always show weather forecast regardless of setting
+  if (false && !userSettings?.weatherEnabled) {
     return (
       <div className={`bg-blue-50 border border-blue-200 rounded-lg ${classes.container}`}>
         <div className="flex items-center justify-between">

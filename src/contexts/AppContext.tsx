@@ -56,7 +56,7 @@ export const defaultUserSettings: UserSettings = {
   compactMode: false,
   autoSave: true,
   // CRITICAL: Weather settings with auto-location enabled by default
-  weatherEnabled: true,
+  weatherEnabled: true, // CRITICAL: Always enabled by default
   weatherAutoLocation: true,
   weatherLocation: undefined,
   // CRITICAL: NEW - Break payment setting enabled by default
