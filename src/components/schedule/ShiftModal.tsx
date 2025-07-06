@@ -3,6 +3,7 @@ import { X, Trash2, Clock, Calendar } from 'lucide-react';
 import { Employee, Shift, DAYS_OF_WEEK } from '../../types';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
+import toast from 'react-hot-toast';
 
 interface ShiftModalProps {
   isOpen: boolean;
@@ -68,9 +69,9 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   const handleAddShift = () => {
     // CRITICAL: Enforce maximum 2 shifts per day
     if (shifts.length >= 2) {
-      alert(i18n.language === 'fr' 
-        ? 'Maximum 2 services par jour atteints pour cet employé.' 
-        : 'Maximum 2 shifts per day reached for this employee.');
+      toast.error(i18n.language === 'fr' 
+        ? 'Vous ne pouvez pas ajouter plus de 2 services par employé par jour.' 
+        : 'You cannot add more than 2 services per employee per day.');
       return;
     }
     

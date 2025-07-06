@@ -4,9 +4,10 @@ import { Clock, Plus, Scissors, AlertTriangle, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { calculateEmployeeWeeklySummary, formatHoursDiff, formatHours } from '../../lib/scheduleUtils';
 import { format, addDays, parseISO, differenceInYears, getDay } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr } from 'date-fns/locale'; 
 import { useAppContext } from '../../contexts/AppContext';
 import TimeInput from './TimeInputComponents';
+import toast from 'react-hot-toast';
 import toast from 'react-hot-toast';
 
 interface ScheduleGridProps {
@@ -306,6 +307,14 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
       showContractWarning(employee, day);
       return;
     }
+    
+    // CRITICAL: Check if employee already has maximum shifts for this day
+    if (hasMaxShifts(employeeId, day)) {
+      toast.error(i18n.language === 'fr' 
+        ? 'Vous ne pouvez pas ajouter plus de 2 services par employé par jour.' 
+        : 'You cannot add more than 2 services per employee per day.');
+      return;
+    }
 
     const existingShift = shifts.find(s => 
       s.employeeId === employeeId && 
@@ -428,7 +437,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
   // CRITICAL: Check if employee already has maximum shifts for a day
   const hasMaxShifts = (employeeId: string, day: number): boolean => {
     const dayShifts = getShiftsForEmployeeDay(employeeId, day);
-    return dayShifts.length >= 2;
+    return dayShifts.length >= 2; 
   };
 
   // CRITICAL: Show helpful message if no employees

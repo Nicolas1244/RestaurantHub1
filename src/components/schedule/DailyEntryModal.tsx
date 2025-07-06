@@ -4,7 +4,8 @@ import { Employee, Shift, DAYS_OF_WEEK, DAILY_STATUS, DailyStatus, POSITIONS } f
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid'; 
 import { calculateTimeInHours } from '../../lib/scheduleUtils';
-import { useAppContext } from '../../contexts/AppContext';
+import { useAppContext } from '../../contexts/AppContext'; 
+import toast from 'react-hot-toast';
 
 interface DailyEntryModalProps {
   isOpen: boolean;
@@ -137,10 +138,10 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
   const handleAddShift = () => {
     // CRITICAL: Limit to maximum 2 shifts per day
     if (shiftItems.length >= 2) {
-      setValidationError(
-        i18n.language === 'fr'
-          ? 'Maximum 2 services par jour atteints pour cet employé.'
-          : 'Maximum 2 shifts per day reached for this employee.'
+      toast.error(
+        i18n.language === 'fr' 
+          ? 'Vous ne pouvez pas ajouter plus de 2 services par employé par jour.' 
+          : 'You cannot add more than 2 services per employee per day.'
       );
       return;
     }
