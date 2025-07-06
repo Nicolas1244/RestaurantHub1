@@ -8,7 +8,6 @@ import { fr } from 'date-fns/locale';
 import { useAppContext } from '../../contexts/AppContext';
 import TimeInput from './TimeInputComponents';
 import toast from 'react-hot-toast';
-import toast from 'react-hot-toast';
 
 interface ScheduleGridProps {
   shifts: Shift[];
