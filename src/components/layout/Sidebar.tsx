@@ -107,7 +107,7 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
               <div className="flex items-center">
                 <h1 className="text-xl font-semibold text-gray-800 flex items-center">
                   <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-                    <UtensilsCrossed size={20} className="text-white" />
+                    <UtensilsCrossed size={18} className="text-white" />
                   </div>
                   {t('common.appName')}
                 </h1>
