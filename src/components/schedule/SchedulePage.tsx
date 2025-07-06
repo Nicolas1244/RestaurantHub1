@@ -42,7 +42,7 @@ const SchedulePage: React.FC = () => {
   
   // CRITICAL: Labor law compliance panel state - default to collapsed (false)
   // Weather forecast is always shown by default
-  const [showCompliancePanel, setShowCompliancePanel] = useState(false);
+  const [showCompliancePanel, setShowCompliancePanel] = useState(true);
   
   // CRITICAL: State for manual save button
   const [isSaving, setIsSaving] = useState(false);

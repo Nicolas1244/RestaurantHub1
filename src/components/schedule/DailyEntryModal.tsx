@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Trash2, Clock, Calendar, Plus, AlertTriangle, Heart, Calendar as CalendarIcon } from 'lucide-react';
 import { Employee, Shift, DAYS_OF_WEEK, DAILY_STATUS, DailyStatus, POSITIONS } from '../../types';
 import { useTranslation } from 'react-i18next';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'; 
 import { calculateTimeInHours } from '../../lib/scheduleUtils';
 import { useAppContext } from '../../contexts/AppContext';
 
@@ -18,6 +18,40 @@ interface DailyEntryModalProps {
   onSaveAbsence: (absence: Omit<Shift, 'id'>) => void;
   restaurantId: string;
 }
+
+// Generate shift colors based on employee ID
+const generateShiftColor = (employeeId: string): string => {
+  const colors = [
+    '#3B82F6', // blue
+    '#8B5CF6', // purple
+    '#10B981', // green
+    '#F59E0B', // amber
+    '#EF4444', // red
+    '#EC4899', // pink
+    '#06B6D4', // cyan
+    '#6366F1'  // indigo
+  ];
+  
+  // Simple hash function to get consistent color for same employee
+  let hash = 0;
+  for (let i = 0; i < employeeId.length; i++) {
+    hash = employeeId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  return colors[Math.abs(hash) % colors.length];
+};
+
+// Get text color based on background color brightness
+const getTextColor = (bgColor: string): string => {
+  // For hex colors
+  const hex = bgColor.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  
+  return brightness > 128 ? 'text-gray-900' : 'text-white';
+};
 
 const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
   isOpen,
@@ -438,8 +472,23 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
                 {/* Employee and Day Information */}
                 <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
                   <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium text-blue-800">
-                      {employee.firstName} {employee.lastName}
+                    <div className="flex items-center">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3`} 
+                           style={{ backgroundColor: generateShiftColor(employee.id) }}>
+                        <span className={`font-bold ${getTextColor(generateShiftColor(employee.id))}`}>
+                          {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-blue-800">
+                          {employee.firstName} {employee.lastName}
+                        </div>
+                        <div className="text-xs text-blue-600">
+                          {POSITIONS.includes(employee.position) 
+                            ? t(`positions.${employee.position.toLowerCase().replace(/[^a-z]/g, '')}`)
+                            : employee.position}
+                        </div>
+                      </div>
                     </div>
                     <div className="flex items-center text-sm text-blue-600">
                       <Calendar size={16} className="mr-1" />
@@ -535,11 +584,22 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
                       </div>
 
                       {shiftItems.map((shiftItem, index) => (
-                        <div key={shiftItem.id} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                        <div 
+                          key={shiftItem.id} 
+                          className="border rounded-lg p-3 shadow-sm"
+                          style={{ 
+                            backgroundColor: `${generateShiftColor(employee.id)}15`,
+                            borderColor: `${generateShiftColor(employee.id)}40`
+                          }}
+                        >
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center">
-                              <Clock size={16} className="text-gray-500 mr-2" />
-                              <span className="text-sm font-medium text-gray-700">
+                              <Clock 
+                                size={16} 
+                                style={{ color: generateShiftColor(employee.id) }} 
+                                className="mr-2" 
+                              />
+                              <span className="text-sm font-medium" style={{ color: generateShiftColor(employee.id) }}>
                                 {i18n.language === 'fr' ? `Service ${index + 1}` : `Shift ${index + 1}`}
                               </span>
                             </div>
@@ -588,23 +648,23 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
 
                       {/* Day Summary */}
                       {shiftItems.length > 0 && (
-                        <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                          <h5 className="text-sm font-medium text-gray-700 mb-2">
+                        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                          <h5 className="text-sm font-medium text-blue-700 mb-2">
                             {i18n.language === 'fr' ? 'Résumé du jour' : 'Day Summary'}
                           </h5>
                           <div className="grid grid-cols-2 gap-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">
+                              <span className="text-blue-600">
                                 {i18n.language === 'fr' ? 'Heures travaillées' : 'Working hours'}:
                               </span>
-                              <span className="font-medium text-gray-800">{workingHours}h</span>
+                              <span className="font-medium text-blue-800">{workingHours}h</span>
                             </div>
                             {shiftItems.length > 1 && (
                               <div className="flex justify-between">
-                                <span className="text-gray-600">
+                                <span className="text-blue-600">
                                   {i18n.language === 'fr' ? 'Heures de coupure' : 'Break hours'}:
                                 </span>
-                                <span className="font-medium text-orange-600">{breakHours}h</span>
+                                <span className="font-medium text-orange-600 bg-orange-100 px-2 rounded-full">{breakHours}h</span>
                               </div>
                             )}
                           </div>

@@ -27,7 +27,7 @@ const DroppableDay: React.FC<DroppableDayProps> = ({
   return (
     <div
       ref={setNodeRef}
-      className="p-2 border-r min-h-[120px] relative group hover:bg-gray-50"
+      className="p-2 border-r min-h-[120px] relative group hover:bg-gray-50 transition-colors"
     >
       {shifts.map(shift => {
         const employee = getEmployee(shift.employeeId);

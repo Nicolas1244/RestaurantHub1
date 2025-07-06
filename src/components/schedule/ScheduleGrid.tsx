@@ -3,7 +3,7 @@ import { DAYS_OF_WEEK, Shift, Employee, DAILY_STATUS, DailyStatus, POSITIONS } f
 import { Clock, Plus, Scissors, AlertTriangle, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { calculateEmployeeWeeklySummary, formatHoursDiff, formatHours } from '../../lib/scheduleUtils';
-import { format, addDays, parseISO, differenceInYears } from 'date-fns';
+import { format, addDays, parseISO, differenceInYears, getDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAppContext } from '../../contexts/AppContext';
 import TimeInput from './TimeInputComponents';
@@ -18,6 +18,73 @@ interface ScheduleGridProps {
   weekStartDate: Date;
   onOpenShiftModal: (employeeId: string, day: number) => void;
 }
+
+// Generate avatar colors based on employee name
+const generateAvatarColor = (name: string): string => {
+  const colors = [
+    'bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-yellow-500', 
+    'bg-red-500', 'bg-indigo-500', 'bg-pink-500', 'bg-teal-500'
+  ];
+  
+  // Simple hash function to get consistent color for same name
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  return colors[Math.abs(hash) % colors.length];
+};
+
+// Generate shift colors based on employee ID
+const generateShiftColor = (employeeId: string): string => {
+  const colors = [
+    '#3B82F6', // blue
+    '#8B5CF6', // purple
+    '#10B981', // green
+    '#F59E0B', // amber
+    '#EF4444', // red
+    '#EC4899', // pink
+    '#06B6D4', // cyan
+    '#6366F1'  // indigo
+  ];
+  
+  // Simple hash function to get consistent color for same employee
+  let hash = 0;
+  for (let i = 0; i < employeeId.length; i++) {
+    hash = employeeId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  return colors[Math.abs(hash) % colors.length];
+};
+
+// Get text color based on background color brightness
+const getTextColor = (bgColor: string): string => {
+  // For predefined Tailwind classes
+  if (bgColor.startsWith('bg-')) {
+    if (bgColor.includes('blue-') || bgColor.includes('purple-') || 
+        bgColor.includes('green-') || bgColor.includes('red-') || 
+        bgColor.includes('indigo-') || bgColor.includes('pink-') || 
+        bgColor.includes('teal-')) {
+      return 'text-white';
+    }
+    return 'text-gray-900';
+  }
+  
+  // For hex colors
+  const hex = bgColor.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  
+  return brightness > 128 ? 'text-gray-900' : 'text-white';
+};
+
+// Get day background color based on day of week
+const getDayBackgroundColor = (day: number): string => {
+  // Weekend days (Saturday and Sunday) get a light gray background
+  return day === 5 || day === 6 ? 'bg-gray-50' : '';
+};
 
 // CRITICAL: Generate time options from 09:00 to 02:00 in 15-minute increments
 const generateTimeOptions = () => {
@@ -630,7 +697,14 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
               <div key={employee.id} className={`${gridClasses.gridCols} border-t hover:bg-gray-50 transition-colors`}>
                 <div className={gridClasses.employeeCell}>
                   <div className={gridClasses.employeeName}>
-                    {employee.firstName} {employee.lastName}
+                    <div className="flex items-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${generateAvatarColor(`${employee.firstName} ${employee.lastName}`)}`}>
+                        <span className="text-white font-medium">
+                          {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
+                        </span>
+                      </div>
+                      <span>{employee.firstName} {employee.lastName}</span>
+                    </div>
                   </div>
                   <div className={gridClasses.employeePosition}>
                     {/* CRITICAL FIX: Check if position is in predefined list before translating */}
@@ -668,6 +742,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                 {DAYS_OF_WEEK.map((_, dayIndex) => {
                   const dayShifts = getShiftsForEmployeeDay(employee.id, dayIndex);
                   const dayStatus = dayShifts.length > 0 ? dayShifts[0].status : undefined;
+                  const dayBgColor = getDayBackgroundColor(dayIndex);
                   
                   const isEmployeeActiveToday = isEmployeeActiveOnDay(employee, dayIndex);
                   const isTimeInputDisabled = shouldDisableTimeInputs(dayStatus);
@@ -700,7 +775,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                   return (
                     <div 
                       key={dayIndex} 
-                      className={`${gridClasses.dayCell} ${!isEmployeeActiveToday ? 'bg-gray-100' : ''} relative`}
+                      className={`${gridClasses.dayCell} ${!isEmployeeActiveToday ? 'bg-gray-100' : dayBgColor} relative`}
                       onClick={() => {
                         if (isEmployeeActiveToday) {
                           onOpenShiftModal(employee.id, dayIndex);
@@ -719,10 +794,13 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                       {dayStatus ? (
                         <div className="flex flex-col items-center justify-center h-full">
                           <div className="px-2 py-1 rounded-md text-center text-xs font-medium"
-                            style={{ 
-                              backgroundColor: `${DAILY_STATUS[dayStatus].color}20`,
+                            style={{
+                              backgroundColor: `${DAILY_STATUS[dayStatus].color}30`,
                               color: DAILY_STATUS[dayStatus].color,
-                              border: `1px solid ${DAILY_STATUS[dayStatus].color}40`
+                              border: `1px solid ${DAILY_STATUS[dayStatus].color}50`,
+                              padding: '6px 10px',
+                              borderRadius: '6px',
+                              fontWeight: 'bold'
                             }}
                           >
                             {DAILY_STATUS[dayStatus].label}
@@ -733,31 +811,61 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                           {/* CRITICAL: If there are multiple shifts or coupures, show them */}
                           {Object.entries(shiftGroups).map(([groupId, groupShifts]) => (
                             <div key={groupId} className="mb-2">
-                              {/* CRITICAL: Show each shift in the group */}
-                              {groupShifts.map((shift, shiftIndex) => (
-                                <div 
-                                  key={shift.id} 
-                                  className={`${gridClasses.timeInputContainer} ${
-                                    shift.type === 'morning' ? 'bg-blue-100' : 'bg-purple-100'
-                                  } hover:bg-opacity-80 transition-colors`}
-                                >
-                                  <div className="flex justify-between items-center">
-                                    <div className="text-xs font-medium">
-                                      {shift.start} - {shift.end}
-                                    </div>
-                                    {shiftIndex < groupShifts.length - 1 && (
-                                      <Scissors size={12} className="text-orange-500" />
-                                    )}
+                              {/* Enhanced shift display with employee-specific colors */}
+                              <div 
+                                className="relative rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 transform hover:scale-105 cursor-pointer"
+                                style={{ 
+                                  backgroundColor: generateShiftColor(employee.id),
+                                  marginBottom: '8px'
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onOpenShiftModal(employee.id, dayIndex);
+                                }}
+                              >
+                                {/* Shift content */}
+                                <div className="p-2">
+                                  {/* Time range */}
+                                  <div className={`text-sm font-bold ${getTextColor(generateShiftColor(employee.id))}`}>
+                                    {groupShifts[0].start} - {groupShifts[groupShifts.length - 1].end}
+                                  </div>
+                                  
+                                  {/* Position */}
+                                  <div className={`text-xs ${getTextColor(generateShiftColor(employee.id))} opacity-90`}>
+                                    {POSITIONS.includes(employee.position) 
+                                      ? t(`positions.${employee.position.toLowerCase().replace(/[^a-z]/g, '')}`)
+                                      : employee.position}
+                                  </div>
+                                  
+                                  {/* Hours calculation */}
+                                  <div className={`text-xs ${getTextColor(generateShiftColor(employee.id))} mt-1 font-medium`}>
+                                    {(() => {
+                                      // Calculate total hours for this shift group
+                                      let totalHours = 0;
+                                      groupShifts.forEach(s => {
+                                        const [startHour, startMin] = s.start.split(':').map(Number);
+                                        const [endHour, endMin] = s.end.split(':').map(Number);
+                                        let hours = endHour - startHour;
+                                        let minutes = endMin - startMin;
+                                        if (hours < 0) hours += 24;
+                                        if (minutes < 0) {
+                                          hours -= 1;
+                                          minutes += 60;
+                                        }
+                                        totalHours += hours + minutes / 60;
+                                      });
+                                      return `${totalHours.toFixed(1)}h`;
+                                    })()}
                                   </div>
                                 </div>
-                              ))}
-                              
-                              {/* CRITICAL: Show coupure indicator if there are multiple shifts */}
-                              {groupShifts.length > 1 && (
-                                <div className={`text-center text-orange-600 ${gridClasses.coupureIndicator}`}>
-                                  {i18n.language === 'fr' ? 'Coupure' : 'Split shift'}
+                                
+                                {/* Coupure indicator */}
+                                {groupShifts.length > 1 && (
+                                <div className="absolute top-0 right-0 bg-orange-500 text-white text-xs px-1 py-0.5 rounded-bl-md">
+                                  <Scissors size={10} />
                                 </div>
-                              )}
+                                )}
+                              </div>
                             </div>
                           ))}
                           
@@ -768,7 +876,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                                 e.stopPropagation();
                                 onOpenShiftModal(employee.id, dayIndex);
                               }}
-                              className={`w-full flex items-center justify-center text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded ${gridClasses.addShiftButton}`}
+                              className={`w-full flex items-center justify-center text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg border border-dashed border-blue-300 py-1.5 ${gridClasses.addShiftButton}`}
                             >
                               <Plus size={14} className="mr-1" />
                               <span className="text-xs">
@@ -782,12 +890,12 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                       {/* CRITICAL: Availability, preference, and position conflict indicators */}
                       <div className="absolute top-1 right-1 flex space-x-1">
                         {hasAvailabilityConflict && (
-                          <div className="text-red-500" title="Conflit de disponibilité">
+                          <div className="text-red-500 bg-red-100 p-0.5 rounded-full" title="Conflit de disponibilité">
                             <AlertTriangle size={gridClasses.conflictIcon} />
                           </div>
                         )}
                         {(hasPreferenceConflict || hasPositionConflict) && !hasAvailabilityConflict && (
-                          <div className="text-yellow-500" title="Ne correspond pas aux préférences">
+                          <div className="text-yellow-500 bg-yellow-100 p-0.5 rounded-full" title="Ne correspond pas aux préférences">
                             <Heart size={gridClasses.conflictIcon} />
                           </div>
                         )}
@@ -800,14 +908,14 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                 <div className={gridClasses.summaryCell}>
                   <div className="space-y-2">
                     <div>
-                      <div className={gridClasses.summaryTitle}>
+                      <div className={`${gridClasses.summaryTitle} flex items-center`}>
                         {t('schedule.totalWorkedHours')}
                         {/* CRITICAL: Show break payment indicator */}
                         <span className="text-green-600 text-xs ml-1">
                           (Avec pauses)
                         </span>
                       </div>
-                      <div className={gridClasses.summaryValue}>
+                      <div className={`${gridClasses.summaryValue} text-blue-600 font-bold`}>
                         {formatHours(totalWorkedHours)}
                       </div>
                       {totalAssimilatedHours > 0 && (
@@ -823,7 +931,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                     </div>
 
                     <div>
-                      <div className={gridClasses.summaryTitle}>
+                      <div className={`${gridClasses.summaryTitle} flex items-center`}>
                         {t('schedule.overtimeHours')}
                         {/* CRITICAL: Show pro-rated indicator if different from full contract */}
                         {Math.abs(proRatedContractHours - (employee.weeklyHours || 35)) > 0.1 && (
@@ -846,10 +954,10 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                     </div>
 
                     <div>
-                      <div className={gridClasses.summaryTitle}>
+                      <div className={`${gridClasses.summaryTitle} flex items-center`}>
                         {t('schedule.numberOfShifts')}
                       </div>
-                      <div className={gridClasses.summaryValue}>
+                      <div className={`${gridClasses.summaryValue} text-gray-700`}>
                         {shiftCount}
                       </div>
                     </div>
