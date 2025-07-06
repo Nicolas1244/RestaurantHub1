@@ -82,7 +82,8 @@ export default {
         autoSave: 'Auto-Save',
         weekStart: 'Week Starts On',
         payBreakTimes: 'Pay Break Times',
-        payBreakTimesDescription: 'Include break times in worked hours calculations'
+        payBreakTimesDescription: 'Include break times in worked hours calculations',
+        default: 'Default'
       },
       display: {
         title: 'Display Settings',
@@ -117,7 +118,7 @@ export default {
       },
       breakPayment: {
         title: 'Break Time Management',
-        description: 'The "Pay Break Times" setting determines whether breaks are included in worked hours calculations. Enabled by default according to common restaurant industry practices where the employee remains available.'
+        description: 'The "Pay Break Times" setting determines whether breaks are included in worked hours calculations. This setting is enabled by default and cannot be changed to ensure compliance with common restaurant industry practices where the employee remains available.'
       },
       weatherIntegration: {
         title: 'Integrated Weather Forecast',

@@ -166,7 +166,8 @@ export const calculateEmployeeWeeklySummary = (
         let hours = calculateTimeInHours(shift.start, shift.end);
         
         // CRITICAL: Apply break payment setting
-        if (!payBreakTimes) { // If breaks are NOT paid
+        // CRITICAL: Force payBreakTimes to always be true
+        if (false) { // Never subtract break time - breaks are always paid
           // If breaks are unpaid, we need to subtract break time
           // For now, we'll use a simplified approach: subtract 30 minutes for shifts > 6 hours
           // In a production system, you might want more sophisticated break calculation

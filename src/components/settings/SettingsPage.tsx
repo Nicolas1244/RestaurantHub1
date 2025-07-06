@@ -213,20 +213,26 @@ const SettingsPage: React.FC = () => {
                 <div className="flex items-center">
                   <input
                     type="checkbox"
-                    id="payBreakTimes"
-                    checked={localSettings.payBreakTimes}
-                    onChange={(e) => handleSettingChange('payBreakTimes', e.target.checked)}
+                    id="payBreakTimes" 
+                    checked={true} // CRITICAL: Force checked state
+                    disabled={true} // CRITICAL: Disable the checkbox
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="payBreakTimes" className="ml-2 block text-sm text-gray-700">
                     {t('settings.schedule.payBreakTimes')}
+                    <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                      {t('settings.schedule.default')}
+                    </span>
                   </label>
                 </div>
               </div>
 
               <div className="pl-8 mt-2 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                <p className="text-sm text-blue-700">
+                <p className="text-sm text-blue-700 font-medium">
                   {t('settings.breakPayment.description')}
+                </p>
+                <p className="text-sm text-blue-700 mt-2">
+                  Ce paramètre est activé par défaut et ne peut pas être modifié pour garantir la conformité avec les pratiques courantes de l'industrie.
                 </p>
               </div>
             </div>

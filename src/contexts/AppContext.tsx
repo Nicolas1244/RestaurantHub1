@@ -60,7 +60,7 @@ export const defaultUserSettings: UserSettings = {
   weatherAutoLocation: true,
   weatherLocation: undefined,
   // CRITICAL: NEW - Break payment setting enabled by default
-  payBreakTimes: true, // Default to paid breaks (current behavior)
+  payBreakTimes: true, // CRITICAL: Always default to paid breaks
   // CRITICAL: NEW - Time clock functionality disabled by default
   timeClockEnabled: false,
   // Integration settings
@@ -87,6 +87,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // CRITICAL: Load user settings from localStorage with break payment default
   useEffect(() => {
     try {
+      console.log('🔄 Loading user settings from localStorage...');
       const savedSettings = localStorage.getItem('userSettings');
       if (savedSettings) {
         const parsedSettings = JSON.parse(savedSettings);
@@ -100,16 +101,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           weatherEnabled: parsedSettings.weatherEnabled !== undefined ? parsedSettings.weatherEnabled : true,
           weatherAutoLocation: parsedSettings.weatherAutoLocation !== undefined ? parsedSettings.weatherAutoLocation : true,
           // CRITICAL: Ensure break payment setting has proper default
-          payBreakTimes: parsedSettings.payBreakTimes !== undefined ? parsedSettings.payBreakTimes : true,
+          payBreakTimes: true, // CRITICAL: Force paid breaks to be true regardless of saved setting
           // CRITICAL: Ensure time clock setting has proper default (disabled)
           timeClockEnabled: parsedSettings.timeClockEnabled !== undefined ? parsedSettings.timeClockEnabled : false
         };
+        console.log('✅ Settings loaded with payBreakTimes:', mergedSettings.payBreakTimes);
         setSettings(mergedSettings);
       }
     } catch (error) {
       console.error('Error loading user settings:', error);
       // CRITICAL: Fallback to default settings with all new features enabled
-      setSettings(defaultUserSettings);
+      const defaultSettings = {...defaultUserSettings, payBreakTimes: true};
+      setSettings(defaultSettings);
+      console.log('⚠️ Using default settings with payBreakTimes:', defaultSettings.payBreakTimes);
     }
   }, []);
 
@@ -277,6 +281,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const updateSettings = async (newSettings: Partial<UserSettings>) => {
     try {
       console.log('Updating settings:', newSettings);
+      
+      // CRITICAL: Force payBreakTimes to be true regardless of user input
+      if (newSettings.payBreakTimes === false) {
+        console.log('⚠️ Overriding payBreakTimes to true (forced default)');
+        newSettings.payBreakTimes = true;
+      }
+      
       const updatedSettings = { ...settings, ...newSettings };
       setSettings(updatedSettings);
       
@@ -298,10 +309,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         toast.success(`Localisation météo mise à jour : ${newSettings.weatherLocation}`);
       } else if (newSettings.payBreakTimes !== undefined) {
         // CRITICAL: Specific feedback for break payment setting
-        toast.success(newSettings.payBreakTimes 
-          ? 'Temps de pause désormais rémunérés dans les calculs' 
-          : 'Temps de pause désormais exclus des calculs de rémunération'
-        );
+        // CRITICAL: Since we're forcing paid breaks, only show the positive message
+        toast.success('Temps de pause rémunérés dans les calculs (paramètre par défaut)');
         
         // CRITICAL: Force a refresh of the schedule to update calculations
         const currentSchedules = [...schedules];

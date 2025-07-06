@@ -653,15 +653,9 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                     {employee.endDate && ` - ${format(parseISO(employee.endDate), 'dd/MM')}`}
                   </div>
                   {/* CRITICAL: Show break payment indicator */}
-                  {userSettings?.payBreakTimes ? (
-                    <div className="text-xs text-green-600 mt-1">
-                      💰 Pauses rémunérées
-                    </div>
-                  ) : (
-                    <div className="text-xs text-orange-600 mt-1">
-                      💰 Pauses non rémunérées
-                    </div>
-                  )}
+                  <div className="text-xs text-green-600 mt-1">
+                    💰 Pauses rémunérées
+                  </div>
                   {/* CRITICAL: Show preferences indicator */}
                   {hasPreferences && (
                     <div className="text-xs text-purple-600 mt-1 flex items-center">
@@ -809,15 +803,9 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                       <div className={gridClasses.summaryTitle}>
                         {t('schedule.totalWorkedHours')}
                         {/* CRITICAL: Show break payment indicator */}
-                        {userSettings?.payBreakTimes ? (
-                          <span className="text-green-600 text-xs ml-1">
-                            (Avec pauses)
-                          </span>
-                        ) : (
-                          <span className="text-orange-600 text-xs ml-1">
-                            (Sans pauses)
-                          </span>
-                        )}
+                        <span className="text-green-600 text-xs ml-1">
+                          (Avec pauses)
+                        </span>
                       </div>
                       <div className={gridClasses.summaryValue}>
                         {formatHours(totalWorkedHours)}

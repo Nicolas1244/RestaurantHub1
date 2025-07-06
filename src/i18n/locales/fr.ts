@@ -82,7 +82,8 @@ export default {
         autoSave: 'Sauvegarde Automatique',
         weekStart: 'Début de la Semaine',
         payBreakTimes: 'Rémunérer les Temps de Pause',
-        payBreakTimesDescription: 'Inclure les temps de pause dans le calcul des heures travaillées'
+        payBreakTimesDescription: 'Inclure les temps de pause dans le calcul des heures travaillées',
+        default: 'Par défaut'
       },
       display: {
         title: 'Paramètres d\'Affichage',
@@ -117,7 +118,7 @@ export default {
       },
       breakPayment: {
         title: 'Gestion des Temps de Pause',
-        description: 'Le paramètre "Rémunérer les temps de pause" détermine si les pauses sont incluses dans les calculs d\'heures travaillées. Activé par défaut selon les pratiques courantes de l\'industrie de la restauration où l\'employé reste à disposition.'
+        description: 'Le paramètre "Rémunérer les temps de pause" détermine si les pauses sont incluses dans les calculs d\'heures travaillées. Ce paramètre est activé par défaut et ne peut pas être modifié pour garantir la conformité avec les pratiques courantes de l\'industrie de la restauration où l\'employé reste à disposition.'
       },
       weatherIntegration: {
         title: 'Prévisions Météo Intégrées',
