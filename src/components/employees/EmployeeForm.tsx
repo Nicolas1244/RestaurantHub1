@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mail, Calendar, MapPin, Globe, User, DollarSign, Briefcase, Clock, Heart, Calendar as CalendarIcon } from 'lucide-react';
+import { X, Mail, Calendar, MapPin, Globe, User, DollarSign, Briefcase, Clock, Heart, Calendar as CalendarIcon, Repeat } from 'lucide-react';
 import { Employee, POSITIONS, EMPLOYEE_CATEGORIES, EmployeeCategory, EMPLOYEE_STATUS, EmployeeStatus, formatFrenchPhoneNumber, formatSocialSecurityNumber } from '../../types';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
