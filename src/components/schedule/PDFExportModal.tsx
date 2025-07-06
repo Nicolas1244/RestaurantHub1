@@ -4,6 +4,7 @@ import { pdf } from '@react-pdf/renderer';
 import SchedulePDF from './SchedulePDF';
 import { Employee, Shift, Restaurant } from '../../types';
 import { useTranslation } from 'react-i18next';
+import { useAppContext } from '../../contexts/AppContext';
 import { getWeek } from 'date-fns';
 import toast from 'react-hot-toast';
 
