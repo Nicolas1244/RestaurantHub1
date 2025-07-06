@@ -36,17 +36,6 @@ export default {
     },
     settings: {
       title: 'Settings',
-      description: 'Manage your application preferences and settings',
-      tabs: {
-        general: 'General',
-        notifications: 'Notifications',
-        security: 'Security',
-        localization: 'Language & Region',
-        schedule: 'Schedule Settings',
-        display: 'Display',
-        integration: 'Integrations',
-        timeclock: 'Time Clock'
-      },
       general: {
         title: 'General Settings',
         timezone: 'Time Zone',
@@ -58,7 +47,9 @@ export default {
         emailNotifications: 'Email Notifications',
         emailDescription: 'Receive schedule updates and alerts via email',
         pushNotifications: 'Push Notifications',
-        pushDescription: 'Receive real-time notifications in your browser'
+        pushDescription: 'Receive real-time notifications in your browser',
+        contractExpiryAlerts: 'Contract Expiry Alerts',
+        scheduleChangeAlerts: 'Schedule Change Alerts'
       },
       security: {
         title: 'Security Settings',
@@ -77,7 +68,7 @@ export default {
       },
       schedule: {
         title: 'Schedule Settings',
-        timeInputType: 'Time Input Method',
+        timeInputType: 'Time Input Type',
         timeInputTypes: {
           dropdown: 'Dropdown Selection',
           timePicker: 'Visual Time Picker',
@@ -89,11 +80,9 @@ export default {
           classic: 'Classic Layout'
         },
         autoSave: 'Auto-Save',
-        autoSaveDescription: 'Automatically save schedule changes',
         weekStart: 'Week Starts On',
         payBreakTimes: 'Pay Break Times',
-        payBreakTimesDescription: 'Include break times in worked hours calculations',
-        default: 'Default'
+        payBreakTimesDescription: 'Include break times in worked hours calculations'
       },
       display: {
         title: 'Display Settings',
@@ -134,14 +123,14 @@ export default {
         title: 'Integrated Weather Forecast',
         description: 'Weather forecasts automatically display above the weekly schedule, with automatic location detection based on restaurant address. Covers up to 15 days of forecasts with temperatures, weather conditions, and wind speed.'
       },
-      unsavedChanges: 'You have unsaved changes',
-      save: 'Save',
-      saving: 'Saving...',
-      reset: 'Reset',
       saveSuccess: 'Settings saved successfully',
       saveError: 'Failed to save settings',
       resetSuccess: 'Settings reset successfully'
     },
+    contractExpiryAlerts: 'Contract Expiry Alerts',
+    scheduleChangeAlerts: 'Schedule Change Alerts',
+    calendarSync: 'Calendar Synchronization',
+    backupEnabled: 'Automatic Backups',
     dashboard: {
       scheduleMetrics: 'Schedule Metrics',
       plannedHours: 'Planned Hours',

@@ -36,17 +36,6 @@ export default {
     },
     settings: {
       title: 'Paramètres',
-      description: 'Gérez vos préférences et paramètres de l\'application',
-      tabs: {
-        general: 'Général',
-        notifications: 'Notifications',
-        security: 'Sécurité',
-        localization: 'Langue et Région',
-        schedule: 'Paramètres du Planning',
-        display: 'Affichage',
-        integration: 'Intégrations',
-        timeclock: 'Badgeuse'
-      },
       general: {
         title: 'Paramètres Généraux',
         timezone: 'Fuseau Horaire',
@@ -58,7 +47,9 @@ export default {
         emailNotifications: 'Notifications par Email',
         emailDescription: 'Recevez les mises à jour du planning et les alertes par email',
         pushNotifications: 'Notifications Push',
-        pushDescription: 'Recevez des notifications en temps réel dans votre navigateur'
+        pushDescription: 'Recevez des notifications en temps réel dans votre navigateur',
+        contractExpiryAlerts: 'Alertes de Fin de Contrat',
+        scheduleChangeAlerts: 'Alertes de Modification du Planning'
       },
       security: {
         title: 'Paramètres de Sécurité',
@@ -89,11 +80,9 @@ export default {
           classic: 'Mise en Page Classique'
         },
         autoSave: 'Sauvegarde Automatique',
-        autoSaveDescription: 'Enregistrer automatiquement les modifications du planning',
         weekStart: 'Début de la Semaine',
         payBreakTimes: 'Rémunérer les Temps de Pause',
-        payBreakTimesDescription: 'Inclure les temps de pause dans le calcul des heures travaillées',
-        default: 'Par défaut'
+        payBreakTimesDescription: 'Inclure les temps de pause dans le calcul des heures travaillées'
       },
       display: {
         title: 'Paramètres d\'Affichage',
@@ -134,14 +123,14 @@ export default {
         title: 'Prévisions Météo Intégrées',
         description: 'Les prévisions météo s\'affichent automatiquement au-dessus du planning hebdomadaire, avec détection automatique de la localisation basée sur l\'adresse du restaurant. Couvre jusqu\'à 15 jours de prévisions avec températures, conditions météo et vitesse du vent.'
       },
-      unsavedChanges: 'Vous avez des modifications non enregistrées',
-      save: 'Sauvegarder',
-      saving: 'Sauvegarde en cours...',
-      reset: 'Réinitialiser',
       saveSuccess: 'Paramètres sauvegardés avec succès',
       saveError: 'Erreur lors de la sauvegarde des paramètres',
       resetSuccess: 'Paramètres réinitialisés'
     },
+    contractExpiryAlerts: 'Alertes de Fin de Contrat',
+    scheduleChangeAlerts: 'Alertes de Modification du Planning',
+    calendarSync: 'Synchronisation Calendrier',
+    backupEnabled: 'Sauvegardes Automatiques',
     dashboard: {
       scheduleMetrics: 'Métriques du Planning',
       plannedHours: 'Heures Planifiées',

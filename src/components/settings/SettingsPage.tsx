@@ -25,8 +25,9 @@ const SettingsPage: React.FC = () => {
     try {
       await updateSettings(localSettings);
       setHasChanges(false);
-      toast.success(t('settings.saved'));
+      toast.success(t('settings.saveSuccess'));
     } catch (error) {
+      console.error('Failed to save settings:', error);
       toast.error(t('settings.saveError'));
     }
   };
@@ -34,7 +35,7 @@ const SettingsPage: React.FC = () => {
   const handleReset = () => {
     setLocalSettings(settings);
     setHasChanges(false);
-    toast.success(t('settings.reset'));
+    toast.success(t('settings.resetSuccess'));
   };
 
   return (
@@ -144,22 +145,22 @@ const SettingsPage: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center space-x-3">
                 <Clock className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">{t('settings.schedule')}</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('settings.schedule.title')}</h2>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-8">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('settings.timeInputType')}
+                    {t('settings.schedule.timeInputType')}
                   </label>
                   <select
                     value={localSettings.timeInputType}
                     onChange={(e) => handleSettingChange('timeInputType', e.target.value as TimeInputType)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    {Object.keys(TIME_INPUT_TYPES).map(type => (
+                    {Object.entries(TIME_INPUT_TYPES).map(([type, config]) => (
                       <option key={type} value={type}>
-                        {t(`settings.timeInput.${type}`)}
+                        {t(`settings.schedule.timeInputTypes.${type}`)}
                       </option>
                     ))}
                   </select>
@@ -167,16 +168,16 @@ const SettingsPage: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('settings.scheduleLayout')}
+                    {t('settings.schedule.layoutType')}
                   </label>
                   <select
-                    value={localSettings.scheduleLayout}
-                    onChange={(e) => handleSettingChange('scheduleLayout', e.target.value as ScheduleLayoutType)}
+                    value={localSettings.scheduleLayoutType}
+                    onChange={(e) => handleSettingChange('scheduleLayoutType', e.target.value as ScheduleLayoutType)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    {Object.keys(SCHEDULE_LAYOUT_TYPES).map(layout => (
+                    {Object.entries(SCHEDULE_LAYOUT_TYPES).map(([layout, config]) => (
                       <option key={layout} value={layout}>
-                        {t(`settings.layout.${layout}`)}
+                        {t(`settings.schedule.layoutTypes.${layout}`)}
                       </option>
                     ))}
                   </select>
@@ -184,7 +185,7 @@ const SettingsPage: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('settings.weekStartsOn')}
+                    {t('settings.schedule.weekStart')}
                   </label>
                   <select
                     value={localSettings.weekStartsOn}
@@ -205,9 +206,28 @@ const SettingsPage: React.FC = () => {
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="autoSave" className="ml-2 block text-sm text-gray-700">
-                    {t('settings.autoSave')}
+                    {t('settings.schedule.autoSave')}
                   </label>
                 </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="payBreakTimes"
+                    checked={localSettings.payBreakTimes}
+                    onChange={(e) => handleSettingChange('payBreakTimes', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="payBreakTimes" className="ml-2 block text-sm text-gray-700">
+                    {t('settings.schedule.payBreakTimes')}
+                  </label>
+                </div>
+              </div>
+
+              <div className="pl-8 mt-2 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <p className="text-sm text-blue-700">
+                  {t('settings.breakPayment.description')}
+                </p>
               </div>
             </div>
 
@@ -215,7 +235,7 @@ const SettingsPage: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center space-x-3">
                 <Bell className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">{t('settings.notifications')}</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('settings.notifications.title')}</h2>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-8">
@@ -228,7 +248,7 @@ const SettingsPage: React.FC = () => {
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="emailNotifications" className="ml-2 block text-sm text-gray-700">
-                    {t('settings.emailNotifications')}
+                    {t('settings.notifications.emailNotifications')}
                   </label>
                 </div>
 
@@ -241,7 +261,7 @@ const SettingsPage: React.FC = () => {
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="pushNotifications" className="ml-2 block text-sm text-gray-700">
-                    {t('settings.pushNotifications')}
+                    {t('settings.notifications.pushNotifications')}
                   </label>
                 </div>
 
@@ -277,22 +297,22 @@ const SettingsPage: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center space-x-3">
                 <Layout className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">{t('settings.display')}</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('settings.display.title')}</h2>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-8">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('settings.theme')}
+                    {t('settings.display.theme')}
                   </label>
                   <select
                     value={localSettings.theme}
                     onChange={(e) => handleSettingChange('theme', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="light">{t('settings.themes.light')}</option>
-                    <option value="dark">{t('settings.themes.dark')}</option>
-                    <option value="auto">{t('settings.themes.auto')}</option>
+                    <option value="light">{t('settings.display.themes.light')}</option>
+                    <option value="dark">{t('settings.display.themes.dark')}</option>
+                    <option value="auto">{t('settings.display.themes.auto')}</option>
                   </select>
                 </div>
 
@@ -305,7 +325,7 @@ const SettingsPage: React.FC = () => {
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="compactView" className="ml-2 block text-sm text-gray-700">
-                    {t('settings.compactView')}
+                    {t('settings.display.compactMode')}
                   </label>
                 </div>
               </div>
@@ -315,23 +335,23 @@ const SettingsPage: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center space-x-3">
                 <Shield className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">{t('settings.security')}</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('settings.security.title')}</h2>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-8">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('settings.sessionTimeout')}
+                    {t('settings.security.sessionTimeout')}
                   </label>
                   <select
                     value={localSettings.sessionTimeout}
                     onChange={(e) => handleSettingChange('sessionTimeout', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value={30}>30 {t('common.minutes')}</option>
-                    <option value={60}>1 {t('common.hour')}</option>
-                    <option value={120}>2 {t('common.hours')}</option>
-                    <option value={480}>8 {t('common.hours')}</option>
+                    <option value={30}>30 {t('settings.security.minutes')}</option>
+                    <option value={60}>1 {t('settings.security.hour')}</option>
+                    <option value={120}>2 {t('settings.security.hours')}</option>
+                    <option value={480}>8 {t('settings.security.hours')}</option>
                   </select>
                 </div>
 
@@ -344,7 +364,7 @@ const SettingsPage: React.FC = () => {
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="twoFactorAuth" className="ml-2 block text-sm text-gray-700">
-                    {t('settings.twoFactorAuth')}
+                    {t('settings.security.twoFactor')}
                   </label>
                 </div>
               </div>
@@ -354,10 +374,57 @@ const SettingsPage: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center space-x-3">
                 <Cloud className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">{t('settings.integrations')}</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('settings.integration.title')}</h2>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-8">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="weatherEnabled"
+                    checked={localSettings.weatherEnabled}
+                    onChange={(e) => handleSettingChange('weatherEnabled', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="weatherEnabled" className="ml-2 block text-sm text-gray-700">
+                    {t('settings.integration.weatherEnabled')}
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="weatherAutoLocation"
+                    checked={localSettings.weatherAutoLocation}
+                    onChange={(e) => handleSettingChange('weatherAutoLocation', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="weatherAutoLocation" className="ml-2 block text-sm text-gray-700">
+                    {t('settings.integration.weatherAutoLocation')}
+                  </label>
+                </div>
+
+                {!localSettings.weatherAutoLocation && (
+                  <div>
+                    <label htmlFor="weatherLocation" className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('settings.integration.weatherLocation')}
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <MapPin size={16} className="text-gray-400" />
+                      </div>
+                      <input
+                        type="text"
+                        id="weatherLocation"
+                        value={localSettings.weatherLocation || ''}
+                        onChange={(e) => handleSettingChange('weatherLocation', e.target.value)}
+                        className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        placeholder={t('settings.integration.weatherLocationPlaceholder')}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center">
                   <input
                     type="checkbox"
@@ -367,20 +434,7 @@ const SettingsPage: React.FC = () => {
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="posIntegration" className="ml-2 block text-sm text-gray-700">
-                    {t('settings.posIntegration')}
-                  </label>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="weatherIntegration"
-                    checked={localSettings.weatherIntegration}
-                    onChange={(e) => handleSettingChange('weatherIntegration', e.target.checked)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="weatherIntegration" className="ml-2 block text-sm text-gray-700">
-                    {t('settings.weatherIntegration')}
+                    {t('settings.integration.posSync')}
                   </label>
                 </div>
 
@@ -409,6 +463,46 @@ const SettingsPage: React.FC = () => {
                     {t('settings.backupEnabled')}
                   </label>
                 </div>
+              </div>
+
+              <div className="pl-8 mt-2 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <p className="text-sm text-blue-700">
+                  {t('settings.weatherIntegration.description')}
+                </p>
+              </div>
+            </div>
+
+            {/* Time Clock Settings */}
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <Fingerprint className="h-5 w-5 text-gray-600" />
+                <h2 className="text-lg font-semibold text-gray-900">{t('settings.timeclock.title')}</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-8">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="timeClockEnabled"
+                    checked={localSettings.timeClockEnabled}
+                    onChange={(e) => handleSettingChange('timeClockEnabled', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="timeClockEnabled" className="ml-2 block text-sm text-gray-700">
+                    {t('settings.timeclock.enabled')}
+                  </label>
+                </div>
+              </div>
+
+              <div className="pl-8 mt-2 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <p className="text-sm text-blue-700">
+                  {t('settings.timeclock.enabledDescription')}
+                </p>
+                {localSettings.timeClockEnabled && (
+                  <p className="text-sm text-blue-700 mt-2">
+                    {t('settings.timeclock.accessInstructions')}
+                  </p>
+                )}
               </div>
             </div>
           </div>
