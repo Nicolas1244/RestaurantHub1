@@ -12,6 +12,7 @@ interface SchedulePDFProps {
   shifts: Shift[];
   weekStartDate: Date;
   viewType: 'all' | 'cuisine' | 'salle';
+  payBreakTimes?: boolean;
 }
 
 const styles = StyleSheet.create({
@@ -248,7 +249,8 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
   employees,
   shifts,
   weekStartDate,
-  viewType
+  viewType,
+  payBreakTimes = true
 }) => {
   const { t, i18n } = useTranslation();
 
@@ -440,7 +442,8 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
               employee.weeklyHours || 35,
               employee.startDate,  // CRITICAL: Pass employee contract dates
               employee.endDate,    // CRITICAL: Pass employee contract dates
-              weekStartDate        // CRITICAL: Pass week start date
+              weekStartDate,       // CRITICAL: Pass week start date
+              payBreakTimes        // CRITICAL: Pass break payment setting
             );
 
             // CRITICAL: Check if pro-rated hours differ from full contract

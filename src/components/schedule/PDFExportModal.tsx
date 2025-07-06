@@ -29,6 +29,7 @@ const PDFExportModal: React.FC<PDFExportModalProps> = ({
   currentViewType
 }) => {
   const { t, i18n } = useTranslation();
+  const { currentRestaurant, userSettings } = useAppContext();
   const [selectedView, setSelectedView] = useState<ExportViewType>(currentViewType);
   const [isGenerating, setIsGenerating] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -80,9 +81,11 @@ const PDFExportModal: React.FC<PDFExportModalProps> = ({
     try {
       const { filteredEmployees, filteredShifts } = getFilteredData(viewType);
       
-      console.log('🎯 Generating PDF with view:', viewType, {
+      console.log('🎯 Generating PDF with settings:', {
+        viewType,
         employees: filteredEmployees.length,
-        shifts: filteredShifts.length
+        shifts: filteredShifts.length,
+        payBreakTimes: userSettings?.payBreakTimes
       });
 
       const blob = await pdf(
@@ -91,7 +94,8 @@ const PDFExportModal: React.FC<PDFExportModalProps> = ({
           employees={filteredEmployees}
           shifts={filteredShifts}
           weekStartDate={weekStartDate}
-          viewType={viewType}
+          viewType={viewType} 
+          payBreakTimes={userSettings?.payBreakTimes}
         />
       ).toBlob();
 

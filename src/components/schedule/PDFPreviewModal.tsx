@@ -27,7 +27,8 @@ const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
   viewType
 }) => {
   const { t, i18n } = useTranslation();
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const { userSettings } = useAppContext();
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null); 
   const [loading, setLoading] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -101,7 +102,8 @@ const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
       console.log('🎯 Generating PDF with:', {
         viewType,
         employees: filteredEmployees.length,
-        shifts: filteredShifts.length
+        shifts: filteredShifts.length,
+        payBreakTimes: userSettings?.payBreakTimes
       });
 
       const blob = await pdf(
@@ -111,6 +113,7 @@ const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
           shifts={filteredShifts}
           weekStartDate={weekStartDate}
           viewType={viewType}
+          payBreakTimes={userSettings?.payBreakTimes}
         />
       ).toBlob();
 

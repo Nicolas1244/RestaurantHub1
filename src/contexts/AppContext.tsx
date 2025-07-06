@@ -113,6 +113,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, []);
 
+  // CRITICAL: Ensure settings are properly applied to the UI
+  useEffect(() => {
+    // Log current settings for debugging
+    console.log('Current settings loaded:', settings);
+  }, [settings]);
+
   // CRITICAL: Helper function to create initial schedule for a restaurant
   const createInitialSchedule = (restaurantId: string): Schedule => {
     const currentDate = new Date();
@@ -270,6 +276,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // CRITICAL: Enhanced user settings management with break payment setting
   const updateSettings = async (newSettings: Partial<UserSettings>) => {
     try {
+      console.log('Updating settings:', newSettings);
       const updatedSettings = { ...settings, ...newSettings };
       setSettings(updatedSettings);
       
@@ -292,9 +299,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       } else if (newSettings.payBreakTimes !== undefined) {
         // CRITICAL: Specific feedback for break payment setting
         toast.success(newSettings.payBreakTimes 
-          ? 'Temps de pause maintenant rémunérés dans les calculs' 
-          : 'Temps de pause exclus des calculs de rémunération'
+          ? 'Temps de pause désormais rémunérés dans les calculs' 
+          : 'Temps de pause désormais exclus des calculs de rémunération'
         );
+        
+        // CRITICAL: Force a refresh of the schedule to update calculations
+        const currentSchedules = [...schedules];
+        setSchedules(currentSchedules);
+        
+        // Update last save timestamp to trigger UI refresh
+        setLastScheduleSave(new Date());
       } else if (newSettings.timeClockEnabled !== undefined) {
         // CRITICAL: Specific feedback for time clock setting
         toast.success(newSettings.timeClockEnabled 
