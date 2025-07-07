@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { UtensilsCrossed } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import LoginForm from './LoginForm';
-import RegisterForm from './RegisterForm';
+import RegisterForm from './RegisterForm'; 
 import { useAuth } from '../../contexts/AuthContext'; 
 import { Navigate, useNavigate } from 'react-router-dom';
 
@@ -13,7 +13,7 @@ const AuthPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   // Handle successful login
-  const handleLoginSuccess = () => {
+  const handleAuthSuccess = () => {
     navigate('/');
   };
 
@@ -40,10 +40,10 @@ const AuthPage: React.FC = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {isLogin ? (
-            <LoginForm onRegisterClick={() => setIsLogin(false)} onSuccess={handleLoginSuccess} />
+          {isLogin ? ( 
+            <LoginForm onRegisterClick={() => setIsLogin(false)} onSuccess={handleAuthSuccess} />
           ) : (
-            <RegisterForm onLoginClick={() => setIsLogin(true)} onSuccess={handleLoginSuccess} />
+            <RegisterForm onLoginClick={() => setIsLogin(true)} onSuccess={handleAuthSuccess} />
           )}
         </div>
       </div>

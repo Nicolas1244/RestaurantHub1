@@ -12,7 +12,7 @@ if (import.meta.env.DEV && (!import.meta.env.VITE_SUPABASE_URL || !import.meta.e
 
 // Get the current domain, handling both development and production
 const domain = window.location.hostname === 'localhost' 
-  ? window.location.origin
+  ? 'http://localhost:5173'
   : window.location.origin;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -46,7 +46,7 @@ export const signInWithGoogle = async () => {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: domain,
+      redirectTo: 'http://localhost:5173',
       queryParams: {
         prompt: 'select_account',
       },

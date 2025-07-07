@@ -166,9 +166,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signInWithGoogle = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google', 
+        provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: 'http://localhost:5173',
           queryParams: {
             prompt: 'select_account',
           }
@@ -186,8 +186,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Sign out
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
-      window.location.href = '/auth'; // Force redirect to auth page
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      // Force redirect to auth page
+      window.location.href = '/auth';
       
       toast.success(t('success.signOutSuccess'));
     } catch (error) {
