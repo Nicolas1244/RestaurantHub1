@@ -21,75 +21,77 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     padding: 15,
     fontSize: 8,
-    fontFamily: 'Helvetica'
+    fontFamily: 'Helvetica',
   },
   
   // Header Section - Optimized for single page
   header: {
-    marginBottom: 20,
+    marginBottom: 10,
     borderBottom: 2,
     borderBottomColor: '#2563eb',
     paddingBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   headerLeft: {
-    flex: 1
+    flex: 1,
   },
   headerRight: {
     width: 60,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   restaurantLogo: {
     width: 50,
     height: 50,
-    objectFit: 'contain'
+    objectFit: 'contain',
   },
   restaurantName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#1f2937',
-    marginBottom: 3
+    marginBottom: 3,
   },
   restaurantAddress: {
     fontSize: 10,
     color: '#6b7280',
-    marginBottom: 6
+    marginBottom: 6,
   },
   weekInfo: {
     fontSize: 12,
     fontWeight: 'bold',
     color: '#2563eb',
-    marginBottom: 3
+    marginBottom: 3,
   },
   
-  // Main Title - Centered and prominent
-  mainTitle: { 
+  // Main Title - Centered at the top
+  mainTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#1f2937',
-    marginTop: -30, // Position above the blue line
-    marginBottom: 5,
-    textAlign: 'center'
+    position: 'absolute',
+    top: 15,
+    left: 0,
+    right: 0,
+    textAlign: 'center',
   },
   
   // View Type Indicator - Compact
   viewTypeContainer: {
-    position: 'absolute', 
+    position: 'absolute',
     top: 15,
     right: 90,
     backgroundColor: '#f3f4f6',
     border: 1,
     borderColor: '#d1d5db',
     borderRadius: 3,
-    padding: 6
+    padding: 6,
   },
   viewTypeText: {
     fontSize: 9,
     fontWeight: 'bold',
     color: '#374151',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   
   // Table Styles - Optimized for single page
@@ -355,7 +357,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.restaurantName}>{restaurant.name}</Text>
-            <Text style={styles.restaurantAddress}>{formatRestaurantAddress()}</Text>            
+            <Text style={styles.restaurantAddress}>{formatRestaurantAddress()}</Text>
             <Text style={styles.weekInfo}>
               {i18n.language === 'fr' ? 'Semaine' : 'Week'} {weekNumber}, {year} - Du {format(weekStartDate, 'd MMMM', { locale: fr }).replace(/^\w/, c => c.toUpperCase())} au {format(addDays(weekStartDate, 6), 'd MMMM yyyy', { locale: fr }).replace(/^\w/, c => c.toUpperCase())}
             </Text>
@@ -372,10 +374,8 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
           )}
         </View>
 
-        {/* Main Title - Centered */}
-        <View style={{ alignItems: 'center' }}>
-          <Text style={styles.mainTitle}>Planning Hebdomadaire</Text>
-        </View>
+        {/* Main Title - Absolutely positioned at the top center */}
+        <Text style={styles.mainTitle}>Planning Hebdomadaire</Text>
 
         {/* View Type Indicator */}
         <View style={styles.viewTypeContainer}>
