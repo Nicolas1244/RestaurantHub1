@@ -7,7 +7,7 @@ import DocumentManager from '../hr/DocumentManager';
 import TimeClockWidget from '../timeclock/TimeClockWidget';
 
 const EmployeePortal: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { profile } = useAuth();
   const { currentRestaurant, getRestaurantEmployees, getRestaurantSchedule } = useAppContext();
   
