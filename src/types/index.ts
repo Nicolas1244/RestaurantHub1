@@ -5,7 +5,7 @@ export const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frid
 export const DAILY_STATUS = {
   WEEKLY_REST: { label: 'Repos Hebdo', color: '#4B5563' }, // Gray
   CP: { label: 'CP', color: '#10B981' }, // Green
-  PUBLIC_HOLIDAY: { label: 'Férié', color: '#EF4444' }, // Red
+  PUBLIC_HOLIDAY: { label: 'Férié 1er Mai', color: '#EF4444' }, // Red
   SICK_LEAVE: { label: 'Maladie', color: '#F59E0B' }, // Amber
   ACCIDENT: { label: 'Accident de Travail', color: '#8B5CF6' }, // Purple
   ABSENCE: { label: 'Absence', color: '#EC4899' }  // Pink

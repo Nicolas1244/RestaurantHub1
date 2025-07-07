@@ -343,7 +343,7 @@ export default {
       expired: 'Expiré',
       endingSoon: 'Se termine bientôt',
       cp: 'Congé Payé',
-      public_holiday: 'Jour Férié',
+      public_holiday: 'Férié 1er Mai',
       public_holiday_worked: 'Férié Travaillé (100%)',
       addShift: 'Ajouter un Service',
       editShift: 'Modifier le Service',

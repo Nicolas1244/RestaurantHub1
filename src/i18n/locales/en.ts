@@ -378,7 +378,7 @@ export default {
       expired: 'Expired',
       endingSoon: 'Ending Soon',
       cp: 'Paid Leave',
-      public_holiday: 'Public Holiday',
+      public_holiday: 'May 1st Holiday',
       public_holiday_worked: 'Worked Holiday (100%)',
       addShift: 'Add Shift',
       editShift: 'Edit Shift',
