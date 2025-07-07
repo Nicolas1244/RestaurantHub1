@@ -84,12 +84,13 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    backgroundColor: shift.status ? DAILY_STATUS[shift.status].color : employeeColor,
-    borderColor: shift.status ? `${DAILY_STATUS[shift.status].color}80` : undefined,
+    backgroundColor: shift.status ? `${DAILY_STATUS[shift.status].color}30` : employeeColor,
+    borderColor: shift.status ? DAILY_STATUS[shift.status].color : undefined,
     color: shift.status ? getTextColor(DAILY_STATUS[shift.status].color) : textColor,
     boxShadow: '0 2px 4px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.06)',
     borderRadius: '8px',
     overflow: 'hidden',
+    width: shift.status ? '100%' : 'auto',
   };
 
   const formatTime = (timeString: string) => {

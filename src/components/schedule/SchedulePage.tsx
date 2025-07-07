@@ -39,12 +39,12 @@ const SchedulePage: React.FC = () => {
   });
   
   const [viewMode, setViewMode] = useState<ViewMode>('weekly');
-  const [viewLayout, setViewLayout] = useState<'grid' | 'enhanced'>('enhanced'); // New state for layout toggle
+  const [viewLayout, setViewLayout] = useState<'grid' | 'enhanced'>('grid'); // Default to grid layout
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   
   // CRITICAL: Labor law compliance panel state - default to collapsed (false)
   // Weather forecast is always shown by default
-  const [showCompliancePanel, setShowCompliancePanel] = useState(true);
+  const [showCompliancePanel, setShowCompliancePanel] = useState(false);
   
   // CRITICAL: State for manual save button
   const [isSaving, setIsSaving] = useState(false);
@@ -450,7 +450,7 @@ const SchedulePage: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-xl font-semibold text-gray-800">{t('common.weeklySchedule')}</h2>
-          <p className="text-gray-500">
+            Planning Hebdomadaire
             {currentRestaurant ? `${currentRestaurant.name} - ${currentRestaurant.location}` : t('common.selectRestaurant')}
           </p>
           {/* CRITICAL FIX: Show properly formatted week range */}
@@ -460,32 +460,6 @@ const SchedulePage: React.FC = () => {
         </div>
         
         <div className="flex items-center gap-4">
-          {/* Layout Toggle */}
-          <div className="flex rounded-lg border border-gray-300 overflow-hidden">
-            <button
-              onClick={() => setViewLayout('grid')}
-              className={`px-4 py-2 flex items-center gap-2 ${
-                viewLayout === 'grid'
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <FileText size={18} />
-              {t('schedule.grid')}
-            </button>
-            <button
-              onClick={() => setViewLayout('enhanced')}
-              className={`px-4 py-2 flex items-center gap-2 ${
-                viewLayout === 'enhanced'
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <Plus size={18} />
-              {t('schedule.enhanced')}
-            </button>
-          </div>
-
           {/* View Mode Toggle */}
           <div className="flex rounded-lg border border-gray-300 overflow-hidden">
             <button
@@ -575,21 +549,7 @@ const SchedulePage: React.FC = () => {
                 {i18n.language === 'fr' ? 'Sauvegarder' : 'Save'}
               </>
             )}
-          </button>
-
-          {/* CRITICAL: Labor Law Compliance Toggle */}
-          <button
-            onClick={() => setShowCompliancePanel(!showCompliancePanel)}
-            className={`px-4 py-2 flex items-center gap-2 rounded-lg border transition-colors ${
-              showCompliancePanel
-                ? 'bg-blue-50 text-blue-600 border-blue-300'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-            }`}
-            title="Afficher/masquer le panneau de conformité Code du travail"
-          >
-            <Shield size={18} />
-            <span className="hidden md:inline">Conformité</span>
-          </button>
+          </button>          
         </div>
       </div>
       
