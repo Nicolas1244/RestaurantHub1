@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppContext } from '../../contexts/AppContext';
 import DocumentManager from '../hr/DocumentManager';
-import DocumentManager from '../hr/DocumentManager';
 import TimeClockWidget from '../timeclock/TimeClockWidget';
 
 const EmployeePortal: React.FC = () => {
