@@ -758,9 +758,9 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
                         {isHolidayWorked && (
                           <div className="mt-3">
                             <p className="text-sm text-red-600">
-                              {i18n.language === 'fr' 
-                                ? 'Les heures travaillées pendant un jour férié seront comptées comme des heures majorées (100%).'
-                                : 'Hours worked during a public holiday will be counted as overtime hours (100% premium).'}
+                              {i18n.language === 'fr'
+                                ? 'Les heures travaillées le 1er Mai seront comptées comme des heures majorées (100%).'
+                                : 'Hours worked on May 1st will be counted as premium hours (100%).'}
                             </p>
                             
                             {/* Time input for worked holiday */}
@@ -772,7 +772,16 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
                                 <input
                                   type="time"
                                   id="holidayStart"
+                                  defaultValue="09:00"
                                   value="09:00"
+                                  onChange={(e) => {
+                                    // Update the start time for the holiday shift
+                                    const shiftsCopy = [...shiftItems];
+                                    if (shiftsCopy.length > 0) {
+                                      shiftsCopy[0].start = e.target.value;
+                                      setShiftItems(shiftsCopy);
+                                    }
+                                  }}
                                   className="mt-1 block w-full border-red-300 focus:ring-red-500 focus:border-red-500 sm:text-xs rounded-md"
                                 />
                               </div>
@@ -784,7 +793,16 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
                                 <input
                                   type="time"
                                   id="holidayEnd"
+                                  defaultValue="17:00"
                                   value="17:00"
+                                  onChange={(e) => {
+                                    // Update the end time for the holiday shift
+                                    const shiftsCopy = [...shiftItems];
+                                    if (shiftsCopy.length > 0) {
+                                      shiftsCopy[0].end = e.target.value;
+                                      setShiftItems(shiftsCopy);
+                                    }
+                                  }}
                                   className="mt-1 block w-full border-red-300 focus:ring-red-500 focus:border-red-500 sm:text-xs rounded-md"
                                 />
                               </div>
