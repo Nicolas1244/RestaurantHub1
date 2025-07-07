@@ -928,8 +928,8 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                         </div>
                       )}
                       {totalPublicHolidayHours > 0 && (
-                        <div className={`text-gray-700 mt-1 ${gridClasses.summaryDetail}`}>
-                          <span className="text-red-600">dont {formatHours(totalPublicHolidayHours)} majorées 100%</span>
+                        <div className={`text-red-600 font-medium mt-1 ${gridClasses.summaryDetail}`}>
+                          dont {formatHours(totalPublicHolidayHours)} majorées 100%
                         </div>
                       )}
                     </div>

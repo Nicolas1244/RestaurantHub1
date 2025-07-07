@@ -529,7 +529,17 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                               <input
                                 type="time"
                                 id="holidayStart"
-                                value="09:00"
+                                defaultValue="09:00"
+                                onChange={(e) => {
+                                  // Update the start time for the holiday shift
+                                  const newStart = e.target.value;
+                                  // We need to update the form state
+                                  if (shifts.length > 0) {
+                                    setShifts(prev => 
+                                      prev.map(s => ({ ...s, start: newStart }))
+                                    );
+                                  }
+                                }}
                                 className="mt-1 block w-full border-red-300 focus:ring-red-500 focus:border-red-500 sm:text-xs rounded-md"
                               />
                             </div>
@@ -541,7 +551,17 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                               <input
                                 type="time"
                                 id="holidayEnd"
-                                value="17:00"
+                                defaultValue="17:00"
+                                onChange={(e) => {
+                                  // Update the end time for the holiday shift
+                                  const newEnd = e.target.value;
+                                  // We need to update the form state
+                                  if (shifts.length > 0) {
+                                    setShifts(prev => 
+                                      prev.map(s => ({ ...s, end: newEnd }))
+                                    );
+                                  }
+                                }}
                                 className="mt-1 block w-full border-red-300 focus:ring-red-500 focus:border-red-500 sm:text-xs rounded-md"
                               />
                             </div>

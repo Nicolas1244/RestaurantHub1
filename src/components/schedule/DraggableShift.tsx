@@ -90,7 +90,7 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
     boxShadow: '0 2px 4px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.06)',
     borderRadius: '8px',
     overflow: 'hidden',
-    width: shift.status ? '100%' : 'auto',
+    width: '100%',
   };
 
   const formatTime = (timeString: string) => {
