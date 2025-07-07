@@ -20,7 +20,12 @@ import LoadingScreen from './components/common/LoadingScreen';
 
 function App() {
   const { currentTab, setCurrentTab } = useAppContext();
-  const { loading, isEmployee, isManager, isAdmin } = useAuth();
+  // TEMPORARY: Bypass authentication checks
+  const loading = false;
+  const isEmployee = () => true;
+  const isManager = () => true;
+  const isAdmin = () => true;
+  const { /* loading, isEmployee, isManager, isAdmin */ } = useAuth();
 
   // Show loading screen while checking authentication
   if (loading) {
@@ -32,19 +37,19 @@ function App() {
       <Router>
         <Routes>
           {/* Public routes */}
-          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/auth" element={<Navigate to="/" replace />} />
           
           {/* Protected routes for all authenticated users */}
-          <Route element={<ProtectedRoute requiredRoles={['admin', 'manager', 'employee']} />}>
+          <Route>
             <Route path="/" element={
               <Layout>
                 {currentTab === 'dashboard' && <DashboardPage />}
-                {currentTab === 'restaurants' && isManager() ? <RestaurantsPage /> : <Navigate to="/employee" />}
-                {currentTab === 'schedule' && isManager() ? <SchedulePage /> : <Navigate to="/employee" />}
-                {currentTab === 'staff' && isManager() ? <StaffPage /> : <Navigate to="/employee" />}
+                {currentTab === 'restaurants' && <RestaurantsPage />}
+                {currentTab === 'schedule' && <SchedulePage />}
+                {currentTab === 'staff' && <StaffPage />}
                 {currentTab === 'settings' && <SettingsPage />}
-                {currentTab === 'performance' && isManager() ? <PerformancePage /> : <Navigate to="/employee" />}
-                {currentTab === 'payroll' && isManager() ? <PayrollPage /> : <Navigate to="/employee" />}
+                {currentTab === 'performance' && <PerformancePage />}
+                {currentTab === 'payroll' && <PayrollPage />}
                 {currentTab === 'timeclock' && <TimeClockPage />}
               </Layout>
             } />
