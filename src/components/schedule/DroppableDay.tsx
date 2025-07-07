@@ -2,13 +2,11 @@ import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Shift, Employee } from '../../types';
 import DraggableShift from './DraggableShift';
-import DraggableShift from './DraggableShift';
 
 interface DroppableDayProps {
   dayIndex: number;
   shifts: Shift[];
   employees: Employee[];
-  onShiftClick: (shift: Shift) => void;
   onShiftClick: (shift: Shift) => void;
 }
 
@@ -16,7 +14,6 @@ const DroppableDay: React.FC<DroppableDayProps> = ({
   dayIndex,
   shifts,
   employees,
-  onShiftClick,
   onShiftClick,
 }) => {
   const { setNodeRef } = useDroppable({
@@ -27,14 +24,11 @@ const DroppableDay: React.FC<DroppableDayProps> = ({
     return employees.find(emp => emp.id === employeeId);
   };
 
-  const getEmployee = (employeeId: string) => {
-    return employees.find(emp => emp.id === employeeId);
-  };
-
   return (
     <div
       ref={setNodeRef}
       className="p-2 border-r min-h-[120px] relative group hover:bg-gray-50 transition-colors"
+    >
       {shifts.map(shift => {
         const employee = getEmployee(shift.employeeId);
         if (!employee) return null;
@@ -49,7 +43,6 @@ const DroppableDay: React.FC<DroppableDayProps> = ({
         );
       })}
     </div>
-  )
   );
 };
 
