@@ -450,7 +450,8 @@ const SchedulePage: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-xl font-semibold text-gray-800">{t('common.weeklySchedule')}</h2>
-            Planning Hebdomadaire
+          <p className="text-sm text-gray-600">
+            Planning Hebdomadaire - {' '}
             {currentRestaurant ? `${currentRestaurant.name} - ${currentRestaurant.location}` : t('common.selectRestaurant')}
           </p>
           {/* CRITICAL FIX: Show properly formatted week range */}
