@@ -518,7 +518,37 @@ export class FrenchLaborLawValidator {
 
   private parseShiftDateTime(day: number, time: string): Date {
     const shiftDate = addDays(this.weekStartDate, day);
-    const [hours, minutes] = time.split(':').map(Number);
+    
+    // Validate time string format and extract hours/minutes
+    if (!time || typeof time !== 'string' || !time.includes(':')) {
+      console.warn(`Invalid time format: "${time}". Using start of day as fallback.`);
+      shiftDate.setHours(0, 0, 0, 0);
+      return shiftDate;
+    }
+    
+    const timeParts = time.split(':');
+    if (timeParts.length !== 2) {
+      console.warn(`Invalid time format: "${time}". Expected HH:MM format. Using start of day as fallback.`);
+      shiftDate.setHours(0, 0, 0, 0);
+      return shiftDate;
+    }
+    
+    const hours = Number(timeParts[0]);
+    const minutes = Number(timeParts[1]);
+    
+    // Validate that hours and minutes are valid numbers
+    if (isNaN(hours) || isNaN(minutes)) {
+      console.warn(`Invalid time values: hours="${timeParts[0]}", minutes="${timeParts[1]}". Using start of day as fallback.`);
+      shiftDate.setHours(0, 0, 0, 0);
+      return shiftDate;
+    }
+    
+    // Validate hour and minute ranges
+    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+      console.warn(`Time values out of range: hours=${hours}, minutes=${minutes}. Using start of day as fallback.`);
+      shiftDate.setHours(0, 0, 0, 0);
+      return shiftDate;
+    }
     
     // Handle overnight shifts (e.g., ending at 02:00 next day)
     if (hours < 6) { // Assume times before 6 AM are next day
