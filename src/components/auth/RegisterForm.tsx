@@ -3,11 +3,12 @@ import { Mail, Lock, UserPlus, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 
-interface RegisterFormProps {
+interface RegisterFormProps { 
   onLoginClick?: () => void;
+  onSuccess?: () => void;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onLoginClick }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({ onLoginClick, onSuccess }) => {
   const { t } = useTranslation();
   const { signUp, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
@@ -37,7 +38,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onLoginClick }) => {
 
     try {
       await signUp(email, password);
-      // Success message is shown by the auth context
+      // Success message is shown by the auth context 
+      if (onSuccess) onSuccess();
     } catch (error) {
       setError(error instanceof Error ? error.message : t('errors.authenticationFailed'));
     } finally {
@@ -47,10 +49,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onLoginClick }) => {
 
   const handleGoogleSignIn = async () => {
     try {
+      setLoading(true);
       await signInWithGoogle();
-      // Success is handled by the auth state change listener
+      // Success is handled by the auth state change listener 
+      if (onSuccess) onSuccess();
     } catch (error) {
       setError(error instanceof Error ? error.message : t('errors.googleSignInFailed'));
+    } finally {
+      setLoading(false);
     }
   };
 

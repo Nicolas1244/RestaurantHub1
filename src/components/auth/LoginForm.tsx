@@ -33,10 +33,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onRegisterClick }) => 
 
   const handleGoogleSignIn = async () => {
     try {
+      setLoading(true);
       await signInWithGoogle();
       // Note: Success callback is handled by the auth state change listener
+      if (onSuccess) onSuccess();
     } catch (error) {
       setError(error instanceof Error ? error.message : t('errors.googleSignInFailed'));
+    } finally {
+      setLoading(false);
     }
   };
 

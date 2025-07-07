@@ -13,7 +13,7 @@ if (import.meta.env.DEV && (!import.meta.env.VITE_SUPABASE_URL || !import.meta.e
 // Get the current domain, handling both development and production
 const domain = window.location.hostname === 'localhost' 
   ? window.location.origin
-  : 'https://bespoke-moxie-4bc29e.netlify.app';
+  : window.location.origin;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -47,6 +47,9 @@ export const signInWithGoogle = async () => {
     provider: 'google',
     options: {
       redirectTo: domain,
+      queryParams: {
+        prompt: 'select_account',
+      },
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',
