@@ -379,7 +379,7 @@ export default {
       endingSoon: 'Ending Soon',
       cp: 'Paid Leave',
       public_holiday: 'May 1st Holiday',
-      public_holiday_worked: 'Worked Holiday (100%)',
+      public_holiday_worked: 'Worked Holiday (100% premium)',
       addShift: 'Add Shift',
       editShift: 'Edit Shift',
       deleteShift: 'Delete Shift',
@@ -433,7 +433,7 @@ export default {
       totalWorkedHours: 'Total Worked Hours',
       overtimeHours: 'Overtime/Missing Hours',
       numberOfShifts: 'Number of Shifts',
-      publicHolidayHours: 'Premium Hours (100%)',
+      publicHolidayHours: 'including Premium Hours (100%)',
       cpHours: 'Paid Leave',
       noEmployees: 'No employees found',
       // CRITICAL: Auto-save related translations
