@@ -84,9 +84,12 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    backgroundColor: shift.status ? `${DAILY_STATUS[shift.status].color}30` : employeeColor,
-    borderColor: shift.status ? DAILY_STATUS[shift.status].color : undefined,
-    color: shift.status ? getTextColor(DAILY_STATUS[shift.status].color) : textColor,
+    backgroundColor: shift.isHolidayWorked ? '#DC262630' : 
+                    (shift.status ? `${DAILY_STATUS[shift.status].color}30` : employeeColor),
+    borderColor: shift.isHolidayWorked ? '#DC2626' : 
+                (shift.status ? DAILY_STATUS[shift.status].color : undefined),
+    color: shift.isHolidayWorked ? getTextColor('#DC2626') : 
+          (shift.status ? getTextColor(DAILY_STATUS[shift.status].color) : textColor),
     boxShadow: '0 2px 4px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.06)',
     borderRadius: '8px',
     overflow: 'hidden',
@@ -125,7 +128,7 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
       <div className="relative">
         {/* Employee avatar/initials */}
         <div className="font-medium text-sm flex items-center justify-between mb-2">
-          <div className={`flex items-center ${shift.status ? 'w-full justify-center' : ''}`}>
+          <div className={`flex items-center ${shift.status && !shift.isHolidayWorked ? 'w-full justify-center' : ''}`}>
             <div className="w-7 h-7 rounded-full flex items-center justify-center mr-2 bg-white bg-opacity-20 shadow-sm overflow-hidden">
               {employee.profilePicture ? (
                 <img 
@@ -139,16 +142,22 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
                 </span>
               )}
             </div>
-            <span className="font-semibold">{shift.status ? DAILY_STATUS[shift.status].label : `${employee.firstName} ${employee.lastName}`}</span>
+            <span className="font-semibold">
+              {shift.isHolidayWorked 
+                ? (i18n.language === 'fr' ? 'Férié Travaillé (majoré 100%)' : 'Worked Holiday (100% premium)')
+                : (shift.status 
+                  ? DAILY_STATUS[shift.status].label 
+                  : `${employee.firstName} ${employee.lastName}`)}
+            </span>
           </div>
-          {!shift.status ? (
+          {(!shift.status || shift.isHolidayWorked) ? (
             <span className="text-xs font-bold px-2 py-1 rounded-full bg-white bg-opacity-25 shadow-sm">
               {shiftDuration}h
             </span>
           ) : null}
         </div>
         
-        {!shift.status && (
+        {(!shift.status || shift.isHolidayWorked) && (
           <>
             {/* Time range with clock icon */}
             <div className="text-xs opacity-80 font-medium flex items-center">
@@ -170,6 +179,13 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
               {shift.start && shift.end ? `${shift.start} - ${shift.end}` : ''}
             </div>
           </>
+        )}
+        
+        {/* Special indicator for worked holiday */}
+        {shift.isHolidayWorked && (
+          <div className="absolute top-0 right-0 bg-red-500 text-white text-xs px-1 py-0.5 rounded-bl-md">
+            100%
+          </div>
         )}
         
         {/* Coupure indicator if applicable */}

@@ -409,16 +409,18 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
       }
       
       // Create absence shift
-      const absenceShift = {
         restaurantId,
         employeeId: employee.id,
         day,
-        start: '',
-        end: selectedAbsence === 'PUBLIC_HOLIDAY' && isHolidayWorked ? '17:00' : '',
+        // For worked holidays, we need to set start and end times
+        start: (status === 'PUBLIC_HOLIDAY' && isHolidayWorked) ? '09:00' : '',
+        end: (status === 'PUBLIC_HOLIDAY' && isHolidayWorked) ? '17:00' : '',
         position: employee.position,
         type: 'morning' as const,
-        status: selectedAbsence as DailyStatus,
-        isHolidayWorked: selectedAbsence === 'PUBLIC_HOLIDAY' ? isHolidayWorked : undefined
+        status: (status === 'PUBLIC_HOLIDAY' && isHolidayWorked) ? undefined : (selectedAbsence as DailyStatus),
+        notes,
+        // Set the isHolidayWorked flag for PUBLIC_HOLIDAY
+        isHolidayWorked: (status === 'PUBLIC_HOLIDAY' && isHolidayWorked) ? true : undefined
       };
       
       // Save absence
@@ -767,20 +769,16 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
                             <div className="grid grid-cols-2 gap-3 mt-3">
                               <div>
                                 <label htmlFor="holidayStart" className="block text-xs font-medium text-red-700">
-                                  {i18n.language === 'fr' ? 'Heure de début' : 'Start Time'}
+                                  {i18n.language === 'fr' ? 'Heure de début' : 'Start time'}
                                 </label>
                                 <input
                                   type="time"
                                   id="holidayStart"
                                   defaultValue="09:00"
-                                  value="09:00"
                                   onChange={(e) => {
                                     // Update the start time for the holiday shift
-                                    const shiftsCopy = [...shiftItems];
-                                    if (shiftsCopy.length > 0) {
-                                      shiftsCopy[0].start = e.target.value;
-                                      setShiftItems(shiftsCopy);
-                                    }
+                                    // This will be used when creating the shift
+                                    // No need to update shiftItems as we're in absence mode
                                   }}
                                   className="mt-1 block w-full border-red-300 focus:ring-red-500 focus:border-red-500 sm:text-xs rounded-md"
                                 />
@@ -788,20 +786,16 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
                               
                               <div>
                                 <label htmlFor="holidayEnd" className="block text-xs font-medium text-red-700">
-                                  {i18n.language === 'fr' ? 'Heure de fin' : 'End Time'}
+                                  {i18n.language === 'fr' ? 'Heure de fin' : 'End time'}
                                 </label>
                                 <input
                                   type="time"
                                   id="holidayEnd"
                                   defaultValue="17:00"
-                                  value="17:00"
                                   onChange={(e) => {
                                     // Update the end time for the holiday shift
-                                    const shiftsCopy = [...shiftItems];
-                                    if (shiftsCopy.length > 0) {
-                                      shiftsCopy[0].end = e.target.value;
-                                      setShiftItems(shiftsCopy);
-                                    }
+                                    // This will be used when creating the shift
+                                    // No need to update shiftItems as we're in absence mode
                                   }}
                                   className="mt-1 block w-full border-red-300 focus:ring-red-500 focus:border-red-500 sm:text-xs rounded-md"
                                 />

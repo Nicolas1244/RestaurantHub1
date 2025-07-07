@@ -509,8 +509,10 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                       </Text>
                     )}
                     {totalPublicHolidayHours > 0 && (
-                      <Text style={[styles.summaryDetail, { color: '#EF4444', fontWeight: 'bold', marginTop: 2 }]}>
-                        dont {formatHours(totalPublicHolidayHours)} majorées 100%
+                      <Text style={[styles.summaryDetail, { color: '#DC2626', fontWeight: 'bold', marginTop: 2 }]}>
+                        {i18n.language === 'fr' 
+                          ? `dont ${formatHours(totalPublicHolidayHours)} majorées 100%`
+                          : `including ${formatHours(totalPublicHolidayHours)} with 100% premium`}
                       </Text>
                     )}
                   </View>

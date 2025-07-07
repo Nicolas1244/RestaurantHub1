@@ -155,7 +155,7 @@ export const calculateEmployeeWeeklySummary = (
     
     // Get status and isHolidayWorked flag from any shift for this day
     const status = dayShifts.find(s => s.status)?.status;
-    const isHolidayWorked = dayShifts.find(s => s.isHolidayWorked)?.isHolidayWorked;
+    const hasHolidayWorked = dayShifts.some(s => s.isHolidayWorked);
     if (status) {
       dailyStatus[day] = status;
     }
@@ -207,10 +207,7 @@ export const calculateEmployeeWeeklySummary = (
       // NO services counted for CP days
     } else if (status === 'PUBLIC_HOLIDAY') {
       // Check if this is a worked holiday
-      const shiftsForCurrentDay = shiftsByDay[day] || [];
-      const isHolidayWorked = shiftsForCurrentDay.some(s => s.isHolidayWorked) || hours > 0;
-      
-      if (isHolidayWorked && hours > 0) {
+      if (hasHolidayWorked && hours > 0) {
         // Férié travaillé: Hours worked count as ACTUAL WORKED HOURS
         totalWorkedHours += hours; // Include in Total Heures Travaillées
         totalPublicHolidayHours += hours; // Track separately for "Heures Majorées 100%"
@@ -228,7 +225,16 @@ export const calculateEmployeeWeeklySummary = (
       
       // CRITICAL: Count each shift as a separate service
       const shiftsForCurrentDay = shiftsByDay[day] || [];
-      shiftCount += shiftsForCurrentDay.filter(s => s.start && s.end && !s.status).length;
+      shiftCount += shiftsForCurrentDay.filter(s => s.start && s.end && (!s.status || s.isHolidayWorked)).length;
+      
+      // Check for worked holiday shifts (without status but with isHolidayWorked flag)
+      const holidayWorkedHours = shiftsForCurrentDay
+        .filter(s => s.isHolidayWorked && s.start && s.end)
+        .reduce((sum, s) => sum + calculateTimeInHours(s.start, s.end), 0);
+      
+      if (holidayWorkedHours > 0) {
+        totalPublicHolidayHours += holidayWorkedHours;
+      }
     }
   }
 
