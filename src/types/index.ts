@@ -280,9 +280,19 @@ export interface UserSettings {
   weatherLocation?: string; // Manual location override
   weatherAutoLocation: boolean; // Use restaurant address for weather
   // CRITICAL: NEW - Break payment setting
-  payBreakTimes: boolean; // Whether break times are considered paid or unpaid
+  payBreakTimes: boolean; // Whether break times are considered paid or unpaid 
   // CRITICAL: NEW - Time clock toggle
-  timeClockEnabled: boolean; // Whether the time clock functionality is enabled
+  timeClockEnabled: boolean; // Whether the time clock functionality is enabled 
+  // HR & Document Management settings
+  documentStorage?: 'local' | 'cloud' | 's3' | 'gdrive';
+  documentRetention?: '1year' | '3years' | '5years' | '10years' | 'indefinite';
+  electronicSignature?: boolean;
+  automaticDocumentGeneration?: boolean;
+  // Payroll Integration settings
+  payrollSoftware?: 'none' | 'sage' | 'cegid' | 'payfit' | 'adp' | 'quadratus';
+  payrollExportFrequency?: 'weekly' | 'biweekly' | 'monthly';
+  automaticPayrollExport?: boolean;
+  payrollValidationRequired?: boolean;
 }
 
 // CRITICAL: Weather forecast interfaces

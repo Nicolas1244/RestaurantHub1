@@ -8,6 +8,7 @@ import StaffPage from './components/staff/StaffPage';
 import SettingsPage from './components/settings/SettingsPage';
 import TimeClockPage from './components/timeclock/TimeClockPage'; 
 import AuthModal from './components/auth/AuthModal';
+import PayrollPage from './pages/PayrollPage';
 import { Toaster } from 'react-hot-toast';
 import { useAppContext } from './contexts/AppContext'; 
 import { useAuth } from './contexts/AuthContext';
@@ -43,6 +44,7 @@ function App() {
                 {currentTab === 'staff' && isManager() ? <StaffPage /> : <Navigate to="/employee" />}
                 {currentTab === 'settings' && <SettingsPage />}
                 {currentTab === 'performance' && isManager() ? <PerformancePage /> : <Navigate to="/employee" />}
+                {currentTab === 'payroll' && isManager() ? <PayrollPage /> : <Navigate to="/employee" />}
                 {currentTab === 'timeclock' && <TimeClockPage />}
               </Layout>
             } />

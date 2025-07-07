@@ -3,6 +3,7 @@ import { User, Calendar, Clock, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppContext } from '../../contexts/AppContext';
+import DocumentManager from '../hr/DocumentManager';
 import TimeClockWidget from '../timeclock/TimeClockWidget';
 
 const EmployeePortal: React.FC = () => {
@@ -191,6 +192,31 @@ const EmployeePortal: React.FC = () => {
           <div className="text-center py-6">
             <p className="text-gray-500">
               {t('employee.noUpcomingShifts')}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Documents Section */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <FileText className="text-purple-600" size={20} />
+          <h3 className="text-lg font-medium text-gray-800">
+            {i18n.language === 'fr' ? 'Mes Documents' : 'My Documents'}
+          </h3>
+        </div>
+        
+        {employee ? (
+          <DocumentManager 
+            employeeId={employee.id}
+            restrictToEmployee={true}
+          />
+        ) : (
+          <div className="text-center py-6">
+            <p className="text-gray-500">
+              {i18n.language === 'fr' 
+                ? 'Aucun document disponible' 
+                : 'No documents available'}
             </p>
           </div>
         )}

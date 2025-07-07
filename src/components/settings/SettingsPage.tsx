@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, Shield, Globe, Clock, Save, RotateCcw, Layout, Monitor, Cloud, MapPin, DollarSign, Fingerprint } from 'lucide-react';
+import { Settings, Bell, Shield, Globe, Clock, Save, RotateCcw, Layout, Monitor, Cloud, MapPin, DollarSign, Fingerprint, FileText, Briefcase } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAppContext } from '../../contexts/AppContext';
 import { TIME_INPUT_TYPES, TimeInputType, SCHEDULE_LAYOUT_TYPES, ScheduleLayoutType } from '../../types';
@@ -334,6 +334,160 @@ const SettingsPage: React.FC = () => {
                     {t('settings.display.compactMode')}
                   </label>
                 </div>
+              </div>
+            </div>
+
+            {/* HR & Document Settings */}
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <FileText className="h-5 w-5 text-gray-600" />
+                <h2 className="text-lg font-semibold text-gray-900">{i18n.language === 'fr' ? 'Documents & RH' : 'Documents & HR'}</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-8">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {i18n.language === 'fr' ? 'Stockage des Documents' : 'Document Storage'}
+                  </label>
+                  <select
+                    value={localSettings.documentStorage || 'local'}
+                    onChange={(e) => handleSettingChange('documentStorage', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="local">{i18n.language === 'fr' ? 'Stockage Local' : 'Local Storage'}</option>
+                    <option value="cloud">{i18n.language === 'fr' ? 'Stockage Cloud' : 'Cloud Storage'}</option>
+                    <option value="s3">Amazon S3</option>
+                    <option value="gdrive">Google Drive</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {i18n.language === 'fr' ? 'Rétention des Documents' : 'Document Retention'}
+                  </label>
+                  <select
+                    value={localSettings.documentRetention || '5years'}
+                    onChange={(e) => handleSettingChange('documentRetention', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="1year">{i18n.language === 'fr' ? '1 an' : '1 year'}</option>
+                    <option value="3years">{i18n.language === 'fr' ? '3 ans' : '3 years'}</option>
+                    <option value="5years">{i18n.language === 'fr' ? '5 ans' : '5 years'}</option>
+                    <option value="10years">{i18n.language === 'fr' ? '10 ans' : '10 years'}</option>
+                    <option value="indefinite">{i18n.language === 'fr' ? 'Indéfini' : 'Indefinite'}</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="electronicSignature"
+                    checked={localSettings.electronicSignature || false}
+                    onChange={(e) => handleSettingChange('electronicSignature', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="electronicSignature" className="ml-2 block text-sm text-gray-700">
+                    {i18n.language === 'fr' ? 'Signature Électronique' : 'Electronic Signature'}
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="automaticDocumentGeneration"
+                    checked={localSettings.automaticDocumentGeneration || false}
+                    onChange={(e) => handleSettingChange('automaticDocumentGeneration', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="automaticDocumentGeneration" className="ml-2 block text-sm text-gray-700">
+                    {i18n.language === 'fr' ? 'Génération Automatique de Documents' : 'Automatic Document Generation'}
+                  </label>
+                </div>
+              </div>
+
+              <div className="pl-8 mt-2 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <p className="text-sm text-blue-700">
+                  {i18n.language === 'fr' 
+                    ? 'Les paramètres de documents et RH contrôlent la façon dont les documents sont stockés, partagés et conservés dans le système.' 
+                    : 'Document and HR settings control how documents are stored, shared, and retained in the system.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Payroll Integration Settings */}
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <Briefcase className="h-5 w-5 text-gray-600" />
+                <h2 className="text-lg font-semibold text-gray-900">{i18n.language === 'fr' ? 'Intégration Paie' : 'Payroll Integration'}</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-8">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {i18n.language === 'fr' ? 'Logiciel de Paie' : 'Payroll Software'}
+                  </label>
+                  <select
+                    value={localSettings.payrollSoftware || 'none'}
+                    onChange={(e) => handleSettingChange('payrollSoftware', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="none">{i18n.language === 'fr' ? 'Aucun' : 'None'}</option>
+                    <option value="sage">Sage Paie</option>
+                    <option value="cegid">Cegid</option>
+                    <option value="payfit">PayFit</option>
+                    <option value="adp">ADP</option>
+                    <option value="quadratus">Quadratus</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {i18n.language === 'fr' ? 'Fréquence d\'Export' : 'Export Frequency'}
+                  </label>
+                  <select
+                    value={localSettings.payrollExportFrequency || 'monthly'}
+                    onChange={(e) => handleSettingChange('payrollExportFrequency', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="weekly">{i18n.language === 'fr' ? 'Hebdomadaire' : 'Weekly'}</option>
+                    <option value="biweekly">{i18n.language === 'fr' ? 'Bi-hebdomadaire' : 'Bi-weekly'}</option>
+                    <option value="monthly">{i18n.language === 'fr' ? 'Mensuelle' : 'Monthly'}</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="automaticPayrollExport"
+                    checked={localSettings.automaticPayrollExport || false}
+                    onChange={(e) => handleSettingChange('automaticPayrollExport', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="automaticPayrollExport" className="ml-2 block text-sm text-gray-700">
+                    {i18n.language === 'fr' ? 'Export Automatique de Paie' : 'Automatic Payroll Export'}
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="payrollValidationRequired"
+                    checked={localSettings.payrollValidationRequired || true}
+                    onChange={(e) => handleSettingChange('payrollValidationRequired', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="payrollValidationRequired" className="ml-2 block text-sm text-gray-700">
+                    {i18n.language === 'fr' ? 'Validation Requise Avant Export' : 'Validation Required Before Export'}
+                  </label>
+                </div>
+              </div>
+
+              <div className="pl-8 mt-2 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <p className="text-sm text-blue-700">
+                  {i18n.language === 'fr' 
+                    ? 'Les paramètres d\'intégration de paie contrôlent comment les données de présence et de rémunération sont exportées vers votre logiciel de paie.' 
+                    : 'Payroll integration settings control how attendance and compensation data is exported to your payroll software.'}
+                </p>
               </div>
             </div>
 

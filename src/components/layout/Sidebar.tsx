@@ -2,12 +2,16 @@ import React, { forwardRef } from 'react';
 import { 
   LayoutDashboard, 
   UtensilsCrossed,
-  Users,
+  Users, 
   Calendar, 
   Settings,
-  ChevronDown,
+  ChevronDown, 
   TrendingUp,
-  Fingerprint
+  Fingerprint, 
+  DollarSign, 
+  FileText, 
+  LogOut, 
+  User
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../../contexts/AppContext';
@@ -239,6 +243,20 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
                 label={i18n.language === 'fr' ? 'Performance' : 'Performance'} 
                 tab="performance"
                 isActive={currentTab === 'performance'}
+                hidden={!isManager()}
+              />
+              <NavItem 
+                icon={<DollarSign size={20} />} 
+                label={i18n.language === 'fr' ? 'Paie' : 'Payroll'} 
+                tab="payroll"
+                isActive={currentTab === 'payroll'}
+                hidden={!isManager()}
+              />
+              <NavItem 
+                icon={<FileText size={20} />} 
+                label={i18n.language === 'fr' ? 'Documents' : 'Documents'} 
+                tab="documents"
+                isActive={currentTab === 'documents'}
                 hidden={!isManager()}
               />
               {/* CRITICAL: Time Clock nav item - only visible when enabled in settings */}

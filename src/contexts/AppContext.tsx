@@ -60,9 +60,19 @@ export const defaultUserSettings: UserSettings = {
   weatherAutoLocation: true,
   weatherLocation: undefined,
   // CRITICAL: NEW - Break payment setting enabled by default
-  payBreakTimes: true, // CRITICAL: Always default to paid breaks
+  payBreakTimes: true, // CRITICAL: Always default to paid breaks 
   // CRITICAL: NEW - Time clock functionality disabled by default
-  timeClockEnabled: false,
+  timeClockEnabled: false, 
+  // HR & Document Management settings
+  documentStorage: 'local',
+  documentRetention: '5years',
+  electronicSignature: false,
+  automaticDocumentGeneration: false,
+  // Payroll Integration settings
+  payrollSoftware: 'none',
+  payrollExportFrequency: 'monthly',
+  automaticPayrollExport: false,
+  payrollValidationRequired: true,
   // Integration settings
   posSync: false,
   weatherData: false
