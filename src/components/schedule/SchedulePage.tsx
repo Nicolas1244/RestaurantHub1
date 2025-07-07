@@ -640,7 +640,7 @@ const SchedulePage: React.FC = () => {
         onClose={() => setShowDailyEntryModal(false)}
         employee={selectedEmployee}
         day={selectedDay}
-        shifts={shifts}
+        existingShifts={shifts}
         onSaveShifts={handleSaveShifts}
         onUpdateShift={handleUpdateShift}
         onDeleteShift={deleteShift}
