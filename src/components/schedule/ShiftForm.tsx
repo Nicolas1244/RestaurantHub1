@@ -43,6 +43,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
   const [hasCoupure, setHasCoupure] = useState(false);
   const [status, setStatus] = useState<DailyStatus | ''>('');
   const [notes, setNotes] = useState('');
+  const [isHolidayWorked, setIsHolidayWorked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -60,6 +61,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
       setHasCoupure(shift.hasCoupure || false);
       setStatus(shift.status || '');
       setNotes(shift.notes || '');
+      setIsHolidayWorked(shift.isHolidayWorked || false);
     } else {
       // Creating new shift(s)
       setEmployeeId(preSelectedEmployeeId || '');
@@ -74,6 +76,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
       setHasCoupure(false);
       setStatus('');
       setNotes('');
+      setIsHolidayWorked(false);
     }
   }, [shift, isOpen, preSelectedEmployeeId, preSelectedDay]);
 
@@ -238,11 +241,12 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
     if (status) {
       // If it's an absence/status, create a single shift with status
       const absenceShift = {
+        isHolidayWorked: status === 'PUBLIC_HOLIDAY' ? isHolidayWorked : undefined,
         restaurantId,
         employeeId,
         day,
-        start: '',
-        end: '',
+        start: status === 'PUBLIC_HOLIDAY' && isHolidayWorked ? '09:00' : '',
+        end: status === 'PUBLIC_HOLIDAY' && isHolidayWorked ? '17:00' : '',
         position: employees.find(e => e.id === employeeId)?.position || '',
         type: 'morning' as const,
         status: status as DailyStatus,
@@ -474,6 +478,79 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                       </button>
                     ))}
                   </div>
+                  
+                  {/* Holiday Worked Option - Only show for PUBLIC_HOLIDAY */}
+                  {status === 'PUBLIC_HOLIDAY' && (
+                    <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Clock size={16} className="text-red-500 mr-2" />
+                          <span className="text-sm font-medium text-red-700">
+                            {i18n.language === 'fr' ? 'Férié travaillé (majoré)' : 'Worked holiday (with overtime)'}
+                          </span>
+                        </div>
+                        <div className="relative inline-block w-10 mr-2 align-middle select-none">
+                          <input
+                            type="checkbox"
+                            id="holidayWorked"
+                            checked={isHolidayWorked}
+                            onChange={() => setIsHolidayWorked(!isHolidayWorked)}
+                            className="sr-only"
+                          />
+                          <label
+                            htmlFor="holidayWorked"
+                            className={`block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer ${
+                              isHolidayWorked ? 'bg-red-500' : 'bg-gray-300'
+                            }`}
+                          >
+                            <span
+                              className={`block h-6 w-6 rounded-full bg-white shadow transform transition-transform duration-200 ease-in-out ${
+                                isHolidayWorked ? 'translate-x-4' : 'translate-x-0'
+                              }`}
+                            ></span>
+                          </label>
+                        </div>
+                      </div>
+                      
+                      {isHolidayWorked && (
+                        <div className="mt-3">
+                          <p className="text-sm text-red-600">
+                            {i18n.language === 'fr' 
+                              ? 'Les heures travaillées pendant un jour férié seront comptées comme des heures majorées (100%).'
+                              : 'Hours worked during a public holiday will be counted as overtime hours (100% premium).'}
+                          </p>
+                          
+                          {/* Time input for worked holiday */}
+                          <div className="grid grid-cols-2 gap-3 mt-3">
+                            <div>
+                              <label htmlFor="holidayStart" className="block text-xs font-medium text-red-700">
+                                {i18n.language === 'fr' ? 'Heure de début' : 'Start Time'}
+                              </label>
+                              <input
+                                type="time"
+                                id="holidayStart"
+                                value="09:00"
+                                className="mt-1 block w-full border-red-300 focus:ring-red-500 focus:border-red-500 sm:text-xs rounded-md"
+                              />
+                            </div>
+                            
+                            <div>
+                              <label htmlFor="holidayEnd" className="block text-xs font-medium text-red-700">
+                                {i18n.language === 'fr' ? 'Heure de fin' : 'End Time'}
+                              </label>
+                              <input
+                                type="time"
+                                id="holidayEnd"
+                                value="17:00"
+                                className="mt-1 block w-full border-red-300 focus:ring-red-500 focus:border-red-500 sm:text-xs rounded-md"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   {status && (
                     <p className="mt-2 text-sm text-gray-500">
                       {i18n.language === 'fr' 

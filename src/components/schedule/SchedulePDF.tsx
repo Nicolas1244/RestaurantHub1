@@ -509,8 +509,8 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                       </Text>
                     )}
                     {totalPublicHolidayHours > 0 && (
-                      <Text style={styles.summaryDetail}>
-                        {formatHours(totalPublicHolidayHours)} Férié
+                      <Text style={[styles.summaryDetail, { color: '#EF4444' }]}>
+                        {formatHours(totalPublicHolidayHours)} {i18n.language === 'fr' ? 'Majorées 100%' : '100% Premium'}
                       </Text>
                     )}
                   </View>
