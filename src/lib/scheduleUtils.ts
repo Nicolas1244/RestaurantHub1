@@ -153,8 +153,9 @@ export const calculateEmployeeWeeklySummary = (
   Object.entries(shiftsByDay).forEach(([dayStr, dayShifts]) => {
     const day = parseInt(dayStr);
     
-    // Get status from any shift for this day (assuming all shifts for a day have the same status)
+    // Get status and isHolidayWorked flag from any shift for this day
     const status = dayShifts.find(s => s.status)?.status;
+    const isHolidayWorked = dayShifts.find(s => s.isHolidayWorked)?.isHolidayWorked;
     if (status) {
       dailyStatus[day] = status;
     }
@@ -205,11 +206,17 @@ export const calculateEmployeeWeeklySummary = (
       totalAssimilatedHours += dailyContractHours;
       // NO services counted for CP days
     } else if (status === 'PUBLIC_HOLIDAY') {
-      // Férié (1er Mai): Hours worked count as ACTUAL WORKED HOURS
-      if (hours > 0) {
+      // Check if this is a worked holiday
+      const dayShifts = shiftsByDay[day] || [];
+      const isHolidayWorked = dayShifts.some(s => s.isHolidayWorked);
+      
+      if (isHolidayWorked && hours > 0) {
+        // Férié travaillé: Hours worked count as ACTUAL WORKED HOURS
         totalWorkedHours += hours; // Include in Total Heures Travaillées
         totalPublicHolidayHours += hours; // Track separately for "Heures Majorées 100%"
         shiftCount++; // Count as service if hours are scheduled on Férié
+      } else if (!isHolidayWorked) {
+        // Férié non travaillé: No impact on hours
       }
       // If no hours on Férié, no service counted
     } else if (status === 'ABSENCE' || status === 'SICK_LEAVE' || status === 'ACCIDENT') {

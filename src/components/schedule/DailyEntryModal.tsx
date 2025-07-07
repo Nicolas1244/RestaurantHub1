@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Trash2, Clock, Calendar, Plus, AlertTriangle, Heart, Calendar as CalendarIcon } from 'lucide-react';
 import { Employee, Shift, DAYS_OF_WEEK, DAILY_STATUS, DailyStatus, POSITIONS } from '../../types';
 import { useTranslation } from 'react-i18next';
-import { v4 as uuidv4 } from 'uuid'; 
+import { v4 as uuidv4 } from 'uuid';
 import { calculateTimeInHours } from '../../lib/scheduleUtils';
 import { useAppContext } from '../../contexts/AppContext'; 
 import toast from 'react-hot-toast';
@@ -71,11 +71,13 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
   const [activeTab, setActiveTab] = useState<'shifts' | 'absence'>('shifts');
   const [shiftItems, setShiftItems] = useState<Array<{
     id: string;
+    isHolidayWorked?: boolean;
     start: string;
     end: string;
     isNew?: boolean;
   }>>([]);
   const [selectedAbsence, setSelectedAbsence] = useState<DailyStatus | ''>('');
+  const [isHolidayWorked, setIsHolidayWorked] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [availabilityWarning, setAvailabilityWarning] = useState<string | null>(null);
   const [preferenceWarning, setPreferenceWarning] = useState<string | null>(null);
@@ -96,17 +98,20 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
         // If there's an absence, set the absence tab as active
         setActiveTab('absence');
         setSelectedAbsence(absenceShift.status);
+        setIsHolidayWorked(absenceShift.isHolidayWorked || false);
         setShiftItems([]);
       } else {
         // Otherwise, set the shifts tab as active
         setActiveTab('shifts');
         setSelectedAbsence('');
+        setIsHolidayWorked(false);
         
         // Initialize shift items from existing shifts
         if (employeeShifts.length > 0) {
           setShiftItems(
             employeeShifts.map(s => ({
               id: s.id,
+              isHolidayWorked: s.isHolidayWorked,
               start: s.start,
               end: s.end
             }))
@@ -116,6 +121,7 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
           setShiftItems([
             {
               id: uuidv4(),
+              isHolidayWorked: false,
               start: '09:00',
               end: '17:00',
               isNew: true
@@ -149,6 +155,7 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
     setShiftItems(prev => [
       ...prev,
       {
+        isHolidayWorked: false,
         id: uuidv4(),
         start: prev.length > 0 ? '17:00' : '09:00',
         end: prev.length > 0 ? '23:00' : '17:00',
@@ -299,6 +306,11 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
     return true;
   };
 
+  // Toggle holiday worked status
+  const toggleHolidayWorked = () => {
+    setIsHolidayWorked(!isHolidayWorked);
+  };
+
   // Calculate total working hours and break time
   const calculateDaySummary = () => {
     if (shiftItems.length === 0) return { workingHours: 0, breakHours: 0 };
@@ -402,10 +414,11 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
         employeeId: employee.id,
         day,
         start: '',
-        end: '',
+        end: selectedAbsence === 'PUBLIC_HOLIDAY' && isHolidayWorked ? '17:00' : '',
         position: employee.position,
         type: 'morning' as const,
-        status: selectedAbsence as DailyStatus
+        status: selectedAbsence as DailyStatus,
+        isHolidayWorked: selectedAbsence === 'PUBLIC_HOLIDAY' ? isHolidayWorked : undefined
       };
       
       // Save absence
@@ -683,25 +696,103 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
                     </h4>
                     
                     <div className="grid grid-cols-2 gap-2">
-                      {Object.entries(DAILY_STATUS).map(([status, { label, color }]) => (
+                      {Object.entries(DAILY_STATUS).map(([key, { label, color }]) => (
                         <button
-                          key={status}
+                          key={key}
                           type="button"
-                          onClick={() => setSelectedAbsence(status as DailyStatus)}
+                          onClick={() => {
+                            setSelectedAbsence(key as DailyStatus);
+                            // Reset holiday worked flag when changing status
+                            if (key !== 'PUBLIC_HOLIDAY') {
+                              setIsHolidayWorked(false);
+                            }
+                          }}
                           className={`p-2 text-sm font-medium rounded-md border ${
-                            selectedAbsence === status 
+                            selectedAbsence === key 
                               ? 'text-white' 
                               : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                           }`}
                           style={{
-                            backgroundColor: selectedAbsence === status ? color : undefined,
-                            borderColor: selectedAbsence === status ? color : undefined
+                            backgroundColor: selectedAbsence === key ? color : undefined,
+                            borderColor: selectedAbsence === key ? color : undefined
                           }}
                         >
                           {label}
                         </button>
                       ))}
                     </div>
+                    
+                    {/* Holiday Worked Option - Only show for PUBLIC_HOLIDAY */}
+                    {selectedAbsence === 'PUBLIC_HOLIDAY' && (
+                      <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Clock size={16} className="text-red-500 mr-2" />
+                            <span className="text-sm font-medium text-red-700">
+                              {i18n.language === 'fr' ? 'Férié travaillé (majoré)' : 'Worked holiday (with overtime)'}
+                            </span>
+                          </div>
+                          <div className="relative inline-block w-10 mr-2 align-middle select-none">
+                            <input
+                              type="checkbox"
+                              id="holidayWorked"
+                              checked={isHolidayWorked}
+                              onChange={toggleHolidayWorked}
+                              className="sr-only"
+                            />
+                            <label
+                              htmlFor="holidayWorked"
+                              className={`block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer ${
+                                isHolidayWorked ? 'bg-red-500' : 'bg-gray-300'
+                              }`}
+                            >
+                              <span
+                                className={`block h-6 w-6 rounded-full bg-white shadow transform transition-transform duration-200 ease-in-out ${
+                                  isHolidayWorked ? 'translate-x-4' : 'translate-x-0'
+                                }`}
+                              ></span>
+                            </label>
+                          </div>
+                        </div>
+                        
+                        {isHolidayWorked && (
+                          <div className="mt-3">
+                            <p className="text-sm text-red-600">
+                              {i18n.language === 'fr' 
+                                ? 'Les heures travaillées pendant un jour férié seront comptées comme des heures majorées (100%).'
+                                : 'Hours worked during a public holiday will be counted as overtime hours (100% premium).'}
+                            </p>
+                            
+                            {/* Time input for worked holiday */}
+                            <div className="grid grid-cols-2 gap-3 mt-3">
+                              <div>
+                                <label htmlFor="holidayStart" className="block text-xs font-medium text-red-700">
+                                  {i18n.language === 'fr' ? 'Heure de début' : 'Start Time'}
+                                </label>
+                                <input
+                                  type="time"
+                                  id="holidayStart"
+                                  value="09:00"
+                                  className="mt-1 block w-full border-red-300 focus:ring-red-500 focus:border-red-500 sm:text-xs rounded-md"
+                                />
+                              </div>
+                              
+                              <div>
+                                <label htmlFor="holidayEnd" className="block text-xs font-medium text-red-700">
+                                  {i18n.language === 'fr' ? 'Heure de fin' : 'End Time'}
+                                </label>
+                                <input
+                                  type="time"
+                                  id="holidayEnd"
+                                  value="17:00"
+                                  className="mt-1 block w-full border-red-300 focus:ring-red-500 focus:border-red-500 sm:text-xs rounded-md"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     
                     <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
                       <p className="text-sm text-blue-700">

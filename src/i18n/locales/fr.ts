@@ -344,6 +344,7 @@ export default {
       endingSoon: 'Se termine bientôt',
       cp: 'Congé Payé',
       public_holiday: 'Jour Férié',
+      public_holiday_worked: 'Férié Travaillé (100%)',
       addShift: 'Ajouter un Service',
       editShift: 'Modifier le Service',
       deleteShift: 'Supprimer le Service',
@@ -397,7 +398,7 @@ export default {
       totalWorkedHours: 'Total Heures Travaillées',
       overtimeHours: 'Heures Supp./Manquantes',
       numberOfShifts: 'Nb de Services',
-      publicHolidayHours: 'Dont Heures Majorées 100%',
+      publicHolidayHours: 'Heures Majorées 100%',
       cpHours: 'CP',
       noEmployees: 'Aucun employé trouvé',
       // CRITICAL: Auto-save related translations

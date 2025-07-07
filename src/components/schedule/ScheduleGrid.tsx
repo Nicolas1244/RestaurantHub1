@@ -918,7 +918,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                       <div className={`${gridClasses.summaryTitle} flex items-center`}>
                         {t('schedule.totalWorkedHours')}
                         {/* CRITICAL: Show break payment indicator */}
-                        {userSettings?.payBreakTimes !== false ? (
+                        {(userSettings?.payBreakTimes ?? true) ? (
                           <span className="text-green-600 text-xs ml-1">
                             {i18n.language === 'fr' ? '(Avec pauses)' : '(With breaks)'}
                           </span>
@@ -938,7 +938,9 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                       )}
                       {totalPublicHolidayHours > 0 && (
                         <div className={`text-gray-700 mt-1 ${gridClasses.summaryDetail}`}>
-                          {t('schedule.publicHolidayHours')} : {formatHours(totalPublicHolidayHours)}
+                          <span className="text-red-600">
+                            {i18n.language === 'fr' ? 'Heures Majorées 100%' : 'Premium Hours 100%'} : {formatHours(totalPublicHolidayHours)}
+                          </span>
                         </div>
                       )}
                     </div>
