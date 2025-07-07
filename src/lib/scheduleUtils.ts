@@ -155,7 +155,6 @@ export const calculateEmployeeWeeklySummary = (
     
     // Get status and isHolidayWorked flag from any shift for this day
     const status = dayShifts.find(s => s.status)?.status;
-    const hasHolidayWorked = dayShifts.some(s => s.isHolidayWorked);
     if (status) {
       dailyStatus[day] = status;
     }
@@ -195,6 +194,8 @@ export const calculateEmployeeWeeklySummary = (
   for (let day = 0; day < 7; day++) {
     const status = dailyStatus[day];
     const hours = dailyHours[day];
+    const currentDayShifts = shiftsByDay[day] || [];
+    const hasHolidayWorked = currentDayShifts.some(s => s.isHolidayWorked);
 
     if (status === 'WEEKLY_REST') {
       // Repos Hebdo: NO IMPACT on calculations - designated non-working day
