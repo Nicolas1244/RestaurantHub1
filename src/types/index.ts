@@ -205,6 +205,7 @@ export interface Employee {
   email?: string;
   socialSecurityNumber?: string;
   contractType: ContractType;
+  profilePicture?: string; // Base64 encoded image data
   startDate: string;
   endDate: string | null;
   position: string;
