@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Upload, Download, Trash2, Search, Filter, Eye, File, FilePlus, FolderPlus, Calendar } from 'lucide-react';
+import { FileText, Upload, Download, Trash2, Search, Filter, Eye, File, FilePlus, FolderPlus, Calendar, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAppContext } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
