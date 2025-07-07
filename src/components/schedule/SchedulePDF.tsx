@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     padding: 15,
     fontSize: 8,
-    fontFamily: 'Helvetica',
+    fontFamily: 'Helvetica'
   },
   
   // Header Section - Optimized for single page
@@ -32,36 +32,36 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   headerLeft: {
-    flex: 1,
+    flex: 1
   },
   headerRight: {
-    width: 80,
-    alignItems: 'center',
+    width: 60,
+    alignItems: 'center'
   },
   restaurantLogo: {
-    width: 70,
-    height: 70,
-    objectFit: 'contain',
+    width: 50,
+    height: 50,
+    objectFit: 'contain'
   },
   restaurantName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#1f2937',
-    marginBottom: 3,
+    marginBottom: 3
   },
   restaurantAddress: {
     fontSize: 10,
     color: '#6b7280',
-    marginBottom: 6,
+    marginBottom: 6
   },
   weekInfo: {
     fontSize: 12,
     fontWeight: 'bold',
     color: '#2563eb',
-    marginBottom: 3,
+    marginBottom: 3
   },
   
   // Main Title - Centered and prominent
@@ -70,25 +70,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1f2937',
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: 'center'
   },
   
   // View Type Indicator - Compact
   viewTypeContainer: {
-    position: 'absolute',
+    position: 'absolute', 
     top: 15,
-    right: 15,
+    right: 90,
     backgroundColor: '#f3f4f6',
     border: 1,
     borderColor: '#d1d5db',
     borderRadius: 3,
-    padding: 6,
+    padding: 6
   },
   viewTypeText: {
     fontSize: 9,
     fontWeight: 'bold',
     color: '#374151',
-    textAlign: 'center',
+    textAlign: 'center'
   },
   
   // Table Styles - Optimized for single page
@@ -355,9 +355,6 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
           <View style={styles.headerLeft}>
             <Text style={styles.restaurantName}>{restaurant.name}</Text>
             <Text style={styles.restaurantAddress}>{formatRestaurantAddress()}</Text>
-            <Text style={styles.weekInfo}>
-              {i18n.language === 'fr' ? 'Semaine' : 'Week'} {weekNumber}, {year} - {weekRange}
-            </Text>
           </View>
           
           {/* Restaurant Logo */}
@@ -371,10 +368,13 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
           )}
         </View>
 
-        {/* Main Title - Centered and Localized */}
-        <Text style={styles.mainTitle}>
-          {i18n.language === 'fr' ? 'Planning Hebdomadaire' : 'Weekly Schedule'}
-        </Text>
+        {/* Main Title - Centered */}
+        <View style={{ alignItems: 'center', marginBottom: 10 }}>
+          <Text style={styles.mainTitle}>Planning Hebdomadaire</Text>
+          <Text style={styles.weekInfo}>
+            {i18n.language === 'fr' ? 'Semaine' : 'Week'} {weekNumber}, {year} - {weekRange}
+          </Text>
+        </View>
 
         {/* View Type Indicator */}
         <View style={styles.viewTypeContainer}>
