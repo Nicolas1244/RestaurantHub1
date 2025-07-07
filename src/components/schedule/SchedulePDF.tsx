@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   
   // Header Section - Optimized for single page
   header: {
-    marginBottom: 12,
+    marginBottom: 20,
     borderBottom: 2,
     borderBottomColor: '#2563eb',
     paddingBottom: 10,
@@ -65,11 +65,12 @@ const styles = StyleSheet.create({
   },
   
   // Main Title - Centered and prominent
-  mainTitle: {
+  mainTitle: { 
     fontSize: 16,
     fontWeight: 'bold',
     color: '#1f2937',
-    marginBottom: 10,
+    marginTop: -30, // Position above the blue line
+    marginBottom: 5,
     textAlign: 'center'
   },
   
@@ -354,7 +355,10 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.restaurantName}>{restaurant.name}</Text>
-            <Text style={styles.restaurantAddress}>{formatRestaurantAddress()}</Text>
+            <Text style={styles.restaurantAddress}>{formatRestaurantAddress()}</Text>            
+            <Text style={styles.weekInfo}>
+              {i18n.language === 'fr' ? 'Semaine' : 'Week'} {weekNumber}, {year} - Du {format(weekStartDate, 'd MMMM', { locale: fr }).replace(/^\w/, c => c.toUpperCase())} au {format(addDays(weekStartDate, 6), 'd MMMM yyyy', { locale: fr }).replace(/^\w/, c => c.toUpperCase())}
+            </Text>
           </View>
           
           {/* Restaurant Logo */}
@@ -369,11 +373,8 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
         </View>
 
         {/* Main Title - Centered */}
-        <View style={{ alignItems: 'center', marginBottom: 10 }}>
+        <View style={{ alignItems: 'center' }}>
           <Text style={styles.mainTitle}>Planning Hebdomadaire</Text>
-          <Text style={styles.weekInfo}>
-            {i18n.language === 'fr' ? 'Semaine' : 'Week'} {weekNumber}, {year} - {weekRange}
-          </Text>
         </View>
 
         {/* View Type Indicator */}
