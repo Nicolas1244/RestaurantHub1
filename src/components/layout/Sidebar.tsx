@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { 
   LayoutDashboard, 
-  UtensilsCrossed, 
+  UtensilsCrossed,
   Users,
   Calendar, 
   Settings,
@@ -9,7 +9,9 @@ import {
   TrendingUp,
   Fingerprint
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAppContext } from '../../contexts/AppContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
@@ -28,6 +30,7 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
   isAutoControlled = false
 }, ref) => {
   const { t, i18n } = useTranslation();
+  const { isManager, isAdmin, signOut } = useAuth();
   const { 
     restaurants, 
     currentRestaurant, 
@@ -208,30 +211,35 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
                 label={t('nav.dashboard')}
                 tab="dashboard"
                 isActive={currentTab === 'dashboard'}
+                hidden={!isManager()}
               />
               <NavItem 
                 icon={<UtensilsCrossed size={20} />} 
                 label={t('nav.restaurants')}
                 tab="restaurants"
                 isActive={currentTab === 'restaurants'}
+                hidden={!isManager()}
               />
               <NavItem 
                 icon={<Users size={20} />} 
                 label={t('nav.staff')} 
                 tab="staff"
                 isActive={currentTab === 'staff'}
+                hidden={!isManager()}
               />
               <NavItem 
                 icon={<Calendar size={20} />} 
                 label={t('nav.schedule')} 
                 tab="schedule"
                 isActive={currentTab === 'schedule'}
+                hidden={!isManager()}
               />
               <NavItem 
                 icon={<TrendingUp size={20} />} 
                 label={i18n.language === 'fr' ? 'Performance' : 'Performance'} 
                 tab="performance"
                 isActive={currentTab === 'performance'}
+                hidden={!isManager()}
               />
               {/* CRITICAL: Time Clock nav item - only visible when enabled in settings */}
               <NavItem 
@@ -241,6 +249,19 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
                 isActive={currentTab === 'timeclock'}
                 hidden={!userSettings?.timeClockEnabled}
               />
+              
+              {/* Employee Portal - only for non-managers */}
+              <li 
+                className={`flex items-center rounded-lg mb-1 cursor-pointer transition-all duration-200 ${
+                  isCollapsed ? 'p-2 justify-center' : 'p-3'
+                } hover:bg-gray-100 text-gray-700 hover:text-blue-600`}
+                onClick={() => window.location.href = '/employee'}
+              >
+                <span className={isCollapsed ? '' : 'mr-3'}>
+                  <User size={20} />
+                </span>
+                {!isCollapsed && <span className="font-medium">{t('employee.portal')}</span>}
+              </li>
             </ul>
           </nav>
 
@@ -248,10 +269,36 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
           <div className={`border-t border-gray-200 transition-all duration-300 ${isCollapsed ? 'p-2' : 'p-4'}`}>
             <NavItem 
               icon={<Settings size={20} />} 
-              label={t('nav.settings')}
+              label={t('nav.settings')} 
               tab="settings"
               isActive={currentTab === 'settings'}
             />
+            
+            {/* User Settings */}
+            <li 
+              className={`flex items-center rounded-lg mb-1 cursor-pointer transition-all duration-200 ${
+                isCollapsed ? 'p-2 justify-center' : 'p-3'
+              } hover:bg-gray-100 text-gray-700 hover:text-blue-600`}
+              onClick={() => window.location.href = '/user-settings'}
+            >
+              <span className={isCollapsed ? '' : 'mr-3'}>
+                <User size={20} />
+              </span>
+              {!isCollapsed && <span className="font-medium">{t('auth.userSettings')}</span>}
+            </li>
+            
+            {/* Sign Out */}
+            <li 
+              className={`flex items-center rounded-lg mb-1 cursor-pointer transition-all duration-200 ${
+                isCollapsed ? 'p-2 justify-center' : 'p-3'
+              } hover:bg-red-100 text-red-600`}
+              onClick={signOut}
+            >
+              <span className={isCollapsed ? '' : 'mr-3'}>
+                <LogOut size={20} />
+              </span>
+              {!isCollapsed && <span className="font-medium">{t('auth.signOut')}</span>}
+            </li>
           </div>
         </div>
       </div>

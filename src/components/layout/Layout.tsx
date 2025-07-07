@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import { useAuth } from '../../contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,7 +11,13 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const { isEmployee } = useAuth();
   const [isManuallyControlled, setIsManuallyControlled] = useState(false); // CRITICAL: Track manual override
+  
+  // Redirect to login if not authenticated
+  if (!isEmployee()) {
+    return <Navigate to="/auth" replace />;
+  }
   
   // CRITICAL: Refs and state for automatic retraction
   const sidebarRef = useRef<HTMLDivElement>(null);
