@@ -464,6 +464,30 @@ const SchedulePage: React.FC = () => {
           <div className="flex rounded-lg border border-gray-300 overflow-hidden">
             <button
               onClick={() => setViewLayout('grid')}
+              className={`px-4 py-2 flex items-center gap-2 ${
+                viewLayout === 'grid'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <FileText size={18} />
+              {t('schedule.grid')}
+            </button>
+            <button
+              onClick={() => setViewLayout('enhanced')}
+              className={`px-4 py-2 flex items-center gap-2 ${
+                viewLayout === 'enhanced'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <Plus size={18} />
+              {t('schedule.enhanced')}
+            </button>
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex rounded-lg border border-gray-300 overflow-hidden">
             <button
               onClick={() => setViewMode('weekly')}
               className={`px-4 py-2 flex items-center gap-2 ${
@@ -551,7 +575,7 @@ const SchedulePage: React.FC = () => {
                 {i18n.language === 'fr' ? 'Sauvegarder' : 'Save'}
               </>
             )}
-          </div>
+          </button>
 
           {/* CRITICAL: Labor Law Compliance Toggle */}
           <button
