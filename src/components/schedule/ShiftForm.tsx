@@ -241,16 +241,21 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
     if (status) {
       // If it's an absence/status, create a single shift with status
       const absenceShift = {
-        isHolidayWorked: status === 'PUBLIC_HOLIDAY' ? isHolidayWorked : undefined,
         restaurantId,
         employeeId,
         day,
-        start: status === 'PUBLIC_HOLIDAY' && isHolidayWorked ? '09:00' : '',
-        end: status === 'PUBLIC_HOLIDAY' && isHolidayWorked ? '17:00' : '',
+        // For worked holidays, we need to set start and end times
+        start: (status === 'PUBLIC_HOLIDAY' && isHolidayWorked) ? 
+               (document.getElementById('holidayStart') as HTMLInputElement)?.value || '09:00' : '',
+        end: (status === 'PUBLIC_HOLIDAY' && isHolidayWorked) ? 
+             (document.getElementById('holidayEnd') as HTMLInputElement)?.value || '17:00' : '',
         position: employees.find(e => e.id === employeeId)?.position || '',
         type: 'morning' as const,
-        status: status as DailyStatus,
-        notes
+        // For worked holidays, we don't set a status (it's a regular shift with isHolidayWorked flag)
+        status: (status === 'PUBLIC_HOLIDAY' && isHolidayWorked) ? undefined : (status as DailyStatus),
+        notes,
+        // Set the isHolidayWorked flag for PUBLIC_HOLIDAY
+        isHolidayWorked: (status === 'PUBLIC_HOLIDAY' && isHolidayWorked) ? true : undefined
       };
       
       if (shift) {
@@ -516,8 +521,8 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                         <div className="mt-3">
                           <p className="text-sm text-red-600">
                             {i18n.language === 'fr' 
-                              ? 'Les heures travaillées le 1er Mai seront comptées comme des heures majorées (100%).'
-                              : 'Hours worked on May 1st will be counted as premium hours (100%).'}
+                              ? 'Les heures travaillées pendant le 1er Mai seront comptées comme des heures majorées à 100%.'
+                              : 'Hours worked during May 1st will be counted with 100% premium pay.'}
                           </p>
                           
                           {/* Time input for worked holiday */}
@@ -529,7 +534,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                               <input
                                 type="time"
                                 id="holidayStart"
-                                defaultValue="09:00"
+                                defaultValue={shifts.length > 0 ? shifts[0].start : "09:00"}
                                 onChange={(e) => {
                                   // Update the start time for the holiday shift
                                   const newStart = e.target.value;
@@ -551,7 +556,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                               <input
                                 type="time"
                                 id="holidayEnd"
-                                defaultValue="17:00"
+                                defaultValue={shifts.length > 0 ? shifts[0].end : "17:00"}
                                 onChange={(e) => {
                                   // Update the end time for the holiday shift
                                   const newEnd = e.target.value;
