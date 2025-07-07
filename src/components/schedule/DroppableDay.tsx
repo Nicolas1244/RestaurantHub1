@@ -49,6 +49,7 @@ const DroppableDay: React.FC<DroppableDayProps> = ({
         );
       })}
     </div>
+  )
   );
 };
 
