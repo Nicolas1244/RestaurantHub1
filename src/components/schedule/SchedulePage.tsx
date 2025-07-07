@@ -638,7 +638,7 @@ const SchedulePage: React.FC = () => {
       <DailyEntryModal
         isOpen={showDailyEntryModal}
         onClose={() => setShowDailyEntryModal(false)}
-        employee={selectedEmployee}
+        employee={selectedEmployee || null}
         day={selectedDay}
         existingShifts={shifts}
         onSaveShifts={handleSaveShifts}
