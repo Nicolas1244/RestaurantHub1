@@ -125,10 +125,18 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
         {/* Employee avatar/initials */}
         <div className="font-medium text-sm flex items-center justify-between mb-2">
           <div className={`flex items-center ${shift.status ? 'w-full justify-center' : ''}`}>
-            <div className="w-7 h-7 rounded-full flex items-center justify-center mr-2 bg-white bg-opacity-20 shadow-sm">
-              <span style={{ color: textColor }}>
-                {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
-              </span>
+            <div className="w-7 h-7 rounded-full flex items-center justify-center mr-2 bg-white bg-opacity-20 shadow-sm overflow-hidden">
+              {employee.profilePicture ? (
+                <img 
+                  src={employee.profilePicture} 
+                  alt={`${employee.firstName} ${employee.lastName}`} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span style={{ color: textColor }}>
+                  {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
+                </span>
+              )}
             </div>
             <span className="font-semibold">{shift.status ? DAILY_STATUS[shift.status].label : `${employee.firstName} ${employee.lastName}`}</span>
           </div>

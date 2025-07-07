@@ -29,6 +29,7 @@ export const mockEmployees: Employee[] = [
     firstName: 'Alex',
     lastName: 'Johnson',
     position: 'Operations Manager', // Updated to new position
+    profilePicture: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
     category: 'Salle',
     streetAddress: '123 Main St',
     city: 'New York',
@@ -56,6 +57,7 @@ export const mockEmployees: Employee[] = [
     firstName: 'Sam',
     lastName: 'Williams',
     position: 'Chef de Cuisine', // Updated to new position
+    profilePicture: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
     category: 'Cuisine',
     streetAddress: '456 Oak Ave',
     city: 'New York',

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, Mail, Calendar, MapPin, Globe, User, DollarSign, Briefcase, Clock, Heart, Calendar as CalendarIcon, Repeat } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Mail, Calendar, MapPin, Globe, User, DollarSign, Briefcase, Clock, Heart, Calendar as CalendarIcon, Repeat, Upload, Image as ImageIcon } from 'lucide-react';
 import { Employee, POSITIONS, EMPLOYEE_CATEGORIES, EmployeeCategory, EMPLOYEE_STATUS, EmployeeStatus, formatFrenchPhoneNumber, formatSocialSecurityNumber } from '../../types';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
@@ -21,11 +21,13 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
   onUpdate,
   restaurantId
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [streetAddress, setStreetAddress] = useState('');
   const [city, setCity] = useState('');
+  const [profilePicture, setProfilePicture] = useState<string | undefined>(undefined);
   const [postalCode, setPostalCode] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -67,6 +69,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
       setLastName(employee.lastName);
       setStreetAddress(employee.streetAddress);
       setCity(employee.city);
+      setProfilePicture(employee.profilePicture);
       setPostalCode(employee.postalCode);
       setPhone(employee.phone);
       setEmail(employee.email || '');
@@ -105,6 +108,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
       setLastName('');
       setStreetAddress('');
       setCity('');
+      setProfilePicture(undefined);
       setPostalCode('');
       setPhone('');
       setEmail('');
@@ -140,6 +144,43 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
       }
     }
   }, [contractType, employee]);
+
+  // Handle profile picture upload
+  const handleProfilePictureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      toast.error(i18n.language === 'fr' 
+        ? 'Format de fichier invalide. Utilisez JPG, PNG ou WebP.' 
+        : 'Invalid file format. Use JPG, PNG or WebP.');
+      return;
+    }
+    
+    // Validate file size (max 2MB)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+      toast.error(i18n.language === 'fr' 
+        ? 'L\'image est trop volumineuse. Maximum 2MB.' 
+        : 'Image is too large. Maximum 2MB.');
+      return;
+    }
+    
+    // Convert to Base64
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64String = e.target?.result as string;
+      setProfilePicture(base64String);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Remove profile picture
+  const handleRemoveProfilePicture = () => {
+    setProfilePicture(undefined);
+  };
 
   // CRITICAL: Auto-assign category based on selected position
   useEffect(() => {
@@ -254,6 +295,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
         position: finalPosition,
         category,
         weeklyHours,
+        profilePicture,
         notificationDays,
         restaurantId,
         // CRITICAL: Include new fields
@@ -356,7 +398,68 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {activeTab === 'personal' && (
-              <>
+              <div className="space-y-6">
+                {/* Profile Picture Upload */}
+                <div className="border-b border-gray-200 pb-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Photo de Trombinoscope</h3>
+                  
+                  <div className="flex items-center space-x-6">
+                    {/* Profile Picture Preview */}
+                    <div className="relative">
+                      <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border border-gray-300">
+                        {profilePicture ? (
+                          <img 
+                            src={profilePicture} 
+                            alt={`${firstName} ${lastName}`} 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-600 text-xl font-bold">
+                            {firstName.charAt(0)}{lastName.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Remove button */}
+                      {profilePicture && (
+                        <button
+                          type="button"
+                          onClick={handleRemoveProfilePicture}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors"
+                          title={i18n.language === 'fr' ? 'Supprimer la photo' : 'Remove photo'}
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+                    
+                    {/* Upload controls */}
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        id="profilePicture"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleProfilePictureUpload}
+                        className="hidden"
+                        ref={fileInputRef}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      >
+                        <Upload size={16} className="mr-2" />
+                        {i18n.language === 'fr' ? 'Télécharger une photo' : 'Upload photo'}
+                      </button>
+                      <p className="mt-2 text-xs text-gray-500">
+                        {i18n.language === 'fr' 
+                          ? 'Formats acceptés: JPG, PNG, WebP. Taille max: 2MB.' 
+                          : 'Accepted formats: JPG, PNG, WebP. Max size: 2MB.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
                 {/* Personal Information Section */}
                 <div className="border-b border-gray-200 pb-6">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Informations Personnelles</h3>
@@ -573,7 +676,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                     </p>
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
             {activeTab === 'employment' && (

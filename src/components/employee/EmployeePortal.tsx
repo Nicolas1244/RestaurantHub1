@@ -64,7 +64,17 @@ const EmployeePortal: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center">
                 <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl mr-4">
-                  {employee.firstName[0]}{employee.lastName[0]}
+                  {employee.profilePicture ? (
+                    <img 
+                      src={employee.profilePicture} 
+                      alt={`${employee.firstName} ${employee.lastName}`} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>
+                      {employee.firstName[0]}{employee.lastName[0]}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <h4 className="text-lg font-medium text-gray-900">

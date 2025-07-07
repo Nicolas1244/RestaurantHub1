@@ -555,8 +555,25 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
                     }`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`text-sm font-medium ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>
-                        {employee.firstName} {employee.lastName}
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white overflow-hidden">
+                          {employee.profilePicture ? (
+                            <img 
+                              src={employee.profilePicture} 
+                              alt={`${employee.firstName} ${employee.lastName}`} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span>
+                              {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="ml-4">
+                          <div className={`text-sm font-medium ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>
+                            {employee.firstName} {employee.lastName}
+                          </div>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

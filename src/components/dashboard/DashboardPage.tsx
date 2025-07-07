@@ -9,7 +9,9 @@ import {
   Calendar,
   ChefHat,
   DollarSign,
-  Percent
+  Percent,
+  CheckCircle,
+  LogOut
 } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { differenceInDays, format, addDays } from 'date-fns';
