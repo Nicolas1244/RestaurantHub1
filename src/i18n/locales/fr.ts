@@ -128,6 +128,9 @@ export default {
       saveError: 'Erreur lors de la sauvegarde des paramètres',
       resetSuccess: 'Paramètres réinitialisés'
     },
+    breakPayment: {
+      description: 'Le paramètre "Rémunérer les temps de pause" détermine si les pauses sont incluses dans les calculs d\'heures travaillées. Lorsqu\'il est activé, les pauses entre les services sont comptées comme du temps rémunéré.'
+    },
     contractExpiryAlerts: 'Alertes de Fin de Contrat',
     scheduleChangeAlerts: 'Alertes de Modification du Planning',
     calendarSync: 'Synchronisation Calendrier',

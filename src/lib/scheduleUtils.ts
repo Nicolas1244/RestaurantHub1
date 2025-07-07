@@ -7,8 +7,8 @@ export const calculateTimeInHours = (start: string, end: string): number => {
   const [endHour, endMin] = end.split(':').map(Number);
   const adjustedEndHour = endHour < startHour ? endHour + 24 : endHour;
   
-  // Return the gross scheduled hours WITHOUT automatically subtracting legal breaks
-  // This represents "paid hours" from a scheduling perspective
+  // Return the gross scheduled hours without any break deduction
+  // Break deduction will be handled in calculateEmployeeWeeklySummary based on settings
   return (adjustedEndHour - startHour) + (endMin - startMin) / 60;
 };
 
@@ -89,7 +89,7 @@ export const calculateProRatedContractHours = (
   // Calculate pro-rated hours
   const proRatedHours = workingDaysInPeriod * dailyContractHours;
   
-  console.log('🎯 Pro-rated calculation result:', {
+  console.log('🎯 Pro-rated calculation result for employee:', {
     workingDaysInPeriod,
     dailyContractHours: dailyContractHours.toFixed(2),
     proRatedHours: proRatedHours.toFixed(2),
@@ -166,8 +166,7 @@ export const calculateEmployeeWeeklySummary = (
         let hours = calculateTimeInHours(shift.start, shift.end);
         
         // CRITICAL: Apply break payment setting
-        // CRITICAL: Force payBreakTimes to always be true
-        if (false) { // Never subtract break time - breaks are always paid
+        if (!payBreakTimes) { // If breaks are not paid, subtract break time
           // If breaks are unpaid, we need to subtract break time
           // For now, we'll use a simplified approach: subtract 30 minutes for shifts > 6 hours
           // In a production system, you might want more sophisticated break calculation

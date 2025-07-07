@@ -229,27 +229,35 @@ const SettingsPage: React.FC = () => {
                 <div className="flex items-center">
                   <input
                     type="checkbox"
-                    id="payBreakTimes" 
-                    checked={true} // CRITICAL: Force checked state
-                    disabled={true} // CRITICAL: Disable the checkbox
+                    id="payBreakTimes"
+                    checked={localSettings.payBreakTimes}
+                    onChange={(e) => handleSettingChange('payBreakTimes', e.target.checked)}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="payBreakTimes" className="ml-2 block text-sm text-gray-700">
                     {t('settings.schedule.payBreakTimes')}
-                    <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                      {t('settings.schedule.default')}
-                    </span>
                   </label>
                 </div>
               </div>
 
-              <div className="pl-8 mt-2 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                <p className="text-sm text-blue-700 font-medium">
-                  {t('settings.breakPayment.description')}
-                </p>
-                <p className="text-sm text-blue-700 mt-2">
-                  Ce paramètre est activé par défaut et ne peut pas être modifié pour garantir la conformité avec les pratiques courantes de l'industrie.
-                </p>
+              <div className="pl-8 mt-2 p-4 bg-yellow-50 rounded-lg border border-yellow-100">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-yellow-700 font-medium">
+                      {t('settings.breakPayment.description')}
+                    </p>
+                    <p className="text-sm text-yellow-700 mt-2">
+                      {i18n.language === 'fr' 
+                        ? 'Ce paramètre détermine si les pauses (coupures) sont incluses dans le calcul des heures travaillées. Lorsqu\'il est activé, les pauses sont rémunérées et comptées dans le total des heures.'
+                        : 'This setting determines whether breaks are included in the calculation of worked hours. When enabled, breaks are paid and counted in the total hours.'}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 

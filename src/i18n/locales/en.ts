@@ -128,6 +128,9 @@ export default {
       saveError: 'Failed to save settings',
       resetSuccess: 'Settings reset successfully'
     },
+    breakPayment: {
+      description: 'The "Pay Break Times" setting determines whether breaks are included in worked hours calculations. When enabled, breaks between shifts are counted as paid time.'
+    },
     contractExpiryAlerts: 'Contract Expiry Alerts',
     scheduleChangeAlerts: 'Schedule Change Alerts',
     calendarSync: 'Calendar Synchronization',
