@@ -35,7 +35,6 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
     currentTab, 
     setCurrentTab,
     userSettings
-    userSettings
   } = useAppContext();
   
   const [isRestaurantDropdownOpen, setIsRestaurantDropdownOpen] = React.useState(false);
