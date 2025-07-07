@@ -153,6 +153,29 @@ export default {
       financialReports: 'Financial Reports',
       viewMetrics: 'View detailed metrics',
     },
+    timeclock: {
+      title: 'Time Clock',
+      clockIn: 'Clock In',
+      clockOut: 'Clock Out',
+      currentStatus: 'Current Status',
+      totalHoursToday: 'Total Hours Today',
+      history: 'Clock History',
+      comparison: 'Planned vs. Actual',
+      summary: 'Time Clock Summary',
+      exportReport: 'Export Report',
+      filterByDate: 'Filter by Date',
+      filterByEmployee: 'Filter by Employee',
+      status: {
+        clockedIn: 'Clocked In',
+        clockedOut: 'Clocked Out',
+        onTime: 'On Time',
+        late: 'Late',
+        early: 'Early',
+        overtime: 'Overtime',
+        undertime: 'Undertime',
+        missingPunch: 'Missing Punch'
+      }
+    },
     days: {
       monday: 'Monday',
       tuesday: 'Tuesday',

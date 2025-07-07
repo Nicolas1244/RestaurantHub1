@@ -2,11 +2,12 @@ import React, { forwardRef } from 'react';
 import { 
   LayoutDashboard, 
   UtensilsCrossed, 
-  Users, 
+  Users,
   Calendar, 
   Settings,
   ChevronDown,
   TrendingUp,
+  Fingerprint
   Fingerprint
 } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
@@ -32,8 +33,9 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
     restaurants, 
     currentRestaurant, 
     setCurrentRestaurant,
-    currentTab,
+    currentTab, 
     setCurrentTab,
+    userSettings
     userSettings
   } = useAppContext();
   
@@ -232,6 +234,14 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
                 label={i18n.language === 'fr' ? 'Performance' : 'Performance'} 
                 tab="performance"
                 isActive={currentTab === 'performance'}
+              />
+              {/* CRITICAL: Time Clock nav item - only visible when enabled in settings */}
+              <NavItem 
+                icon={<Fingerprint size={20} />} 
+                label={i18n.language === 'fr' ? 'Badgeuse' : 'Time Clock'} 
+                tab="timeclock"
+                isActive={currentTab === 'timeclock'}
+                hidden={!userSettings?.timeClockEnabled}
               />
               {/* CRITICAL: Time Clock nav item - only visible when enabled in settings */}
               <NavItem 

@@ -536,4 +536,9 @@ export interface TimeClockSummary {
   scheduledHours: number;
   difference: number;
   status: 'on_time' | 'late' | 'early' | 'overtime' | 'undertime';
+  date: string;
+  totalHours: number;
+  scheduledHours: number;
+  difference: number;
+  status: 'on_time' | 'late' | 'early' | 'overtime' | 'undertime';
 }

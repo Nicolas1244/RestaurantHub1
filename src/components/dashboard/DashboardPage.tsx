@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { 
   Users, 
   Clock, 
+  Fingerprint,
   AlertTriangle, 
   TrendingUp,
   Calendar,
@@ -13,16 +14,18 @@ import {
 import { useAppContext } from '../../contexts/AppContext';
 import { differenceInDays, format, addDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Employee, Shift } from '../../types';
+import { Employee, Shift, TimeClock } from '../../types';
 import toast from 'react-hot-toast';
+import TimeClockWidget from '../timeclock/TimeClockWidget';
 
 const DashboardPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { 
     currentRestaurant,
     getRestaurantEmployees,
-    getRestaurantSchedule,
-    setCurrentTab
+    getRestaurantSchedule, 
+    setCurrentTab,
+    userSettings
   } = useAppContext();
 
   const employees = currentRestaurant ? getRestaurantEmployees(currentRestaurant.id) : [];
@@ -169,7 +172,7 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {/* Schedule Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -252,6 +255,106 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Time Clock Widget - Only show if enabled in settings */}
+      {userSettings?.timeClockEnabled && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <Fingerprint className="text-indigo-600 mr-3" size={24} />
+                <h3 className="text-lg font-medium text-gray-800">
+                  {i18n.language === 'fr' ? 'Badgeuse' : 'Time Clock'}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setCurrentTab('timeclock')}
+                className="text-sm text-indigo-600 hover:text-indigo-700"
+              >
+                {i18n.language === 'fr' ? 'Voir tous les pointages' : 'View all time clock records'}
+              </button>
+            </div>
+            
+            <TimeClockWidget 
+              restaurantId={currentRestaurant?.id || ''}
+              employees={employees}
+              compact={true}
+            />
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center mb-4">
+              <Clock className="text-blue-600 mr-3" size={24} />
+              <h3 className="text-lg font-medium text-gray-800">
+                {i18n.language === 'fr' ? 'Activité Récente' : 'Recent Activity'}
+              </h3>
+            </div>
+            
+            <div className="space-y-4">
+              {/* Mock recent activity items */}
+              <div className="flex items-start">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                  <CheckCircle size={16} className="text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {employees[0]?.firstName} {employees[0]?.lastName}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {i18n.language === 'fr' ? 'Pointage d\'arrivée à 08:45' : 'Clocked in at 08:45'}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {i18n.language === 'fr' ? 'Il y a 35 minutes' : '35 minutes ago'}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                  <LogOut size={16} className="text-red-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {employees[1]?.firstName} {employees[1]?.lastName}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {i18n.language === 'fr' ? 'Pointage de départ à 17:15' : 'Clocked out at 17:15'}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {i18n.language === 'fr' ? 'Hier' : 'Yesterday'}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                  <AlertTriangle size={16} className="text-yellow-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {employees[2]?.firstName} {employees[2]?.lastName}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {i18n.language === 'fr' ? 'Pointage en retard de 15 minutes' : 'Late clock in by 15 minutes'}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {i18n.language === 'fr' ? 'Hier' : 'Yesterday'}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <button
+                onClick={() => setCurrentTab('timeclock')}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                {i18n.language === 'fr' ? 'Voir tous les pointages →' : 'View all time clock records →'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

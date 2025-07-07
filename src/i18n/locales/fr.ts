@@ -153,6 +153,29 @@ export default {
       financialReports: 'Rapports Financiers',
       viewMetrics: 'Voir les métriques détaillées',
     },
+    timeclock: {
+      title: 'Badgeuse',
+      clockIn: 'Arrivée',
+      clockOut: 'Départ',
+      currentStatus: 'Statut Actuel',
+      totalHoursToday: 'Heures Totales Aujourd\'hui',
+      history: 'Historique des Pointages',
+      comparison: 'Prévu vs. Réel',
+      summary: 'Résumé des Pointages',
+      exportReport: 'Exporter le Rapport',
+      filterByDate: 'Filtrer par Date',
+      filterByEmployee: 'Filtrer par Employé',
+      status: {
+        clockedIn: 'Pointé',
+        clockedOut: 'Non Pointé',
+        onTime: 'À l\'heure',
+        late: 'En retard',
+        early: 'En avance',
+        overtime: 'Heures supp.',
+        undertime: 'Heures manquantes',
+        missingPunch: 'Pointage manquant'
+      }
+    },
     days: {
       monday: 'Lundi',
       tuesday: 'Mardi',

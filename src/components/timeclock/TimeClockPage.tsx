@@ -4,13 +4,13 @@ import { useAppContext } from '../../contexts/AppContext';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import TimeClockInterface from './TimeClockInterface';
+import TimeClockWidget from './TimeClockWidget';
 import TimeClockReport from './TimeClockReport';
 import toast from 'react-hot-toast';
 
 const TimeClockPage: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { currentRestaurant, userSettings, getRestaurantEmployees, updateUserSettings } = useAppContext();
+  const { currentRestaurant, userSettings, getRestaurantEmployees, updateSettings } = useAppContext();
   const [activeTab, setActiveTab] = useState<'clock' | 'report'>('clock');
 
   // Redirect to settings if time clock is disabled
@@ -32,7 +32,7 @@ const TimeClockPage: React.FC = () => {
   // Handle enabling time clock
   const handleEnableTimeClock = async () => {
     try {
-      await updateUserSettings({ timeClockEnabled: true });
+      await updateSettings({ timeClockEnabled: true });
       toast.success(
         i18n.language === 'fr' 
           ? 'Fonction Badgeuse activée avec succès' 
@@ -127,7 +127,7 @@ const TimeClockPage: React.FC = () => {
       ) : (
         <>
           {activeTab === 'clock' ? (
-            <TimeClockInterface 
+            <TimeClockWidget 
               restaurantId={currentRestaurant.id}
               employees={employees}
             />
