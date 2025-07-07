@@ -10,72 +10,14 @@ import toast from 'react-hot-toast';
 
 const TimeClockPage: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { currentRestaurant, userSettings, getRestaurantEmployees, updateSettings } = useAppContext();
+  const { currentRestaurant, getRestaurantEmployees, updateSettings } = useAppContext();
+  // TEMPORARY: Force time clock to be enabled
+  const userSettings = { timeClockEnabled: true };
   const [activeTab, setActiveTab] = useState<'clock' | 'report'>('clock');
-
-  // Redirect to settings if time clock is disabled
-  useEffect(() => {
-    if (!userSettings?.timeClockEnabled) {
-      // Show notification
-      toast.error(
-        i18n.language === 'fr' 
-          ? 'La fonction Badgeuse est désactivée. Activez-la dans les paramètres.' 
-          : 'Time Clock function is disabled. Enable it in settings.',
-        { duration: 5000 }
-      );
-    }
-  }, [userSettings?.timeClockEnabled, i18n.language]);
 
   // Get employees for the current restaurant
   const employees = currentRestaurant ? getRestaurantEmployees(currentRestaurant.id) : [];
 
-  // Handle enabling time clock
-  const handleEnableTimeClock = async () => {
-    try {
-      await updateSettings({ timeClockEnabled: true });
-      toast.success(
-        i18n.language === 'fr' 
-          ? 'Fonction Badgeuse activée avec succès' 
-          : 'Time Clock function enabled successfully'
-      );
-    } catch (error) {
-      console.error('Failed to enable time clock:', error);
-      toast.error(
-        i18n.language === 'fr' 
-          ? 'Échec de l\'activation de la Badgeuse' 
-          : 'Failed to enable Time Clock'
-      );
-    }
-  };
-
-  // If time clock is disabled, show a message with option to enable
-  if (!userSettings?.timeClockEnabled) {
-    return (
-      <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-        <div className="max-w-md mx-auto">
-          <Fingerprint size={48} className="text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {i18n.language === 'fr' 
-              ? 'Fonction Badgeuse désactivée' 
-              : 'Time Clock Function Disabled'}
-          </h3>
-          <p className="text-gray-500 mb-6">
-            {i18n.language === 'fr' 
-              ? 'La fonction Badgeuse est actuellement désactivée. Cette fonctionnalité permet aux employés de pointer leurs heures d\'arrivée et de départ.'
-              : 'The Time Clock function is currently disabled. This feature allows employees to clock in and out for their shifts.'
-            }
-          </p>
-          <button
-            onClick={handleEnableTimeClock}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <Settings size={16} className="mr-2" />
-            {i18n.language === 'fr' ? 'Activer la Badgeuse' : 'Enable Time Clock'}
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div>

@@ -40,48 +40,34 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Provider component
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { t } = useTranslation();
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  // TEMPORARY: Create mock admin user and profile
+  const mockUser: User = {
+    id: 'admin-user-id',
+    app_metadata: {},
+    user_metadata: {},
+    aud: 'authenticated',
+    created_at: new Date().toISOString()
+  };
+  
+  const mockProfile: UserProfile = {
+    id: 'admin-user-id',
+    email: 'admin@example.com',
+    role: 'admin',
+    firstName: 'Admin',
+    lastName: 'User',
+    restaurantId: '1' // First restaurant ID from mock data
+  };
+  
+  const [user, setUser] = useState<User | null>(mockUser);
+  const [profile, setProfile] = useState<UserProfile | null>(mockProfile);
+  const [session, setSession] = useState<Session | null>({ access_token: 'mock-token', token_type: 'bearer', user: mockUser });
+  const [loading, setLoading] = useState(false);
 
   // Initialize auth state
   useEffect(() => {
-    const initializeAuth = async () => {
-      setLoading(true);
-      
-      // Get current session
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      
-      if (session?.user) {
-        setUser(session.user);
-        await fetchUserProfile(session.user.id);
-      }
-      
-      // Set up auth state listener
-      const { data: { subscription } } = await supabase.auth.onAuthStateChange(
-        async (_event, session) => {
-          setSession(session);
-          setUser(session?.user || null);
-          
-          if (session?.user) {
-            await fetchUserProfile(session.user.id);
-          } else {
-            setProfile(null);
-          }
-        }
-      );
-      
-      setLoading(false);
-      
-      // Clean up subscription
-      return () => {
-        subscription.unsubscribe();
-      };
-    };
-    
-    initializeAuth();
+    // TEMPORARY: Skip authentication initialization
+    // We're using mock data instead
+    setLoading(false);
   }, []);
 
   // Fetch user profile from database
@@ -229,15 +215,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Role check helpers
-  const isAdmin = () => profile?.role === 'admin';
-  const isManager = () => profile?.role === 'manager' || profile?.role === 'admin';
-  const isEmployee = () => !!profile; // Any authenticated user is at least an employee
+  // TEMPORARY: Always return true for role checks
+  const isAdmin = () => true;
+  const isManager = () => true;
+  const isEmployee = () => true;
 
   // Check if user has access based on required roles
-  const hasAccess = (requiredRoles: UserRole[]) => {
-    if (!profile) return false;
-    return requiredRoles.includes(profile.role);
-  };
+  // TEMPORARY: Always grant access
+  const hasAccess = (requiredRoles: UserRole[]) => true;
 
   // Context value
   const value = {

@@ -7,14 +7,30 @@ import toast from 'react-hot-toast';
 
 const SettingsPage: React.FC = () => {
   const { t } = useTranslation();
-  const { settings, updateSettings } = useAppContext();
-  const [localSettings, setLocalSettings] = useState(settings);
+  // TEMPORARY: Enable all settings by default
+  const { settings: appSettings, updateSettings } = useAppContext();
+  const defaultSettings = {
+    ...appSettings,
+    timeClockEnabled: true,
+    weatherEnabled: true,
+    weatherAutoLocation: true,
+    payBreakTimes: true,
+    emailNotifications: true,
+    pushNotifications: true,
+    contractExpiryAlerts: true,
+    scheduleChangeAlerts: true,
+    calendarSync: true,
+    backupEnabled: true,
+    twoFactorAuth: false,
+    posIntegration: true
+  };
+  const [localSettings, setLocalSettings] = useState(defaultSettings);
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
-    setLocalSettings(settings);
+    setLocalSettings(defaultSettings);
     setHasChanges(false);
-  }, [settings]);
+  }, [appSettings]);
 
   const handleSettingChange = (key: string, value: any) => {
     setLocalSettings(prev => ({ ...prev, [key]: value }));

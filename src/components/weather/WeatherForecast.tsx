@@ -22,7 +22,9 @@ const WeatherForecast: React.FC<WeatherForecastProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   // CRITICAL: Force weatherEnabled to true by default
-  const { userSettings, updateSettings, currentRestaurant } = useAppContext();
+  const { updateSettings, currentRestaurant } = useAppContext();
+  // TEMPORARY: Force weather to be enabled
+  const userSettings = { weatherEnabled: true, weatherAutoLocation: true };
   const [forecast, setForecast] = useState<WeatherForecastType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

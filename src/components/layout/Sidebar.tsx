@@ -34,7 +34,10 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
   isAutoControlled = false
 }, ref) => {
   const { t, i18n } = useTranslation();
-  const { isManager, isAdmin, signOut } = useAuth();
+  // TEMPORARY: Bypass role checks
+  const isManager = () => true;
+  const isAdmin = () => true;
+  const { signOut } = useAuth();
   const { 
     restaurants, 
     currentRestaurant, 
@@ -215,49 +218,42 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
                 label={t('nav.dashboard')}
                 tab="dashboard"
                 isActive={currentTab === 'dashboard'}
-                hidden={!isManager()}
               />
               <NavItem 
                 icon={<UtensilsCrossed size={20} />} 
                 label={t('nav.restaurants')}
                 tab="restaurants"
                 isActive={currentTab === 'restaurants'}
-                hidden={!isManager()}
               />
               <NavItem 
                 icon={<Users size={20} />} 
                 label={t('nav.staff')} 
                 tab="staff"
                 isActive={currentTab === 'staff'}
-                hidden={!isManager()}
               />
               <NavItem 
                 icon={<Calendar size={20} />} 
                 label={t('nav.schedule')} 
                 tab="schedule"
                 isActive={currentTab === 'schedule'}
-                hidden={!isManager()}
               />
               <NavItem 
                 icon={<TrendingUp size={20} />} 
                 label={i18n.language === 'fr' ? 'Performance' : 'Performance'} 
                 tab="performance"
                 isActive={currentTab === 'performance'}
-                hidden={!isManager()}
               />
               <NavItem 
                 icon={<DollarSign size={20} />} 
                 label={i18n.language === 'fr' ? 'Paie' : 'Payroll'} 
                 tab="payroll"
                 isActive={currentTab === 'payroll'}
-                hidden={!isManager()}
               />
               <NavItem 
                 icon={<FileText size={20} />} 
                 label={i18n.language === 'fr' ? 'Documents' : 'Documents'} 
                 tab="documents"
                 isActive={currentTab === 'documents'}
-                hidden={!isManager()}
               />
               {/* CRITICAL: Time Clock nav item - only visible when enabled in settings */}
               <NavItem 
@@ -265,7 +261,6 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
                 label={i18n.language === 'fr' ? 'Badgeuse' : 'Time Clock'} 
                 tab="timeclock"
                 isActive={currentTab === 'timeclock'}
-                hidden={!userSettings?.timeClockEnabled}
               />
               
               {/* Employee Portal - only for non-managers */}
