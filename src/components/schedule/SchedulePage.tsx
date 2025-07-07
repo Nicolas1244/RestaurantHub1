@@ -464,50 +464,6 @@ const SchedulePage: React.FC = () => {
           <div className="flex rounded-lg border border-gray-300 overflow-hidden">
             <button
               onClick={() => setViewLayout('grid')}
-              className={`px-4 py-2 flex items-center gap-2 ${
-                viewLayout === 'grid'
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-              title="Classic Grid Layout"
-            >
-              <Clock size={18} />
-              {t('schedule.classic')}
-            </button>
-            <button
-              onClick={() => setViewLayout('enhanced')}
-              className={`px-4 py-2 flex items-center gap-2 ${
-                viewLayout === 'enhanced'
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-              title="Enhanced Layout"
-            >
-              <FileText size={18} />
-              {t('schedule.enhanced')}
-            </button>
-          </div>
-          
-          {/* CRITICAL: Manual Save Button */}
-          <button
-            onClick={handleManualSave}
-            disabled={isSaving}
-            className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
-          >
-            {isSaving ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                {i18n.language === 'fr' ? 'Sauvegarde...' : 'Saving...'}
-              </>
-            ) : (
-              <>
-                <Save size={18} className="mr-2" />
-                {i18n.language === 'fr' ? 'Sauvegarder' : 'Save'}
-              </>
-            )}
-          </button>
-          
-          <div className="flex rounded-lg border border-gray-300 overflow-hidden">
             <button
               onClick={() => setViewMode('weekly')}
               className={`px-4 py-2 flex items-center gap-2 ${
@@ -577,6 +533,25 @@ const SchedulePage: React.FC = () => {
               {t('buttons.viewSalle')}
             </button>
           </div>
+          
+          {/* CRITICAL: Manual Save Button */}
+          <button
+            onClick={handleManualSave}
+            disabled={isSaving}
+            className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
+          >
+            {isSaving ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                {i18n.language === 'fr' ? 'Sauvegarde...' : 'Saving...'}
+              </>
+            ) : (
+              <>
+                <Save size={18} className="mr-2" />
+                {i18n.language === 'fr' ? 'Sauvegarder' : 'Save'}
+              </>
+            )}
+          </div>
 
           {/* CRITICAL: Labor Law Compliance Toggle */}
           <button
@@ -638,27 +613,16 @@ const SchedulePage: React.FC = () => {
                   />
                 )}
                 
-                {/* Toggle between classic grid and enhanced layout */}
-                {viewLayout === 'grid' ? (
-                  <ScheduleGrid
-                    shifts={shifts}
-                    employees={employees}
-                    onUpdateShift={handleUpdateShift}
-                    onAddShift={handleAddShift}
-                    onDeleteShift={deleteShift}
-                    weekStartDate={weekStartDate}
-                    onOpenShiftModal={handleOpenDailyEntryModal}
-                  />
-                ) : (
-                  <WeeklySchedule
-                    employees={employees}
-                    shifts={shifts}
-                    onAddShift={handleAddShift}
-                    onUpdateShift={handleUpdateShift}
-                    onDeleteShift={deleteShift}
-                    restaurantId={currentRestaurant.id}
-                  />
-                )}
+                {/* Always use grid layout */}
+                <ScheduleGrid
+                  shifts={shifts}
+                  employees={employees}
+                  onUpdateShift={handleUpdateShift}
+                  onAddShift={handleAddShift}
+                  onDeleteShift={deleteShift}
+                  weekStartDate={weekStartDate}
+                  onOpenShiftModal={handleOpenDailyEntryModal}
+                />
               </>
             ) : (
               <MonthlySchedule

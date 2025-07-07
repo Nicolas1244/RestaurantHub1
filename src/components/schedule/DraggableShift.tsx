@@ -84,9 +84,9 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    backgroundColor: shift.status ? `${DAILY_STATUS[shift.status].color}20` : employeeColor,
-    borderColor: shift.status ? DAILY_STATUS[shift.status].color : undefined,
-    color: shift.status ? DAILY_STATUS[shift.status].color : textColor,
+    backgroundColor: shift.status ? DAILY_STATUS[shift.status].color : employeeColor,
+    borderColor: shift.status ? `${DAILY_STATUS[shift.status].color}80` : undefined,
+    color: shift.status ? getTextColor(DAILY_STATUS[shift.status].color) : textColor,
     boxShadow: '0 2px 4px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.06)',
     borderRadius: '8px',
     overflow: 'hidden',
@@ -124,45 +124,44 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
       <div className="relative">
         {/* Employee avatar/initials */}
         <div className="font-medium text-sm flex items-center justify-between mb-2">
-          <div className="flex items-center">
+          <div className={`flex items-center ${shift.status ? 'w-full justify-center' : ''}`}>
             <div className="w-7 h-7 rounded-full flex items-center justify-center mr-2 bg-white bg-opacity-20 shadow-sm">
               <span style={{ color: textColor }}>
                 {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
               </span>
             </div>
-            <span className="font-semibold">{`${employee.firstName} ${employee.lastName}`}</span>
+            <span className="font-semibold">{shift.status ? DAILY_STATUS[shift.status].label : `${employee.firstName} ${employee.lastName}`}</span>
           </div>
-          {!shift.status && (
+          {!shift.status ? (
             <span className="text-xs font-bold px-2 py-1 rounded-full bg-white bg-opacity-25 shadow-sm">
               {shiftDuration}h
             </span>
-          )}
+          ) : null}
         </div>
         
-        {/* Position or status */}
-        <div className="text-xs opacity-90 font-medium mb-1">
-          {shift.status ? DAILY_STATUS[shift.status].label : getPositionDisplay(shift.position)}
-        </div>
-        
-        {/* Time range with clock icon */}
-        <div className="text-xs opacity-80 font-medium flex items-center">
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="12" 
-            height="12" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            className="mr-1"
-          >
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
-          </svg>
-          {shift.start && shift.end ? `${shift.start} - ${shift.end}` : ''}
-        </div>
+        {!shift.status && (
+          <>
+            {/* Time range with clock icon */}
+            <div className="text-xs opacity-80 font-medium flex items-center">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="12" 
+                height="12" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="mr-1"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              {shift.start && shift.end ? `${shift.start} - ${shift.end}` : ''}
+            </div>
+          </>
+        )}
         
         {/* Coupure indicator if applicable */}
         {shift.hasCoupure && (
