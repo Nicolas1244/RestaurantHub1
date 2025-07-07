@@ -796,7 +796,7 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
                     
                     <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
                       <p className="text-sm text-blue-700">
-                        <strong>Note:</strong> {i18n.language === 'fr' 
+                        {i18n.language === 'fr' 
                           ? 'Sélectionner une absence supprimera tous les services planifiés pour ce jour.' 
                           : 'Selecting an absence will remove any scheduled shifts for this day.'}
                       </p>

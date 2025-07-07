@@ -516,8 +516,8 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                         <div className="mt-3">
                           <p className="text-sm text-red-600">
                             {i18n.language === 'fr' 
-                              ? 'Les heures travaillées pendant un jour férié seront comptées comme des heures majorées (100%).'
-                              : 'Hours worked during a public holiday will be counted as overtime hours (100% premium).'}
+                              ? 'Les heures travaillées le 1er Mai seront comptées comme des heures majorées (100%).'
+                              : 'Hours worked on May 1st will be counted as premium hours (100%).'}
                           </p>
                           
                           {/* Time input for worked holiday */}
