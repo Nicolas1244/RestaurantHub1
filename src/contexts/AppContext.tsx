@@ -8,8 +8,8 @@ interface AppContextType {
   employees: Employee[];
   schedules: Schedule[];
   currentRestaurant: Restaurant | null;
-  currentTab: 'dashboard' | 'restaurants' | 'schedule' | 'staff' | 'settings' | 'performance' | 'timeclock';
-  setCurrentTab: (tab: 'dashboard' | 'restaurants' | 'schedule' | 'staff' | 'settings' | 'performance' | 'timeclock') => void;
+  currentTab: 'dashboard' | 'restaurants' | 'schedule' | 'staff' | 'settings' | 'performance' | 'timeclock' | 'documents';
+  setCurrentTab: (tab: 'dashboard' | 'restaurants' | 'schedule' | 'staff' | 'settings' | 'performance' | 'timeclock' | 'documents') => void;
   setCurrentRestaurant: (restaurant: Restaurant | null) => void;
   getRestaurantEmployees: (restaurantId: string) => Employee[];
   getRestaurantSchedule: (restaurantId: string) => Schedule | undefined;
@@ -84,8 +84,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [restaurants, setRestaurants] = useState<Restaurant[]>(mockRestaurants);
   const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
   const [schedules, setSchedules] = useState<Schedule[]>(mockSchedules);
-  const [currentRestaurant, setCurrentRestaurant] = useState<Restaurant | null>(mockRestaurants[0]);
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'restaurants' | 'schedule' | 'staff' | 'settings' | 'performance' | 'timeclock'>('dashboard');
+  const [currentRestaurant, setCurrentRestaurant] = useState<Restaurant | null>(mockRestaurants[0]); 
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'restaurants' | 'schedule' | 'staff' | 'settings' | 'performance' | 'timeclock' | 'documents'>('dashboard');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [settings, setSettings] = useState<UserSettings>(defaultUserSettings);
   // CRITICAL: Add last save timestamp for auto-save feature

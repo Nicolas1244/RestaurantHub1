@@ -8,6 +8,7 @@ import StaffPage from '../staff/StaffPage';
 import SettingsPage from '../settings/SettingsPage';
 import TimeClockPage from '../timeclock/TimeClockPage';
 import PerformancePage from '../performance/PerformancePage';
+import DocumentsPage from '../../pages/DocumentsPage';
 import PayrollPage from '../../pages/PayrollPage';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppContext } from '../../contexts/AppContext';
@@ -162,6 +163,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               {currentTab === 'settings' && <SettingsPage />}
               {currentTab === 'performance' && <PerformancePage />}
               {currentTab === 'payroll' && <PayrollPage />}
+              {currentTab === 'documents' && <DocumentsPage />}
               {currentTab === 'timeclock' && <TimeClockPage />}
             </>
           )}
