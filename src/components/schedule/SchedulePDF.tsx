@@ -443,7 +443,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
               employee.startDate,  // CRITICAL: Pass employee contract dates
               employee.endDate,    // CRITICAL: Pass employee contract dates
               weekStartDate,       // CRITICAL: Pass week start date
-              payBreakTimes        // CRITICAL: Pass break payment setting
+              payBreakTimes ?? true // CRITICAL: Pass break payment setting with default to true
             );
 
             // CRITICAL: Check if pro-rated hours differ from full contract

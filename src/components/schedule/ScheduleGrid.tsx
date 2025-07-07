@@ -693,7 +693,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
               employee.startDate, // CRITICAL: Pass employee start date
               employee.endDate,   // CRITICAL: Pass employee end date
               weekStartDate,      // CRITICAL: Pass week start date
-              userSettings?.payBreakTimes // CRITICAL: Pass break payment setting with optional chaining
+              userSettings?.payBreakTimes ?? true // CRITICAL: Pass break payment setting with default to true
             );
 
             // Get employee preferences
@@ -918,9 +918,15 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                       <div className={`${gridClasses.summaryTitle} flex items-center`}>
                         {t('schedule.totalWorkedHours')}
                         {/* CRITICAL: Show break payment indicator */}
-                        <span className="text-green-600 text-xs ml-1">
-                          (Avec pauses)
-                        </span>
+                        {userSettings?.payBreakTimes !== false ? (
+                          <span className="text-green-600 text-xs ml-1">
+                            {i18n.language === 'fr' ? '(Avec pauses)' : '(With breaks)'}
+                          </span>
+                        ) : (
+                          <span className="text-orange-600 text-xs ml-1">
+                            {i18n.language === 'fr' ? '(Sans pauses)' : '(Without breaks)'}
+                          </span>
+                        )}
                       </div>
                       <div className={`${gridClasses.summaryValue} text-blue-600 font-bold`}>
                         {formatHours(totalWorkedHours)}
