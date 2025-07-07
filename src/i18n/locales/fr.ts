@@ -193,6 +193,41 @@ export default {
       documentRetention: 'Rétention des Documents',
       electronicSignature: 'Signature Électronique',
       automaticDocumentGeneration: 'Génération Automatique de Documents'
+      management: 'Gestion des Documents',
+      filterByEmployee: 'Filtrer par Employé',
+      allEmployees: 'Tous les Employés',
+      upload: 'Télécharger un Document',
+      download: 'Télécharger',
+      delete: 'Supprimer',
+      view: 'Voir',
+      category: 'Catégorie',
+      categories: {
+        contract: 'Contrat',
+        payslip: 'Bulletin de paie',
+        dpae: 'DPAE',
+        other: 'Autre'
+      },
+      status: {
+        pending: 'En attente',
+        signed: 'Signé',
+        rejected: 'Rejeté'
+      },
+      noDocuments: 'Aucun document trouvé',
+      uploadSuccess: 'Document téléchargé avec succès',
+      downloadStarted: 'Téléchargement du document démarré',
+      deleteSuccess: 'Document supprimé avec succès',
+      deleteConfirm: 'Êtes-vous sûr de vouloir supprimer ce document ?',
+      createFolder: 'Créer un Dossier',
+      folderName: 'Nom du Dossier',
+      folderCreated: 'Dossier créé avec succès',
+      documentDate: 'Date du Document',
+      documentInfo: 'Informations sur le Document',
+      documentPreview: 'Aperçu du Document',
+      previewNotAvailable: 'Aperçu non disponible',
+      documentStorage: 'Stockage des Documents',
+      documentRetention: 'Rétention des Documents',
+      electronicSignature: 'Signature Électronique',
+      automaticDocumentGeneration: 'Génération Automatique de Documents'
     },
     payroll: {
       title: 'Gestion de la Paie',

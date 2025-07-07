@@ -6,7 +6,8 @@ import EmployeeList from '../employees/EmployeeList';
 import EmployeeForm from '../employees/EmployeeForm';
 import ComprehensiveDirectory from '../employees/ComprehensiveDirectory';
 import EmployeePreferencesForm from '../employees/EmployeePreferencesForm';
-import EmployeeAvailabilityForm from '../employees/EmployeeAvailabilityForm';
+import EmployeeAvailabilityForm from '../employees/EmployeeAvailabilityForm'; 
+import DocumentManager from '../hr/DocumentManager';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 
@@ -14,7 +15,7 @@ type StaffView = 'list' | 'directory';
 
 const StaffPage: React.FC = () => {
   const { t } = useTranslation();
-  const { 
+  const {
     currentRestaurant,
     getRestaurantEmployees,
     addEmployee,
@@ -30,6 +31,7 @@ const StaffPage: React.FC = () => {
   const [showEmployeeForm, setShowEmployeeForm] = useState(false);
   const [showPreferencesForm, setShowPreferencesForm] = useState(false);
   const [showAvailabilityForm, setShowAvailabilityForm] = useState(false);
+  const [showDocumentsModal, setShowDocumentsModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | undefined>(undefined);
   const [currentView, setCurrentView] = useState<StaffView>('list');
 
@@ -55,6 +57,11 @@ const StaffPage: React.FC = () => {
   const handleManageAvailability = (employee: Employee) => {
     setSelectedEmployee(employee);
     setShowAvailabilityForm(true);
+  };
+
+  const handleManageDocuments = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setShowDocumentsModal(true);
   };
 
   // CRITICAL FIX: Remove duplicate toast notifications - let AppContext handle them
@@ -205,6 +212,7 @@ const StaffPage: React.FC = () => {
           onEditEmployee={handleEditEmployee}
           onManagePreferences={handleManagePreferences}
           onManageAvailability={handleManageAvailability}
+          onManageDocuments={handleManageDocuments}
         />
       )}
       
@@ -244,6 +252,42 @@ const StaffPage: React.FC = () => {
           onSave={handleSaveAvailability}
           onDelete={handleDeleteAvailability}
         />
+      )}
+
+      {/* Documents Modal */}
+      {showDocumentsModal && selectedEmployee && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-screen items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setShowDocumentsModal(false)} />
+            
+            <div className="relative w-full max-w-5xl rounded-lg bg-white shadow-xl">
+              <div className="flex items-center justify-between border-b px-6 py-4">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {t('documents.title')} - {selectedEmployee.firstName} {selectedEmployee.lastName}
+                </h2>
+                <button
+                  onClick={() => setShowDocumentsModal(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="p-6 max-h-[80vh] overflow-y-auto">
+                <DocumentManager employeeId={selectedEmployee.id} />
+              </div>
+              
+              <div className="flex justify-end p-4 border-t">
+                <button
+                  onClick={() => setShowDocumentsModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  {t('common.close')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

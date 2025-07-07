@@ -193,6 +193,41 @@ export default {
       documentRetention: 'Document Retention',
       electronicSignature: 'Electronic Signature',
       automaticDocumentGeneration: 'Automatic Document Generation'
+      management: 'Document Management',
+      filterByEmployee: 'Filter by Employee',
+      allEmployees: 'All Employees',
+      upload: 'Upload Document',
+      download: 'Download',
+      delete: 'Delete',
+      view: 'View',
+      category: 'Category',
+      categories: {
+        contract: 'Contract',
+        payslip: 'Payslip',
+        dpae: 'DPAE',
+        other: 'Other'
+      },
+      status: {
+        pending: 'Pending',
+        signed: 'Signed',
+        rejected: 'Rejected'
+      },
+      noDocuments: 'No documents found',
+      uploadSuccess: 'Document uploaded successfully',
+      downloadStarted: 'Document download started',
+      deleteSuccess: 'Document deleted successfully',
+      deleteConfirm: 'Are you sure you want to delete this document?',
+      createFolder: 'Create Folder',
+      folderName: 'Folder Name',
+      folderCreated: 'Folder created successfully',
+      documentDate: 'Document Date',
+      documentInfo: 'Document Information',
+      documentPreview: 'Document Preview',
+      previewNotAvailable: 'Preview not available',
+      documentStorage: 'Document Storage',
+      documentRetention: 'Document Retention',
+      electronicSignature: 'Electronic Signature',
+      automaticDocumentGeneration: 'Automatic Document Generation'
     },
     payroll: {
       title: 'Payroll Management',

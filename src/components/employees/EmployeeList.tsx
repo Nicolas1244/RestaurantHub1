@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Users, FileText, Search, Filter, Heart, Calendar, Edit, Trash2 } from 'lucide-react';
+import { Users, FileText, Search, Filter, Heart, Calendar, Edit, Trash2, File } from 'lucide-react';
 import { Employee, POSITIONS, EMPLOYEE_CATEGORIES } from '../../types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -16,7 +16,8 @@ interface EmployeeListProps {
   onAddEmployee: () => void;
   onEditEmployee: (employee: Employee) => void;
   onManagePreferences: (employee: Employee) => void;
-  onManageAvailability: (employee: Employee) => void;
+  onManageAvailability: (employee: Employee) => void; 
+  onManageDocuments: (employee: Employee) => void;
 }
 
 // CRITICAL: Employee status type for filtering
@@ -28,7 +29,8 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
   onAddEmployee,
   onEditEmployee,
   onManagePreferences,
-  onManageAvailability
+  onManageAvailability,
+  onManageDocuments
 }) => {
   const { t, i18n } = useTranslation();
   const { currentRestaurant } = useAppContext();
@@ -546,6 +548,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
                 const isActive = isEmployeeActive(employee);
                 const hasPreferences = !!employee.preferences;
                 const hasAvailabilities = employee.availabilities && employee.availabilities.length > 0;
+                const hasDocuments = true; // For demo purposes, assume all employees have documents
                 
                 return (
                   <tr 
@@ -617,7 +620,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => onManagePreferences(employee)}
+                          onClick={() => onManagePreferences(employee)} 
                           className={`p-1 rounded-full ${hasPreferences ? 'text-purple-600 bg-purple-100' : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50'}`}
                           title={i18n.language === 'fr' ? 'Gérer les préférences' : 'Manage preferences'}
                         >
@@ -629,6 +632,13 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
                           title={i18n.language === 'fr' ? 'Gérer les disponibilités' : 'Manage availability'}
                         >
                           <Calendar size={16} />
+                        </button>
+                        <button
+                          onClick={() => onManageDocuments(employee)}
+                          className={`p-1 rounded-full ${hasDocuments ? 'text-blue-600 bg-blue-100' : 'text-gray-400 hover:text-blue-600 hover:bg-blue-50'}`}
+                          title={i18n.language === 'fr' ? 'Gérer les documents' : 'Manage documents'}
+                        >
+                          <File size={16} />
                         </button>
                       </div>
                     </td>
