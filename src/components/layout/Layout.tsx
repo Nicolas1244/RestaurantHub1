@@ -1,14 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import DashboardPage from '../dashboard/DashboardPage';
+import RestaurantsPage from '../restaurants/RestaurantsPage';
+import SchedulePage from '../schedule/SchedulePage';
+import StaffPage from '../staff/StaffPage';
+import SettingsPage from '../settings/SettingsPage';
+import TimeClockPage from '../timeclock/TimeClockPage';
+import PerformancePage from '../performance/PerformancePage';
+import PayrollPage from '../../pages/PayrollPage';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAppContext } from '../../contexts/AppContext';
 import { Navigate } from 'react-router-dom';
 
 interface LayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { currentTab } = useAppContext();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   // TEMPORARY: Bypass authentication check
@@ -143,7 +153,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         isSidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64'
       }`}>
         <div className="p-4 md:p-6">
-          {children}
+          {children || (
+            <>
+              {currentTab === 'dashboard' && <DashboardPage />}
+              {currentTab === 'restaurants' && <RestaurantsPage />}
+              {currentTab === 'schedule' && <SchedulePage />}
+              {currentTab === 'staff' && <StaffPage />}
+              {currentTab === 'settings' && <SettingsPage />}
+              {currentTab === 'performance' && <PerformancePage />}
+              {currentTab === 'payroll' && <PayrollPage />}
+              {currentTab === 'timeclock' && <TimeClockPage />}
+            </>
+          )}
         </div>
       </main>
     </div>

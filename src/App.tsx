@@ -1,16 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
-import DashboardPage from './components/dashboard/DashboardPage';
-import RestaurantsPage from './components/restaurants/RestaurantsPage';
-import SchedulePage from './components/schedule/SchedulePage';
-import StaffPage from './components/staff/StaffPage';
-import SettingsPage from './components/settings/SettingsPage';
-import TimeClockPage from './components/timeclock/TimeClockPage'; 
 import AuthModal from './components/auth/AuthModal';
 import PayrollPage from './pages/PayrollPage';
 import { Toaster } from 'react-hot-toast';
-import { useAppContext } from './contexts/AppContext'; 
 import { useAuth } from './contexts/AuthContext';
 import AuthPage from './components/auth/AuthPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -19,7 +12,6 @@ import EmployeePortal from './components/employee/EmployeePortal';
 import LoadingScreen from './components/common/LoadingScreen';
 
 function App() {
-  const { currentTab, setCurrentTab } = useAppContext();
   // TEMPORARY: Bypass authentication checks
   const loading = false;
   const isEmployee = () => true;
@@ -41,18 +33,7 @@ function App() {
           
           {/* Protected routes for all authenticated users */}
           <Route>
-            <Route path="/" element={
-              <Layout>
-                {currentTab === 'dashboard' && <DashboardPage />}
-                {currentTab === 'restaurants' && <RestaurantsPage />}
-                {currentTab === 'schedule' && <SchedulePage />}
-                {currentTab === 'staff' && <StaffPage />}
-                {currentTab === 'settings' && <SettingsPage />}
-                {currentTab === 'performance' && <PerformancePage />}
-                {currentTab === 'payroll' && <PayrollPage />}
-                {currentTab === 'timeclock' && <TimeClockPage />}
-              </Layout>
-            } />
+            <Route path="/" element={<Layout />} />
             
             {/* Employee portal */}
             <Route path="/employee" element={
