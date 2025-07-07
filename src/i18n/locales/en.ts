@@ -192,7 +192,7 @@ export default {
       documentStorage: 'Document Storage',
       documentRetention: 'Document Retention',
       electronicSignature: 'Electronic Signature',
-      automaticDocumentGeneration: 'Automatic Document Generation'
+      automaticDocumentGeneration: 'Automatic Document Generation',
       management: 'Document Management',
       filterByEmployee: 'Filter by Employee',
       allEmployees: 'All Employees',
