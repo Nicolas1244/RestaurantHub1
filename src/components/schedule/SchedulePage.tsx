@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
-import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save, FileText } from 'lucide-react';
 import { startOfWeek, addWeeks, format, isWithinInterval, parseISO, addDays, endOfWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import ScheduleHeader from './ScheduleHeader';
@@ -8,6 +8,7 @@ import ScheduleGrid from './ScheduleGrid';
 import MonthlySchedule from './MonthlySchedule';
 import WeatherForecast from '../weather/WeatherForecast';
 import LaborLawCompliancePanel from './LaborLawCompliancePanel';
+import WeeklySchedule from './WeeklySchedule';
 import DailyEntryModal from './DailyEntryModal';
 import { useAppContext } from '../../contexts/AppContext';
 import { Shift, EmployeeCategory, Employee } from '../../types';
@@ -38,6 +39,7 @@ const SchedulePage: React.FC = () => {
   });
   
   const [viewMode, setViewMode] = useState<ViewMode>('weekly');
+  const [viewLayout, setViewLayout] = useState<'grid' | 'enhanced'>('enhanced'); // New state for layout toggle
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   
   // CRITICAL: Labor law compliance panel state - default to collapsed (false)
@@ -458,6 +460,34 @@ const SchedulePage: React.FC = () => {
         </div>
         
         <div className="flex items-center gap-4">
+          {/* Layout Toggle */}
+          <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+            <button
+              onClick={() => setViewLayout('grid')}
+              className={`px-4 py-2 flex items-center gap-2 ${
+                viewLayout === 'grid'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+              title="Classic Grid Layout"
+            >
+              <Clock size={18} />
+              {t('schedule.classic')}
+            </button>
+            <button
+              onClick={() => setViewLayout('enhanced')}
+              className={`px-4 py-2 flex items-center gap-2 ${
+                viewLayout === 'enhanced'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+              title="Enhanced Layout"
+            >
+              <FileText size={18} />
+              {t('schedule.enhanced')}
+            </button>
+          </div>
+          
           {/* CRITICAL: Manual Save Button */}
           <button
             onClick={handleManualSave}
@@ -596,26 +626,39 @@ const SchedulePage: React.FC = () => {
                 />
 
                 {/* CRITICAL: Weather Forecast Integration - Positioned above schedule grid */}
-                <WeatherForecast
-                  weekStartDate={weekStartDate}
-                  restaurantLocation={getRestaurantLocation()}
-                  compact={isCompactLayout}
-                  responsive={window.innerWidth < 640 ? 'xs' : 
-                           window.innerWidth < 768 ? 'sm' : 
-                           window.innerWidth < 1024 ? 'md' : 
-                           window.innerWidth < 1280 ? 'lg' : 'xl'}
-                />
+                {viewLayout === 'grid' && (
+                  <WeatherForecast
+                    weekStartDate={weekStartDate}
+                    restaurantLocation={getRestaurantLocation()}
+                    compact={isCompactLayout}
+                    responsive={window.innerWidth < 640 ? 'xs' : 
+                             window.innerWidth < 768 ? 'sm' : 
+                             window.innerWidth < 1024 ? 'md' : 
+                             window.innerWidth < 1280 ? 'lg' : 'xl'}
+                  />
+                )}
                 
-                {/* CRITICAL FIX: Pass weekStartDate to ScheduleGrid */}
-                <ScheduleGrid
-                  shifts={shifts}
-                  employees={employees}
-                  onUpdateShift={handleUpdateShift}
-                  onAddShift={handleAddShift}
-                  onDeleteShift={deleteShift}
-                  weekStartDate={weekStartDate}
-                  onOpenShiftModal={handleOpenDailyEntryModal}
-                />
+                {/* Toggle between classic grid and enhanced layout */}
+                {viewLayout === 'grid' ? (
+                  <ScheduleGrid
+                    shifts={shifts}
+                    employees={employees}
+                    onUpdateShift={handleUpdateShift}
+                    onAddShift={handleAddShift}
+                    onDeleteShift={deleteShift}
+                    weekStartDate={weekStartDate}
+                    onOpenShiftModal={handleOpenDailyEntryModal}
+                  />
+                ) : (
+                  <WeeklySchedule
+                    employees={employees}
+                    shifts={shifts}
+                    onAddShift={handleAddShift}
+                    onUpdateShift={handleUpdateShift}
+                    onDeleteShift={deleteShift}
+                    restaurantId={currentRestaurant.id}
+                  />
+                )}
               </>
             ) : (
               <MonthlySchedule
