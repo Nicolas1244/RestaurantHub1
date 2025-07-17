@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
 import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save, FileText } from 'lucide-react';
 import { startOfWeek, addWeeks, format, isWithinInterval, parseISO, addDays, endOfWeek } from 'date-fns';
