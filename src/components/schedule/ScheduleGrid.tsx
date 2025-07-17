@@ -3,10 +3,11 @@ import { DAYS_OF_WEEK, Shift, Employee, DAILY_STATUS, DailyStatus, POSITIONS } f
 import { Clock, Plus, Scissors, AlertTriangle, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { calculateEmployeeWeeklySummary, formatHoursDiff, formatHours } from '../../lib/scheduleUtils';
-import { format, addDays, parseISO, differenceInYears, getDay } from 'date-fns';
+import { format, addDays, parseISO, differenceInYears, getDay, endOfWeek } from 'date-fns';
 import { fr } from 'date-fns/locale'; 
 import { useAppContext } from '../../contexts/AppContext';
 import TimeInput from './TimeInputComponents';
+import { toast } from 'react-hot-toast';
 
 interface ScheduleGridProps {
   shifts: Shift[];
@@ -195,27 +196,29 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
     });
     
     // Create a new date object to avoid mutating the original
-    const weekStartCopy = new Date(weekStart);
+    const weekStartCopy = new Date(weekStartDate);
     const weekEnd = endOfWeek(weekStartCopy, { weekStartsOn: 1 });
+    setAvailabilityConflicts(newAvailabilityConflicts);
     setPreferenceConflicts(newPreferenceConflicts);
     setPositionConflicts(newPositionConflicts);
-  }, [shifts, employees, checkAvailabilityConflicts, getEmployeePreferences]);
+  }, [shifts, employees, checkAvailabilityConflicts, getEmployeePreferences, weekStartDate]);
 
   // CRITICAL: Group shifts by employee and day
+  const getShiftsForEmployeeDay = (employeeId: string, day: number) => {
+    return shifts.filter(shift => 
+      shift.employeeId === employeeId && 
       // CRITICAL: Employee is active if:
       // 1. Contract starts before or during the week AND
       // 2. Contract hasn't ended OR ends during or after the week
       shift.day === day
     ).sort((a, b) => {
       // Sort by start time
-      console.log(`Week activity check for ${employee.firstName} ${employee.lastName}:`, {
-        weekStart: weekStartCopy.toISOString().split('T')[0],
-        weekEnd: weekEnd.toISOString().split('T')[0],
-        contractStart: employee.startDate,
-        contractEnd: employee.endDate || 'No end date',
-        startsBeforeOrDuringWeek,
-        endsAfterOrDuringWeek,
-        isActive: startsBeforeOrDuringWeek && endsAfterOrDuringWeek
+      console.log(`Week activity check for ${employees.find(e => e.id === employeeId)?.firstName} ${employees.find(e => e.id === employeeId)?.lastName}:`, {
+        weekStart: new Date(weekStartDate).toISOString().split('T')[0],
+        weekEnd: endOfWeek(new Date(weekStartDate), { weekStartsOn: 1 }).toISOString().split('T')[0],
+        contractStart: employees.find(e => e.id === employeeId)?.startDate,
+        contractEnd: employees.find(e => e.id === employeeId)?.endDate || 'No end date',
+        isActive: true
       });
       
       return a.start.localeCompare(b.start);
