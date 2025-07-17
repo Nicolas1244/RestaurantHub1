@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
-import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save, FileText, Archive, X } from 'lucide-react';
-import { startOfWeek, addWeeks, format, isWithinInterval, parseISO, addDays, endOfWeek } from 'date-fns';
+import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save, FileText, Archive, X, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Copy } from 'lucide-react';
+import { startOfWeek, addWeeks, format, isWithinInterval, parseISO, addDays, endOfWeek, getWeek, setWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import ScheduleHeader from './ScheduleHeader';
 import ScheduleGrid from './ScheduleGrid';
@@ -16,7 +16,6 @@ import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { scheduleAutoSaveService } from '../../lib/scheduleAutoSave';
 import { v4 as uuidv4 } from 'uuid';
-import { getWeek } from 'date-fns';
 
 type ViewMode = 'weekly' | 'monthly';
 type CategoryFilter = 'all' | 'cuisine' | 'salle';
@@ -40,7 +39,7 @@ const SchedulePage: React.FC = () => {
   });
   
   const [viewMode, setViewMode] = useState<ViewMode>('weekly');
-  const [viewLayout, setViewLayout] = useState<'grid' | 'enhanced'>('grid'); // Default to grid layout
+  const [viewLayout, setViewLayout] = useState<'grid' | 'enhanced'>('enhanced'); // Use enhanced layout
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   
   // CRITICAL: Labor law compliance panel state - default to collapsed (false)
@@ -54,12 +53,6 @@ const SchedulePage: React.FC = () => {
   const [showDailyEntryModal, setShowDailyEntryModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [selectedDay, setSelectedDay] = useState<number>(0);
-  
-  // CRITICAL: Archive feature state
-  const [isArchiving, setIsArchiving] = useState(false);
-  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
-  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
-  const [existingArchiveDate, setExistingArchiveDate] = useState<string | null>(null);
   
   // CRITICAL FIX: Move all derived variables before useEffect hooks
   const allEmployees = currentRestaurant 
@@ -367,169 +360,6 @@ const SchedulePage: React.FC = () => {
     }
   };
 
-  // CRITICAL: Archive functionality
-  const generateArchiveFilename = (): string => {
-    if (!currentRestaurant) return '';
-    
-    const weekNumber = getWeek(weekStartDate);
-    const year = weekStartDate.getFullYear();
-    const restaurantSlug = currentRestaurant.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-    
-    const timestamp = format(new Date(), 'yyyy-MM-dd-HHmm');
-    
-    return i18n.language === 'fr'
-      ? `archive-planning-${restaurantSlug}-semaine${weekNumber}-${year}-${timestamp}.json`
-      : `schedule-archive-${restaurantSlug}-week${weekNumber}-${year}-${timestamp}.json`;
-  };
-
-  const checkForExistingArchive = (): string | null => {
-    // Check localStorage for existing archive
-    const weekNumber = getWeek(weekStartDate);
-    const year = weekStartDate.getFullYear();
-    const archiveKey = `archive-${currentRestaurant?.id}-week${weekNumber}-${year}`;
-    
-    const existingArchive = localStorage.getItem(archiveKey);
-    if (existingArchive) {
-      try {
-        const archiveData = JSON.parse(existingArchive);
-        return archiveData.createdAt;
-      } catch (error) {
-        console.error('Error parsing existing archive:', error);
-      }
-    }
-    
-    return null;
-  };
-
-  const handleArchiveWeek = () => {
-    if (!currentRestaurant) {
-      toast.error(
-        i18n.language === 'fr'
-          ? 'Aucun restaurant sélectionné'
-          : 'No restaurant selected'
-      );
-      return;
-    }
-
-    // Check for existing archive
-    const existingDate = checkForExistingArchive();
-    if (existingDate) {
-      setExistingArchiveDate(existingDate);
-      setShowDuplicateModal(true);
-      return;
-    }
-
-    setShowArchiveConfirm(true);
-  };
-
-  const performArchive = async (replaceExisting: boolean = false) => {
-    if (!currentRestaurant) return;
-
-    setIsArchiving(true);
-    
-    try {
-      const weekNumber = getWeek(weekStartDate);
-      const year = weekStartDate.getFullYear();
-      const timestamp = new Date().toISOString();
-      
-      // Create archive data
-      const archiveData = {
-        id: uuidv4(),
-        restaurantId: currentRestaurant.id,
-        restaurantName: currentRestaurant.name,
-        weekStartDate: format(weekStartDate, 'yyyy-MM-dd'),
-        weekNumber,
-        year,
-        employees: employees.map(emp => ({
-          id: emp.id,
-          firstName: emp.firstName,
-          lastName: emp.lastName,
-          position: emp.position,
-          contractType: emp.contractType,
-          weeklyHours: emp.weeklyHours
-        })),
-        shifts: shifts.map(shift => ({
-          ...shift,
-          employeeName: (() => {
-            const emp = employees.find(e => e.id === shift.employeeId);
-            return emp ? `${emp.firstName} ${emp.lastName}` : 'Unknown';
-          })()
-        })),
-        createdAt: timestamp,
-        createdBy: 'current-user', // In real app, get from auth context
-        metadata: {
-          totalEmployees: employees.length,
-          totalShifts: shifts.length,
-          weekRange: formatWeekRange(weekStartDate),
-          categoryFilter,
-          viewMode
-        }
-      };
-
-      // Store in localStorage (in real app, this would be sent to backend)
-      const archiveKey = `archive-${currentRestaurant.id}-week${weekNumber}-${year}`;
-      localStorage.setItem(archiveKey, JSON.stringify(archiveData));
-
-      // Generate and download JSON file
-      const filename = generateArchiveFilename();
-      const blob = new Blob([JSON.stringify(archiveData, null, 2)], { 
-        type: 'application/json' 
-      });
-      
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-      // Show success message
-      const successMessage = replaceExisting 
-        ? t('schedule.archiveReplaced')
-        : t('schedule.archiveSuccess');
-      
-      toast.success(successMessage, {
-        duration: 4000,
-        icon: '📁',
-        style: {
-          background: '#f0fdf4',
-          color: '#166534',
-          border: '1px solid #dcfce7'
-        }
-      });
-
-      console.log('✅ Schedule archived successfully:', filename);
-      
-    } catch (error) {
-      console.error('❌ Archive failed:', error);
-      toast.error(t('schedule.archiveError'));
-    } finally {
-      setIsArchiving(false);
-      setShowArchiveConfirm(false);
-      setShowDuplicateModal(false);
-      setExistingArchiveDate(null);
-    }
-  };
-
-  const handleDuplicateChoice = (replace: boolean) => {
-    if (replace) {
-      performArchive(true);
-    } else {
-      toast.info(t('schedule.archiveKept'), {
-        duration: 3000,
-        icon: 'ℹ️'
-      });
-      setShowDuplicateModal(false);
-      setExistingArchiveDate(null);
-    }
-  };
-
   // CRITICAL: Open daily entry modal
   const handleOpenDailyEntryModal = (employeeId: string, day: number) => {
     const employee = employees.find(e => e.id === employeeId);
@@ -586,28 +416,6 @@ const SchedulePage: React.FC = () => {
         ? 'Absence enregistrée avec succès'
         : 'Absence saved successfully'
     );
-  };
-
-  // CRITICAL FIX: Helper function to format week range in French
-  const formatWeekRange = (weekStart: Date): string => {
-    const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
-    
-    if (i18n.language === 'fr') {
-      // French format: "Semaine du 9 Juin 2025 au 15 Juin 2025"
-      const startFormatted = format(weekStart, 'd MMMM yyyy', { locale: fr });
-      const endFormatted = format(weekEnd, 'd MMMM yyyy', { locale: fr });
-      
-      // Capitalize month names
-      const startCapitalized = startFormatted.replace(/\b\w/g, (char) => char.toUpperCase());
-      const endCapitalized = endFormatted.replace(/\b\w/g, (char) => char.toUpperCase());
-      
-      return `Semaine du ${startCapitalized} au ${endCapitalized}`;
-    } else {
-      // English format: "Week of June 9, 2025 to June 15, 2025"
-      const startFormatted = format(weekStart, 'MMMM d, yyyy');
-      const endFormatted = format(weekEnd, 'MMMM d, yyyy');
-      return `Week of ${startFormatted} to ${endFormatted}`;
-    }
   };
 
   // CRITICAL: Get restaurant location for weather
@@ -669,10 +477,6 @@ const SchedulePage: React.FC = () => {
           <p className="text-sm text-gray-600">
             Planning Hebdomadaire - {' '}
             {currentRestaurant ? `${currentRestaurant.name} - ${currentRestaurant.location}` : t('common.selectRestaurant')}
-          </p>
-          {/* CRITICAL FIX: Show properly formatted week range */}
-          <p className="text-sm text-gray-400 mt-1">
-            {formatWeekRange(weekStartDate)}
           </p>
         </div>
         
@@ -767,25 +571,6 @@ const SchedulePage: React.FC = () => {
               </>
             )}
           </button>          
-          
-          {/* CRITICAL: Archive Button */}
-          <button
-            onClick={handleArchiveWeek}
-            disabled={isArchiving || !currentRestaurant}
-            className="flex items-center px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 transition-colors"
-          >
-            {isArchiving ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                {t('schedule.archiveInProgress')}
-              </>
-            ) : (
-              <>
-                <Archive size={18} className="mr-2" />
-                {t('schedule.archiveWeek')}
-              </>
-            )}
-          </button>
         </div>
       </div>
       
@@ -852,130 +637,10 @@ const SchedulePage: React.FC = () => {
         existingShifts={shifts}
         onSaveShifts={handleSaveShifts}
         onUpdateShift={handleUpdateShift}
-       onDeleteShift={handleDeleteShift}
+        onDeleteShift={handleDeleteShift}
         onSaveAbsence={handleSaveAbsence}
         restaurantId={currentRestaurant?.id || ''}
       />
-
-      {/* CRITICAL: Archive Confirmation Modal */}
-      {showArchiveConfirm && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex min-h-screen items-center justify-center p-4">
-            <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setShowArchiveConfirm(false)} />
-            
-            <div className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Archive size={20} className="text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">
-                    {t('schedule.archiveConfirmTitle')}
-                  </h3>
-                </div>
-              </div>
-
-              <p className="text-sm text-gray-500 mb-6">
-                {t('schedule.archiveConfirmMessage')}
-              </p>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
-                <div className="text-sm text-blue-700">
-                  <div className="font-medium mb-1">
-                    {i18n.language === 'fr' ? 'Détails de l\'archive :' : 'Archive details:'}
-                  </div>
-                  <div>
-                    {i18n.language === 'fr' ? 'Semaine' : 'Week'} {getWeek(weekStartDate)}, {weekStartDate.getFullYear()}
-                  </div>
-                  <div>
-                    {formatWeekRange(weekStartDate)}
-                  </div>
-                  <div>
-                    {employees.length} {i18n.language === 'fr' ? 'employé(s)' : 'employee(s)'}, {shifts.length} {i18n.language === 'fr' ? 'service(s)' : 'shift(s)'}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={() => setShowArchiveConfirm(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 rounded-md"
-                >
-                  {t('common.cancel')}
-                </button>
-                <button
-                  onClick={() => performArchive(false)}
-                  disabled={isArchiving}
-                  className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md disabled:opacity-50"
-                >
-                  {t('schedule.archive')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* CRITICAL: Duplicate Archive Modal */}
-      {showDuplicateModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex min-h-screen items-center justify-center p-4">
-            <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setShowDuplicateModal(false)} />
-            
-            <div className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                    <Archive size={20} className="text-orange-600" />
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">
-                    {t('schedule.duplicateDetected')}
-                  </h3>
-                </div>
-                <button
-                  onClick={() => setShowDuplicateModal(false)}
-                  className="text-gray-400 hover:text-gray-500"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <p className="text-sm text-gray-500 mb-4">
-                {t('schedule.duplicateMessage')}
-              </p>
-
-              {existingArchiveDate && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6">
-                  <div className="text-sm text-yellow-700">
-                    <div className="font-medium mb-1">
-                      {i18n.language === 'fr' ? 'Archive existante :' : 'Existing archive:'}
-                    </div>
-                    <div>
-                      {i18n.language === 'fr' ? 'Créée le' : 'Created on'} {format(new Date(existingArchiveDate), 'dd/MM/yyyy à HH:mm')}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={() => handleDuplicateChoice(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 rounded-md"
-                >
-                  {t('schedule.keepExisting')}
-                </button>
-                <button
-                  onClick={() => handleDuplicateChoice(true)}
-                  disabled={isArchiving}
-                  className="px-4 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-md disabled:opacity-50"
-                >
-                  {t('schedule.replaceArchive')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
