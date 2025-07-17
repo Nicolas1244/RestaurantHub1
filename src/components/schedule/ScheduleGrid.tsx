@@ -705,10 +705,18 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                 <div className={gridClasses.employeeCell}>
                   <div className={gridClasses.employeeName}>
                     <div className="flex items-center">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${generateAvatarColor(`${employee.firstName} ${employee.lastName}`)}`}>
-                        <span className="text-white font-medium">
-                          {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
-                        </span>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 overflow-hidden ${generateAvatarColor(`${employee.firstName} ${employee.lastName}`)}`}>
+                        {employee.profilePicture ? (
+                          <img 
+                            src={employee.profilePicture} 
+                            alt={`${employee.firstName} ${employee.lastName}`} 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-white font-medium">
+                            {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
+                          </span>
+                        )}
                       </div>
                       <span>{employee.firstName} {employee.lastName}</span>
                     </div>
@@ -802,7 +810,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                       {dayStatus ? (
                         <>
                         <div 
-                          className="mb-2 p-3 rounded-lg cursor-pointer transform transition-all hover:scale-[1.02] hover:shadow-md border-2"
+                          className="mb-2 p-3 rounded-lg cursor-pointer transform transition-all hover:scale-[1.02] hover:shadow-md border-2 w-full"
                           onClick={(e) => {
                             e.stopPropagation();
                             onOpenShiftModal(employee.id, dayIndex);
@@ -817,24 +825,9 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                               {/* Employee avatar/initials */}
                               <div className="font-medium text-sm flex items-center justify-between mb-2">
                                 <div className="flex items-center w-full justify-center">
-                                  <>
-                                    <div className="w-7 h-7 rounded-full flex items-center justify-center mr-2 bg-white bg-opacity-20 shadow-sm overflow-hidden">
-                                      {employee.profilePicture ? (
-                                        <img 
-                                          src={employee.profilePicture} 
-                                          alt={`${employee.firstName} ${employee.lastName}`} 
-                                          className="w-full h-full object-cover"
-                                        />
-                                      ) : (
-                                        <span style={{ color: DAILY_STATUS[dayStatus].color }}>
-                                          {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
-                                        </span>
-                                      )}
-                                    </div>
-                                    <span className="font-semibold">
-                                      {DAILY_STATUS[dayStatus].label}
-                                    </span>
-                                  </>
+                                  <span className="font-semibold">
+                                    {DAILY_STATUS[dayStatus].label}
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -850,7 +843,8 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                                 className="relative rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 transform hover:scale-105 cursor-pointer"
                                 style={{ 
                                   backgroundColor: generateShiftColor(employee.id),
-                                  marginBottom: '8px'
+                                  marginBottom: '8px',
+                                  width: '100%'
                                 }}
                                 onClick={(e) => {
                                   e.stopPropagation();

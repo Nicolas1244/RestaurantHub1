@@ -93,7 +93,7 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
     boxShadow: '0 2px 4px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.06)',
     borderRadius: '8px',
     overflow: 'hidden',
-    width: '100%',
+    width: '100%'
   };
 
   const formatTime = (timeString: string) => {
@@ -129,19 +129,6 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
         {/* Employee avatar/initials */}
         <div className="font-medium text-sm flex items-center justify-between mb-2">
           <div className={`flex items-center ${shift.status ? 'w-full justify-center' : ''}`}>
-            <div className="w-7 h-7 rounded-full flex items-center justify-center mr-2 bg-white bg-opacity-20 shadow-sm overflow-hidden">
-              {employee.profilePicture ? (
-                <img 
-                  src={employee.profilePicture} 
-                  alt={`${employee.firstName} ${employee.lastName}`} 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span style={{ color: textColor }}>
-                  {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
-                </span>
-              )}
-            </div>
             <span className="font-semibold">
               {shift.isHolidayWorked 
                 ? (i18n.language === 'fr' ? 'Férié Travaillé (majoré 100%)' : 'Worked Holiday (100% premium)')
