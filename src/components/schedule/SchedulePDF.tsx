@@ -3,7 +3,6 @@ import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/render
 import { Employee, Shift, Restaurant, POSITIONS } from '../../types';
 import { format, addDays, getWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { useTranslation } from 'react-i18next';
 import { calculateEmployeeWeeklySummary, formatHours, formatHoursDiff } from '../../lib/scheduleUtils';
 
 interface SchedulePDFProps {
@@ -13,6 +12,7 @@ interface SchedulePDFProps {
   weekStartDate: Date;
   viewType: 'all' | 'cuisine' | 'salle';
   payBreakTimes?: boolean;
+  language?: 'en' | 'fr';
 }
 
 const styles = StyleSheet.create({
@@ -238,15 +238,14 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
   shifts,
   weekStartDate,
   viewType,
-  payBreakTimes = true
+  payBreakTimes = true,
+  language = 'fr'
 }) => {
-  const { t, i18n } = useTranslation();
-
   // Get day names based on language
   const getDayName = (dayIndex: number): string => {
-    const days = i18n.language === 'fr' 
-      ? ['LUNDI', 'MARDI', 'MERCREDI', 'JEUDI', 'VENDREDI', 'SAMEDI', 'DIMANCHE']
-      : ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+    const daysFr = ['LUNDI', 'MARDI', 'MERCREDI', 'JEUDI', 'VENDREDI', 'SAMEDI', 'DIMANCHE'];
+    const daysEn = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+    const days = language === 'fr' ? daysFr : daysEn;
     return days[dayIndex] || `Day ${dayIndex}`;
   };
 
@@ -254,16 +253,16 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
   const formatWeekRange = (startDate: Date): string => {
     const endDate = addDays(startDate, 6);
     
-    if (i18n.language === 'fr') {
+    if (language === 'fr') {
       const startFormatted = format(startDate, 'd MMMM', { locale: fr });
       const endFormatted = format(endDate, 'd MMMM yyyy', { locale: fr });
       const startCapitalized = startFormatted.replace(/\b\w/g, (char) => char.toUpperCase());
       const endCapitalized = endFormatted.replace(/\b\w/g, (char) => char.toUpperCase());
-      return `${t('pdf.week')} ${i18n.language === 'fr' ? 'du' : 'from'} ${startCapitalized} ${i18n.language === 'fr' ? 'au' : 'to'} ${endCapitalized}`;
+      return `Semaine du ${startCapitalized} au ${endCapitalized}`;
     } else {
-      const startFormatted = format(startDate, 'MMM d');
-      const endFormatted = format(endDate, 'MMM d, yyyy');
-      return `${t('pdf.week')} from ${startFormatted} to ${endFormatted}`;
+      const startFormatted = format(startDate, 'MMMM d');
+      const endFormatted = format(endDate, 'MMMM d, yyyy');
+      return `Week from ${startFormatted} to ${endFormatted}`;
     }
   };
 
@@ -271,11 +270,11 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
   const getViewTypeLabel = (): string => {
     switch (viewType) {
       case 'cuisine':
-        return i18n.language === 'fr' ? 'Vue Cuisine' : 'Kitchen View';
+        return language === 'fr' ? 'Vue Cuisine' : 'Kitchen View';
       case 'salle':
-        return i18n.language === 'fr' ? 'Vue Salle' : 'Dining Room View';
+        return language === 'fr' ? 'Vue Salle' : 'Dining Room View';
       default:
-        return i18n.language === 'fr' ? 'Vue Globale' : 'Global View';
+        return language === 'fr' ? 'Vue Globale' : 'Global View';
     }
   };
 
@@ -305,14 +304,25 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
 
   // Get status label with translation
   const getStatusLabel = (status: string): string => {
-    const statusLabels: Record<string, string> = {
-      'WEEKLY_REST': i18n.language === 'fr' ? 'Repos Hebdo' : 'Weekly Rest',
+    const statusLabelsFr: Record<string, string> = {
+      'WEEKLY_REST': 'Repos Hebdo',
       'CP': 'CP',
-      'PUBLIC_HOLIDAY': i18n.language === 'fr' ? 'Férié' : 'Holiday',
-      'SICK_LEAVE': i18n.language === 'fr' ? 'Maladie' : 'Sick Leave',
-      'ACCIDENT': i18n.language === 'fr' ? 'Accident' : 'Accident',
-      'ABSENCE': i18n.language === 'fr' ? 'Absence' : 'Absence'
+      'PUBLIC_HOLIDAY': 'Férié',
+      'SICK_LEAVE': 'Maladie',
+      'ACCIDENT': 'Accident',
+      'ABSENCE': 'Absence'
     };
+    
+    const statusLabelsEn: Record<string, string> = {
+      'WEEKLY_REST': 'Weekly Rest',
+      'CP': 'Paid Leave',
+      'PUBLIC_HOLIDAY': 'Holiday',
+      'SICK_LEAVE': 'Sick Leave',
+      'ACCIDENT': 'Accident',
+      'ABSENCE': 'Absence'
+    };
+    
+    const statusLabels = language === 'fr' ? statusLabelsFr : statusLabelsEn;
     return statusLabels[status] || status;
   };
 
@@ -333,16 +343,29 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
   // Translate position
   const getPositionDisplay = (position: string): string => {
     if (POSITIONS.includes(position)) {
-      const translations: Record<string, string> = {
-        'Operations Manager': i18n.language === 'fr' ? 'Directeur / Directrice d\'Exploitation' : 'Operations Manager',
+      const translationsFr: Record<string, string> = {
+        'Operations Manager': 'Directeur / Directrice d\'Exploitation',
         'Chef de Cuisine': 'Chef de Cuisine',
-        'Second de Cuisine': i18n.language === 'fr' ? 'Second de Cuisine' : 'Sous Chef',
+        'Second de Cuisine': 'Second de Cuisine',
         'Chef de Partie': 'Chef de Partie',
-        'Commis de Cuisine': i18n.language === 'fr' ? 'Commis de Cuisine' : 'Commis Chef',
-        'Plongeur': i18n.language === 'fr' ? 'Plongeur' : 'Dishwasher',
-        'Barman/Barmaid': i18n.language === 'fr' ? 'Barman/Barmaid' : 'Bartender',
-        'Waiter(s)': i18n.language === 'fr' ? 'Serveur(se)' : 'Server'
+        'Commis de Cuisine': 'Commis de Cuisine',
+        'Plongeur': 'Plongeur',
+        'Barman/Barmaid': 'Barman/Barmaid',
+        'Waiter(s)': 'Serveur(se)'
       };
+      
+      const translationsEn: Record<string, string> = {
+        'Operations Manager': 'Operations Manager',
+        'Chef de Cuisine': 'Head Chef',
+        'Second de Cuisine': 'Sous Chef',
+        'Chef de Partie': 'Chef de Partie',
+        'Commis de Cuisine': 'Commis Chef',
+        'Plongeur': 'Dishwasher',
+        'Barman/Barmaid': 'Bartender',
+        'Waiter(s)': 'Server'
+      };
+      
+      const translations = language === 'fr' ? translationsFr : translationsEn;
       return translations[position] || position;
     } else {
       return position;
@@ -372,7 +395,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
           {/* Center: Main Title */}
           <View style={styles.headerCenter}>
             <Text style={styles.mainTitle}>
-              {i18n.language === 'fr' ? 'Planning Hebdomadaire' : 'Weekly Schedule'}
+              {language === 'fr' ? 'Planning Hebdomadaire' : 'Weekly Schedule'}
             </Text>
             <Text style={styles.weekRange}>
               {formatWeekRange(weekStartDate)}
@@ -393,7 +416,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
           <View style={[styles.tableRow, styles.tableHeader]}>
             <View style={styles.employeeCell}>
               <Text style={styles.headerText}>
-                {i18n.language === 'fr' ? 'EMPLOYÉ' : 'EMPLOYEE'}
+                {language === 'fr' ? 'EMPLOYÉ' : 'EMPLOYEE'}
               </Text>
             </View>
             
@@ -402,7 +425,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
               const date = addDays(weekStartDate, index);
               const dayName = getDayName(index);
               const dayDate = format(date, 'd MMM', { 
-                locale: i18n.language === 'fr' ? fr : undefined 
+                locale: language === 'fr' ? fr : undefined 
               });
               
               return (
@@ -411,7 +434,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                     {dayName}
                   </Text>
                   <Text style={{...styles.headerText, fontSize: 6, marginTop: 1}}>
-                    {i18n.language === 'fr' ? dayDate.replace(/\b\w/g, (char) => char.toUpperCase()) : dayDate}
+                    {language === 'fr' ? dayDate.replace(/\b\w/g, (char) => char.toUpperCase()) : dayDate}
                   </Text>
                 </View>
               );
@@ -419,14 +442,14 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
             
             <View style={styles.summaryCell}>
               <Text style={styles.headerText}>
-                {i18n.language === 'fr' ? 'RÉSUMÉ\nHEBDOMADAIRE' : 'WEEKLY\nSUMMARY'}
+                {language === 'fr' ? 'RÉSUMÉ\nHEBDOMADAIRE' : 'WEEKLY\nSUMMARY'}
               </Text>
             </View>
 
             {/* Signature Column Header */}
             <View style={styles.signatureCell}>
               <Text style={styles.headerText}>
-                {i18n.language === 'fr' ? 'ÉMARGEMENT' : 'SIGNATURE'}
+                {language === 'fr' ? 'ÉMARGEMENT' : 'SIGNATURE'}
               </Text>
             </View>
           </View>
@@ -500,7 +523,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                   <View style={styles.summarySection}>
                     <View style={styles.summaryInline}>
                       <Text style={styles.summaryTitle}>
-                        {i18n.language === 'fr' ? 'Travaillées:' : 'Worked:'}
+                        {language === 'fr' ? 'Travaillées:' : 'Worked:'}
                       </Text>
                       <Text style={styles.summaryValue}>
                         {formatHours(totalWorkedHours)}
@@ -513,7 +536,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                     )}
                     {totalPublicHolidayHours > 0 && (
                       <Text style={[styles.summaryDetail, { color: '#DC2626', fontWeight: 'bold', marginTop: 2 }]}>
-                        {i18n.language === 'fr' 
+                        {language === 'fr' 
                           ? `dont ${formatHours(totalPublicHolidayHours)} majorées 100%`
                           : `including ${formatHours(totalPublicHolidayHours)} with 100% premium`}
                       </Text>
@@ -523,7 +546,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                   <View style={styles.summarySection}>
                     <View style={styles.summaryInline}>
                       <Text style={styles.summaryTitle}>
-                        {i18n.language === 'fr' ? 'Écart:' : 'Diff:'}
+                        {language === 'fr' ? 'Écart:' : 'Diff:'}
                         {isProRated && (
                           <Text style={styles.proRatedIndicator}> (Pro-rata)</Text>
                         )}
@@ -545,7 +568,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                   <View style={styles.summarySection}>
                     <View style={styles.summaryInline}>
                       <Text style={styles.summaryTitle}>
-                        {i18n.language === 'fr' ? 'Services:' : 'Shifts:'}
+                        {language === 'fr' ? 'Services:' : 'Shifts:'}
                       </Text>
                       <Text style={styles.summaryValue}>
                         {shiftCount}
@@ -565,7 +588,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
 
         {/* Footer */}
         <Text style={styles.footer}>
-          {i18n.language === 'fr' 
+          {language === 'fr' 
             ? `Planning généré le ${format(new Date(), 'd MMMM yyyy à HH:mm', { locale: fr }).replace(/\b\w/g, (char) => char.toUpperCase())} - ${restaurant.name}`
             : `Schedule generated on ${format(new Date(), 'MMMM d, yyyy at HH:mm')} - ${restaurant.name}`
           }

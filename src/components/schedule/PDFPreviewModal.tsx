@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, Printer, Download, Archive, Loader2 } from 'lucide-react';
+import { X, Printer, Download, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { parseISO } from 'date-fns';
 import { Restaurant, Employee, Shift } from '../../types';
@@ -30,7 +30,6 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
   const { t, i18n } = useTranslation();
   const { settings } = useAppContext();
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isArchiving, setIsArchiving] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
   const weekStartDateObj = parseISO(weekStartDate);
@@ -49,7 +48,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
 
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
-    documentTitle: `${t('pdf.scheduleTitle')} - ${restaurant.name}`,
+    documentTitle: `${i18n.language === 'fr' ? 'Planning Hebdomadaire' : 'Weekly Schedule'} - ${restaurant.name}`,
   });
 
   if (!isOpen) return null;
@@ -65,6 +64,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
           weekStartDate={weekStartDateObj}
           viewType={viewType}
           payBreakTimes={settings?.payBreakTimes}
+          language={i18n.language as 'en' | 'fr'}
         />
       ).toBlob();
 
@@ -92,50 +92,6 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
     }
   };
 
-  const handleArchive = async () => {
-    setIsArchiving(true);
-    try {
-      console.log('Preparing PDF for archiving...');
-      
-      const blob = await pdf(
-        <SchedulePDF
-          restaurant={restaurant}
-          employees={filteredEmployees}
-          shifts={filteredShifts}
-          weekStartDate={weekStartDateObj}
-          viewType={viewType}
-          payBreakTimes={settings?.payBreakTimes}
-        />
-      ).toBlob();
-
-      const weekNumber = Math.ceil((new Date(weekStartDate).getTime() - new Date(new Date(weekStartDate).getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000));
-      const year = new Date(weekStartDate).getFullYear();
-      const restaurantSlug = restaurant.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-      const viewSuffix = viewType === 'cuisine' ? '-cuisine' : viewType === 'salle' ? '-salle' : '';
-      
-      const filename = `planning-${restaurantSlug}-semaine${weekNumber}-${year}${viewSuffix}.pdf`;
-      
-      console.log('PDF prepared for archiving:', {
-        filename,
-        size: blob.size,
-        type: blob.type,
-        employees: filteredEmployees.length,
-        shifts: filteredShifts.length
-      });
-
-      // TODO: Implement actual archiving to Documents section
-      // This should store the PDF blob with metadata in the documents system
-      
-      // For now, show success message
-      console.log('Archive preparation completed successfully');
-      
-    } catch (error) {
-      console.error('Error preparing PDF for archive:', error);
-    } finally {
-      setIsArchiving(false);
-    }
-  };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
@@ -160,6 +116,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
               weekStartDate={weekStartDateObj}
               viewType={viewType}
               payBreakTimes={settings?.payBreakTimes}
+              language={i18n.language as 'en' | 'fr'}
             />
           </div>
         </div>
@@ -171,20 +128,6 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
           >
             <Printer className="w-4 h-4" />
             {i18n.language === 'fr' ? 'Imprimer' : 'Print'}
-          </button>
-
-          <button
-            onClick={handleArchive}
-            disabled={isArchiving}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-            title={i18n.language === 'fr' ? 'Archiver dans Documents' : 'Archive to Documents'}
-          >
-            {isArchiving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Archive className="w-4 h-4" />
-            )}
-            {i18n.language === 'fr' ? 'Archiver' : 'Archive'}
           </button>
 
           <button

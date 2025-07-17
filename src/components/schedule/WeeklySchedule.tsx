@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
-import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save, X, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Copy } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save, X, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Copy, FileText } from 'lucide-react';
 import { startOfWeek, addWeeks, format, isWithinInterval, parseISO, addDays, endOfWeek, getWeek, setWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAppContext } from '../../contexts/AppContext';
@@ -10,6 +10,7 @@ import { calculateEmployeeWeeklySummary, formatHours, formatHoursDiff } from '..
 import DailyEntryModal from './DailyEntryModal';
 import WeatherForecast from '../weather/WeatherForecast';
 import LaborLawCompliancePanel from './LaborLawCompliancePanel';
+import { PDFPreviewModal } from './PDFPreviewModal';
 import toast from 'react-hot-toast';
 
 interface WeeklyScheduleProps {
@@ -97,6 +98,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   const [showCompliancePanel, setShowCompliancePanel] = useState(false);
   const [showWeekPicker, setShowWeekPicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showPDFPreviewModal, setShowPDFPreviewModal] = useState(false);
 
   // CRITICAL: Days of week in French
   const daysOfWeek = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
@@ -452,6 +454,14 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
             <Copy size={18} />
             Dupliquer la Semaine
           </button>
+          
+          <button
+            onClick={() => setShowPDFPreviewModal(true)}
+            className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center gap-2 transition-colors"
+          >
+            <FileText size={18} />
+            {i18n.language === 'fr' ? 'Exporter PDF' : 'Export PDF'}
+          </button>
         </div>
       </div>
 
@@ -610,6 +620,17 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
         onDeleteShift={onDeleteShift}
         onSaveAbsence={handleSaveAbsence}
         restaurantId={restaurantId}
+      />
+
+      {/* PDF Preview Modal */}
+      <PDFPreviewModal
+        isOpen={showPDFPreviewModal}
+        onClose={() => setShowPDFPreviewModal(false)}
+        restaurant={restaurant}
+        employees={filteredEmployees}
+        shifts={filteredShifts}
+        weekStartDate={format(weekStartDate, 'yyyy-MM-dd')}
+        viewType={viewType}
       />
     </div>
   );
