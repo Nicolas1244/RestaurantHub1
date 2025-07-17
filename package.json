@@ -26,6 +26,7 @@
     "react-hot-toast": "^2.4.1",
     "react-i18next": "^14.1.0",
     "react-router-dom": "^7.6.3",
+    "react-to-print": "^3.1.1",
     "react-world-flags": "^1.6.0",
     "uuid": "^9.0.1",
     "xlsx": "^0.18.5"
