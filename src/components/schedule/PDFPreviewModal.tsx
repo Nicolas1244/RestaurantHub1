@@ -64,7 +64,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
           shifts={filteredShifts}
           weekStartDate={weekStartDateObj}
           viewType={viewType}
-          payBreakTimes={settings.payBreakTimes}
+          payBreakTimes={settings?.payBreakTimes}
         />
       ).toBlob();
 
@@ -82,6 +82,9 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      
+      // Close the modal after successful download
+      onClose();
     } catch (error) {
       console.error('Error generating PDF:', error);
     } finally {

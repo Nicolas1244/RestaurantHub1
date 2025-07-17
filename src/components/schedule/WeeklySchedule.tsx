@@ -348,13 +348,8 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                 <div className="font-semibold text-center">
                   {shift.start} - {shift.end}
                 </div>
-                {shift.hasCoupure && (
-                  <div className="text-xs opacity-75 mt-1 text-center">
-                    🍽️ Coupure
-                  </div>
-                )}
-                {/* CRITICAL: Hours display at bottom left */}
-                <div className="absolute bottom-1 left-2 text-xs opacity-90 font-medium">
+                {/* CRITICAL: Hours display at bottom right */}
+                <div className="absolute bottom-1 right-2 text-xs opacity-90 font-medium">
                   {duration}h
                 </div>
               </div>
@@ -369,8 +364,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
             onClick={() => handleOpenDailyEntryModal(employee.id, day)}
             className="w-full py-2 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors flex items-center justify-center border border-dashed border-blue-300"
           >
-            <Plus size={12} className="mr-1" />
-            + Ajouter
+            <Plus size={12} />
           </button>
         )}
       </div>
