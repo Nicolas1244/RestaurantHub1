@@ -32,8 +32,6 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
   const [isArchiving, setIsArchiving] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  if (!isOpen) return null;
-
   const filteredEmployees = viewType === 'all' 
     ? employees 
     : employees.filter(emp => {
@@ -50,6 +48,8 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
     content: () => printRef.current,
     documentTitle: `${t('pdf.scheduleTitle')} - ${restaurant.name}`,
   });
+
+  if (!isOpen) return null;
 
   const handleDownload = async () => {
     setIsGenerating(true);
