@@ -281,39 +281,41 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
                   <User size={20} />
                 </span>
                 {!isCollapsed && <span className="font-medium">{t('employee.portal')}</span>}
-            <NavItem 
-              icon={<Settings size={20} />} 
-              label={t('nav.settings')} 
-              tab="settings"
-              isActive={currentTab === 'settings'}
-            />
-            
-            {/* User Settings */}
-            <li 
-              className={`flex items-center rounded-lg mb-1 cursor-pointer transition-all duration-200 ${
-                isCollapsed ? 'p-2 justify-center' : 'p-3'
-              } hover:bg-gray-100 text-gray-700 hover:text-blue-600`}
-              onClick={() => window.location.href = '/user-settings'}
-            >
-              <span className={isCollapsed ? '' : 'mr-3'}>
-                <User size={20} />
-              </span>
-              {!isCollapsed && <span className="font-medium">{i18n.language === 'fr' ? 'Paramètres Utilisateur' : 'User Settings'}</span>}
-            </li>
-            
-            {/* Sign Out */}
-            <li 
-              className={`flex items-center rounded-lg mb-1 cursor-pointer transition-all duration-200 ${
-                isCollapsed ? 'p-2 justify-center' : 'p-3'
-              } hover:bg-red-100 text-red-600`}
-              onClick={signOut}
-            >
-              <span className={isCollapsed ? '' : 'mr-3'}>
-                <LogOut size={20} />
-              </span>
-              {!isCollapsed && <span className="font-medium">{i18n.language === 'fr' ? 'Déconnexion' : 'Sign Out'}</span>}
-            </li>
-          </div>
+              </li>
+              <NavItem 
+                icon={<Settings size={20} />} 
+                label={t('nav.settings')} 
+                tab="settings"
+                isActive={currentTab === 'settings'}
+              />
+              
+              {/* User Settings */}
+              <li 
+                className={`flex items-center rounded-lg mb-1 cursor-pointer transition-all duration-200 ${
+                  isCollapsed ? 'p-2 justify-center' : 'p-3'
+                } hover:bg-gray-100 text-gray-700 hover:text-blue-600`}
+                onClick={() => window.location.href = '/user-settings'}
+              >
+                <span className={isCollapsed ? '' : 'mr-3'}>
+                  <User size={20} />
+                </span>
+                {!isCollapsed && <span className="font-medium">{i18n.language === 'fr' ? 'Paramètres Utilisateur' : 'User Settings'}</span>}
+              </li>
+              
+              {/* Sign Out */}
+              <li 
+                className={`flex items-center rounded-lg mb-1 cursor-pointer transition-all duration-200 ${
+                  isCollapsed ? 'p-2 justify-center' : 'p-3'
+                } hover:bg-red-100 text-red-600`}
+                onClick={signOut}
+              >
+                <span className={isCollapsed ? '' : 'mr-3'}>
+                  <LogOut size={20} />
+                </span>
+                {!isCollapsed && <span className="font-medium">{i18n.language === 'fr' ? 'Déconnexion' : 'Sign Out'}</span>}
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </>
