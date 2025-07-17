@@ -255,8 +255,6 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
                 label={i18n.language === 'fr' ? 'Documents' : 'Documents'} 
                 tab="documents"
                 isActive={currentTab === 'documents'}
-              />
-              />
               
               {/* Employee Portal - only for non-managers */}
               <li 
