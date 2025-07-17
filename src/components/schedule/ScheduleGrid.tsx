@@ -205,6 +205,24 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
 
   // CRITICAL: Group shifts by employee and day
   const getShiftsForEmployeeDay = (employeeId: string, day: number) => {
+    // CRITICAL: Calculate the actual date for this day
+    const shiftDate = addDays(weekStartDate, day);
+    
+    // CRITICAL: Get employee to check contract validity
+    const employee = employees.find(e => e.id === employeeId);
+    if (!employee) return [];
+    
+    // CRITICAL: Check if employee is under contract on this specific day
+    const contractStart = parseISO(employee.startDate);
+    const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
+    
+    const isActiveOnDay = shiftDate >= contractStart && (!contractEnd || shiftDate <= contractEnd);
+    
+    // CRITICAL: If employee is not active on this day, return empty array
+    if (!isActiveOnDay) {
+      return [];
+    }
+    
     return shifts.filter(shift => 
       shift.employeeId === employeeId && 
       shift.day === day

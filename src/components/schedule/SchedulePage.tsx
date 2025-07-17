@@ -61,8 +61,18 @@ const SchedulePage: React.FC = () => {
 
   // CRITICAL FIX: Helper function to get active employees for the week
   const getActiveEmployeesForWeek = (employees: Employee[], weekStart: Date): Employee[] => {
-    // Return all employees - contract validation will be done at the day level
-    return employees;
+    // CRITICAL: Only return employees who have at least one day active during this week
+    const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+    
+    return employees.filter(employee => {
+      const contractStart = parseISO(employee.startDate);
+      const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
+      
+      // Employee is active for this week if their contract overlaps with the week
+      const isActiveInWeek = contractStart <= weekEnd && (!contractEnd || contractEnd >= weekStart);
+      
+      return isActiveInWeek;
+    });
   };
 
   // CRITICAL FIX: Filter employees based on contract dates for the selected week
@@ -83,10 +93,37 @@ const SchedulePage: React.FC = () => {
     ? getRestaurantSchedule(currentRestaurant.id)
     : undefined;
     
-  // CRITICAL FIX: Filter shifts to match the selected view
-  const shifts = schedule?.shifts.filter(shift => 
-    filteredEmployeeIds.includes(shift.employeeId)
-  ) || [];
+  // CRITICAL FIX: Filter shifts to match the selected view AND current week only
+  const shifts = useMemo(() => {
+    if (!schedule) return [];
+    
+    return schedule.shifts.filter(shift => {
+      // Only include shifts for filtered employees
+      if (!filteredEmployeeIds.includes(shift.employeeId)) return false;
+      
+      // CRITICAL: Only include shifts that belong to the current week
+      // Calculate the actual date for this shift
+      const shiftDate = addDays(weekStartDate, shift.day);
+      const weekEnd = endOfWeek(weekStartDate, { weekStartsOn: 1 });
+      
+      // Check if shift date is within the current week
+      const isInCurrentWeek = shiftDate >= weekStartDate && shiftDate <= weekEnd;
+      
+      if (!isInCurrentWeek) return false;
+      
+      // CRITICAL: Additional contract validation for shifts
+      const employee = allEmployees.find(e => e.id === shift.employeeId);
+      if (!employee) return false;
+      
+      const contractStart = parseISO(employee.startDate);
+      const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
+      
+      // Only include shifts if employee is under contract on the shift date
+      const isEmployeeActiveOnShiftDate = shiftDate >= contractStart && (!contractEnd || shiftDate <= contractEnd);
+      
+      return isEmployeeActiveOnShiftDate;
+    });
+  }, [schedule?.shifts, filteredEmployeeIds, weekStartDate, allEmployees]);
   
   // CRITICAL: Initialize auto-save service when component mounts
   useEffect(() => {
