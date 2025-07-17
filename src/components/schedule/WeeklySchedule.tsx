@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
+import { useDroppable } from '@dnd-kit/core'; // Import useDroppable for drop targets
 import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save, X, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Copy, FileText } from 'lucide-react';
 import { startOfWeek, addWeeks, format, isWithinInterval, parseISO, addDays, endOfWeek, getWeek, setWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -7,16 +7,15 @@ import { useAppContext } from '../../contexts/AppContext';
 import { Shift, EmployeeCategory, Employee, DAILY_STATUS, POSITIONS } from '../../types';
 import { useTranslation } from 'react-i18next';
 import { calculateEmployeeWeeklySummary, formatHours, formatHoursDiff } from '../../lib/scheduleUtils';
-import DailyEntryModal from './DailyEntryModal';
-import WeatherForecast from '../weather/WeatherForecast';
-import LaborLawCompliancePanel from './LaborLawCompliancePanel';
-import { PDFPreviewModal } from './PDFPreviewModal';
+// Removed DailyEntryModal, WeatherForecast, LaborLawCompliancePanel, PDFPreviewModal imports
+// as they are now managed by SchedulePage or are not needed directly here.
 import toast from 'react-hot-toast';
 
 interface WeeklyScheduleProps {
   employees: Employee[];
   shifts: Shift[];
-  onAddShift: (shift: Omit<Shift, 'id'>) => void;
+  // CRITICAL CHANGE: onAddShift now expects employeeId and day directly
+  onAddShift: (employeeId: string, day: number) => void;
   onUpdateShift: (shift: Shift) => void;
   onDeleteShift: (shiftId: string) => void;
   restaurantId: string;
@@ -75,7 +74,7 @@ const calculateShiftDuration = (start: string, end: string): number => {
 const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   employees,
   shifts,
-  onAddShift,
+  onAddShift, // This now receives employeeId and day
   onUpdateShift,
   onDeleteShift,
   restaurantId,
@@ -89,21 +88,21 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   viewType
 }) => {
   const { t, i18n } = useTranslation();
-  const { settings } = useAppContext();
-  
-  // State for modals and UI
-  const [showDailyEntryModal, setShowDailyEntryModal] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [selectedDay, setSelectedDay] = useState<number>(0);
-  const [showCompliancePanel, setShowCompliancePanel] = useState(false);
+  const { userSettings } = useAppContext(); // Use userSettings instead of settings from useAppContext
+
+  // Removed redundant local states for modals and UI, as they are now managed by SchedulePage.tsx
+  // const [showDailyEntryModal, setShowDailyEntryModal] = useState(false);
+  // const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  // const [selectedDay, setSelectedDay] = useState<number>(0);
+  // const [showCompliancePanel, setShowCompliancePanel] = useState(false);
   const [showWeekPicker, setShowWeekPicker] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [showPDFPreviewModal, setShowPDFPreviewModal] = useState(false);
+  // const [isSaving, setIsSaving] = useState(false); // Managed by SchedulePage
+  // const [showPDFPreviewModal, setShowPDFPreviewModal] = useState(false); // Managed by SchedulePage
 
   // CRITICAL: Days of week in French
   const daysOfWeek = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 
-  // CRITICAL: Get restaurant location for weather
+  // CRITICAL: Get restaurant location for weather (kept here as it's specific to WeeklySchedule's WeatherForecast)
   const getRestaurantLocation = (): string => {
     if (!restaurant) return '';
     
@@ -127,7 +126,8 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   // CRITICAL: Check if employee is active on specific day
   const isEmployeeActiveOnDay = (employee: Employee, day: number): boolean => {
     const shiftDate = addDays(weekStartDate, day);
-    const contractStart = parseISO(employee.startDate);
+    // CRITICAL FIX: Add default value for startDate if it's null/undefined
+    const contractStart = parseISO(employee.startDate || '1900-01-01'); 
     const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
     
     return shiftDate >= contractStart && (!contractEnd || shiftDate <= contractEnd);
@@ -141,118 +141,13 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
     );
   };
 
-  // CRITICAL: Handle drag end
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    
-    if (!over) return;
-
-    const shiftId = active.id as string;
-    const [_, dayStr] = over.id.toString().split('-');
-    const newDay = parseInt(dayStr);
-
-    const shift = shifts.find(s => s.id === shiftId);
-    if (shift && shift.day !== newDay) {
-      onUpdateShift({ ...shift, day: newDay });
-    }
-  };
-
-  // CRITICAL: Open daily entry modal
-  const handleOpenDailyEntryModal = (employeeId: string, day: number) => {
-    const employee = employees.find(e => e.id === employeeId);
-    if (!employee) return;
-    
-    setSelectedEmployee(employee);
-    setSelectedDay(day);
-    setShowDailyEntryModal(true);
-  };
-
-  // CRITICAL: Handle saving shifts from daily entry modal
-  const handleSaveShifts = (shiftsToSave: Omit<Shift, 'id'>[]) => {
-    if (!selectedEmployee) return;
-    
-    // First, delete any existing shifts for this employee and day
-    const existingEntries = shifts.filter(
-      s => s.employeeId === selectedEmployee.id && s.day === selectedDay
-    );
-    
-    existingEntries.forEach(shift => {
-      onDeleteShift(shift.id);
-    });
-    
-    // Then add the new shifts
-    shiftsToSave.forEach(shift => {
-      onAddShift(shift);
-    });
-    
-    toast.success(
-      i18n.language === 'fr'
-        ? 'Services enregistrés avec succès'
-        : 'Shifts saved successfully'
-    );
-  };
-
-  // CRITICAL: Handle saving absence from daily entry modal
-  const handleSaveAbsence = (absence: Omit<Shift, 'id'>) => {
-    if (!selectedEmployee) return;
-    
-    // First, delete any existing shifts for this employee and day
-    const existingEntries = shifts.filter(
-      s => s.employeeId === selectedEmployee.id && s.day === selectedDay
-    );
-    
-    existingEntries.forEach(shift => {
-      onDeleteShift(shift.id);
-    });
-    
-    // Then add the new absence
-    onAddShift(absence);
-    
-    toast.success(
-      i18n.language === 'fr'
-        ? 'Absence enregistrée avec succès'
-        : 'Absence saved successfully'
-    );
-  };
-
-  // CRITICAL: Manual save function
-  const handleManualSave = () => {
-    setIsSaving(true);
-    
-    try {
-      toast.success(
-        i18n.language === 'fr' 
-          ? 'Planning sauvegardé avec succès' 
-          : 'Schedule saved successfully',
-        {
-          duration: 3000,
-          icon: '✅',
-          style: {
-            background: '#f0fdf4',
-            color: '#166534',
-            border: '1px solid #dcfce7'
-          }
-        }
-      );
-    } catch (error) {
-      console.error('Failed to save schedule:', error);
-      toast.error(
-        i18n.language === 'fr' 
-          ? 'Échec de la sauvegarde du planning' 
-          : 'Failed to save schedule'
-      );
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   // CRITICAL: Week selector functionality
   const currentWeek = getWeek(weekStartDate);
   const currentYear = weekStartDate.getFullYear();
 
-  const handleWeekSelect = (weekNumber: number) => {
+  const handleWeekSelectLocal = (weekNumber: number) => { // Renamed to avoid conflict with prop
     const newDate = startOfWeek(setWeek(new Date(currentYear, 0), weekNumber), { weekStartsOn: 1 });
-    onWeekSelect(newDate);
+    onWeekSelect(newDate); // Call the prop function
     setShowWeekPicker(false);
   };
 
@@ -284,9 +179,14 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
     const isActive = isEmployeeActiveOnDay(employee, day);
     const employeeColor = generateShiftColor(employee.id);
 
+    // Use useDroppable hook to make the cell a drop target
+    const { setNodeRef } = useDroppable({
+      id: `droppable-${employee.id}-${day}`, // Unique ID for each droppable cell
+    });
+
     if (!isActive) {
       return (
-        <div className="min-h-[100px] p-2 bg-gray-100 opacity-50 rounded-md flex items-center justify-center">
+        <div ref={setNodeRef} className="min-h-[100px] p-2 bg-gray-100 opacity-50 rounded-md flex items-center justify-center">
           <div className="text-xs text-gray-400 flex items-center">
             <AlertTriangle size={12} className="mr-1" />
             Hors contrat
@@ -299,7 +199,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
     const hasMaxShifts = dayShifts.filter(s => !s.status).length >= 2;
 
     return (
-      <div className="min-h-[100px] p-2 space-y-1">
+      <div ref={setNodeRef} className="min-h-[100px] p-2 space-y-1">
         {dayShifts.map(shift => {
           if (shift.status) {
             // CRITICAL: Absence cell styling - same width as shift cells, centered text
@@ -317,7 +217,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}
-                onClick={() => handleOpenDailyEntryModal(employee.id, day)}
+                onClick={() => onAddShift(employee.id, day)} // Call the prop to open modal
               >
                 <div>
                   <div className="font-semibold">{statusConfig.label}</div>
@@ -341,7 +241,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                   minHeight: '60px'
                 }}
-                onClick={() => handleOpenDailyEntryModal(employee.id, day)}
+                onClick={() => onAddShift(employee.id, day)} // Call the prop to open modal
               >
                 <div className="font-semibold text-center">
                   {shift.start} - {shift.end}
@@ -359,7 +259,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
         {/* CRITICAL: + Ajouter button - only show if less than 2 shifts */}
         {!hasMaxShifts && (
           <button
-            onClick={() => handleOpenDailyEntryModal(employee.id, day)}
+            onClick={() => onAddShift(employee.id, day)} // Call the prop to open modal
             className="w-full py-2 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors flex items-center justify-center border border-dashed border-blue-300"
           >
             <Plus size={12} />
@@ -379,7 +279,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
       employee.startDate,
       employee.endDate,
       weekStartDate,
-      settings?.payBreakTimes ?? true
+      userSettings?.payBreakTimes ?? true // Use userSettings here
     );
   };
 
@@ -421,7 +321,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                     {weeks.map(week => (
                       <button
                         key={week}
-                        onClick={() => handleWeekSelect(week)}
+                        onClick={() => handleWeekSelectLocal(week)} // Use local handler
                         className={`p-2 text-sm rounded ${
                           week === currentWeek
                             ? 'bg-blue-100 text-blue-700 font-medium'
@@ -445,7 +345,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
           </div>
         </div>
 
-        {/* CRITICAL: Action Buttons - Dupliquer la Semaine and Exporter PDF */}
+        {/* CRITICAL: Action Buttons - Dupliquer la Semaine (Exporter PDF button removed) */}
         <div className="flex items-center gap-2">
           <button
             onClick={onDuplicateWeek}
@@ -454,14 +354,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
             <Copy size={18} />
             Dupliquer la Semaine
           </button>
-          
-          <button
-            onClick={() => setShowPDFPreviewModal(true)}
-            className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center gap-2 transition-colors"
-          >
-            <FileText size={18} />
-            {i18n.language === 'fr' ? 'Exporter PDF' : 'Export PDF'}
-          </button>
+          {/* Export PDF button removed from here, it's now in SchedulePage.tsx */}
         </div>
       </div>
 
@@ -470,25 +363,8 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
         {formatWeekRange()}
       </div>
 
-      {/* CRITICAL: Weather Forecast Integration */}
-      <WeatherForecast
-        weekStartDate={weekStartDate}
-        restaurantLocation={getRestaurantLocation()}
-        compact={settings?.scheduleLayoutType === 'optimized'}
-        responsive={window.innerWidth < 640 ? 'xs' : 
-                   window.innerWidth < 768 ? 'sm' : 
-                   window.innerWidth < 1024 ? 'md' : 
-                   window.innerWidth < 1280 ? 'lg' : 'xl'}
-      />
-
-      {/* CRITICAL: Labor Law Compliance Panel */}
-      <LaborLawCompliancePanel
-        employees={employees}
-        shifts={shifts}
-        weekStartDate={weekStartDate}
-        isVisible={showCompliancePanel}
-        onToggle={() => setShowCompliancePanel(!showCompliancePanel)}
-      />
+      {/* WeatherForecast and LaborLawCompliancePanel components are now managed and rendered by SchedulePage.tsx */}
+      {/* Removed from here */}
 
       {/* CRITICAL: Enhanced Schedule Grid */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -516,122 +392,98 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
         </div>
 
         {/* Employee Rows */}
-        <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-          {employees.map(employee => {
-            const summary = calculateWeeklySummary(employee);
-            
-            return (
-              <div key={employee.id} className="grid grid-cols-[200px_repeat(7,1fr)_200px] border-b hover:bg-gray-50">
-                {/* CRITICAL: Employee Info with Photo */}
-                <div className="p-4 bg-gray-50 border-r">
-                  <div className="flex items-center">
-                    {/* CRITICAL: Employee Photo Display */}
-                    <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center mr-3 bg-blue-500 text-white flex-shrink-0">
-                      {employee.profilePicture ? (
-                        <img 
-                          src={employee.profilePicture} 
-                          alt={`${employee.firstName} ${employee.lastName}`}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="font-bold text-sm">
-                          {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
-                        </span>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-gray-900 text-base">
-                        {employee.firstName} {employee.lastName}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {POSITIONS.includes(employee.position) 
-                          ? t(`positions.${employee.position.toLowerCase().replace(/[^a-z]/g, '')}`)
-                          : employee.position}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {employee.weeklyHours}H - {employee.contractType}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Days */}
-                {Array.from({ length: 7 }, (_, dayIndex) => (
-                  <div key={dayIndex} className="border-r">
-                    {renderShiftCell(employee, dayIndex)}
-                  </div>
-                ))}
-
-                {/* CRITICAL: Enhanced Weekly Summary with larger, more visible text */}
-                <div className="p-4 bg-gray-50 text-sm">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700 font-medium">Travaillées:</span>
-                      <span className="font-bold text-lg text-gray-900">{summary.totalWorkedHours.toFixed(0)}H{((summary.totalWorkedHours % 1) * 60).toFixed(0).padStart(2, '0')}</span>
-                    </div>
-                    {summary.totalAssimilatedHours > 0 && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-green-700 font-medium">CP:</span>
-                        <span className="font-bold text-lg text-green-800">{summary.totalAssimilatedHours.toFixed(0)}H{((summary.totalAssimilatedHours % 1) * 60).toFixed(0).padStart(2, '0')}</span>
-                      </div>
-                    )}
-                    {summary.totalPublicHolidayHours > 0 && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-red-700 font-medium text-xs">dont Heures Majorées 100%:</span>
-                        <span className="font-bold text-lg text-red-800">{summary.totalPublicHolidayHours.toFixed(0)}H{((summary.totalPublicHolidayHours % 1) * 60).toFixed(0).padStart(2, '0')}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between items-center border-t pt-2">
-                      <span className="text-gray-700 font-medium">Écart:</span>
-                      <span className={`font-bold text-lg ${
-                        summary.hoursDiff > 0 ? 'text-red-600' : 
-                        summary.hoursDiff < 0 ? 'text-blue-600' : 'text-green-600'
-                      }`}>
-                        {formatHoursDiff(summary.hoursDiff)}
+        {/* Removed DndContext from here, as it's in SchedulePage.tsx */}
+        {employees.map(employee => {
+          const summary = calculateWeeklySummary(employee);
+          
+          return (
+            <div key={employee.id} className="grid grid-cols-[200px_repeat(7,1fr)_200px] border-b hover:bg-gray-50">
+              {/* CRITICAL: Employee Info with Photo */}
+              <div className="p-4 bg-gray-50 border-r">
+                <div className="flex items-center">
+                  {/* CRITICAL: Employee Photo Display */}
+                  <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center mr-3 bg-blue-500 text-white flex-shrink-0">
+                    {employee.profilePicture ? (
+                      <img 
+                        src={employee.profilePicture} 
+                        alt={`${employee.firstName} ${employee.lastName}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="font-bold text-sm">
+                        {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
                       </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700 font-medium">Services:</span>
-                      <span className="font-bold text-lg text-gray-900">{summary.shiftCount}</span>
-                    </div>
-                    {summary.proRatedContractHours !== (employee.weeklyHours || 35) && (
-                      <div className="text-xs text-orange-600 italic mt-2">
-                        Pro-rata: {formatHours(summary.proRatedContractHours)}
-                      </div>
                     )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-gray-900 text-base">
+                      {employee.firstName} {employee.lastName}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {POSITIONS.includes(employee.position) 
+                        ? t(`positions.${employee.position.toLowerCase().replace(/[^a-z]/g, '')}`)
+                        : employee.position}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {employee.weeklyHours}H - {employee.contractType}
+                    </div>
                   </div>
                 </div>
               </div>
-            );
-          })}
-        </DndContext>
+              
+              {/* Days */}
+              {Array.from({ length: 7 }, (_, dayIndex) => (
+                <div key={dayIndex} className="border-r">
+                  {renderShiftCell(employee, dayIndex)}
+                </div>
+              ))}
+
+              {/* CRITICAL: Enhanced Weekly Summary with larger, more visible text */}
+              <div className="p-4 bg-gray-50 text-sm">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700 font-medium">Travaillées:</span>
+                    <span className="font-bold text-lg text-gray-900">{summary.totalWorkedHours.toFixed(0)}H{((summary.totalWorkedHours % 1) * 60).toFixed(0).padStart(2, '0')}</span>
+                  </div>
+                  {summary.totalAssimilatedHours > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-green-700 font-medium">CP:</span>
+                      <span className="font-bold text-lg text-green-800">{summary.totalAssimilatedHours.toFixed(0)}H{((summary.totalAssimilatedHours % 1) * 60).toFixed(0).padStart(2, '0')}</span>
+                    </div>
+                  )}
+                  {summary.totalPublicHolidayHours > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-red-700 font-medium text-xs">dont Heures Majorées 100%:</span>
+                      <span className="font-bold text-lg text-red-800">{summary.totalPublicHolidayHours.toFixed(0)}H{((summary.totalPublicHolidayHours % 1) * 60).toFixed(0).padStart(2, '0')}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center border-t pt-2">
+                    <span className="text-gray-700 font-medium">Écart:</span>
+                    <span className={`font-bold text-lg ${
+                      summary.hoursDiff > 0 ? 'text-red-600' : 
+                      summary.hoursDiff < 0 ? 'text-blue-600' : 'text-green-600'
+                    }`}>
+                      {formatHoursDiff(summary.hoursDiff)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700 font-medium">Services:</span>
+                    <span className="font-bold text-lg text-gray-900">{summary.shiftCount}</span>
+                  </div>
+                  {summary.proRatedContractHours !== (employee.weeklyHours || 35) && (
+                    <div className="text-xs text-orange-600 italic mt-2">
+                      Pro-rata: {formatHours(summary.proRatedContractHours)}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* CRITICAL: Daily Entry Modal */}
-      <DailyEntryModal
-        isOpen={showDailyEntryModal}
-        onClose={() => setShowDailyEntryModal(false)}
-        employee={selectedEmployee}
-        day={selectedDay}
-        weekStartDate={weekStartDate}
-        existingShifts={shifts}
-        onSaveShifts={handleSaveShifts}
-        onUpdateShift={onUpdateShift}
-        onDeleteShift={onDeleteShift}
-        onSaveAbsence={handleSaveAbsence}
-        restaurantId={restaurantId}
-      />
-
-      {/* PDF Preview Modal */}
-      <PDFPreviewModal
-        isOpen={showPDFPreviewModal}
-        onClose={() => setShowPDFPreviewModal(false)}
-        restaurant={restaurant}
-        employees={filteredEmployees}
-        shifts={filteredShifts}
-        weekStartDate={format(weekStartDate, 'yyyy-MM-dd')}
-        viewType={viewType}
-      />
+      {/* Daily Entry Modal and PDF Preview Modal are now rendered in SchedulePage.tsx */}
+      {/* Removed <DailyEntryModal /> and <PDFPreviewModal /> from here */}
     </div>
   );
 };
