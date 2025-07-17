@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 type StaffView = 'list' | 'directory';
 
 const StaffPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     currentRestaurant,
     getRestaurantEmployees,
