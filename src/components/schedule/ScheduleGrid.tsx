@@ -838,13 +838,6 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                                     {groupShifts[0].start} - {groupShifts[groupShifts.length - 1].end}
                                   </div>
                                   
-                                  {/* Position */}
-                                  <div className={`text-xs ${getTextColor(generateShiftColor(employee.id))} opacity-90`}>
-                                    {POSITIONS.includes(employee.position) 
-                                      ? t(`positions.${employee.position.toLowerCase().replace(/[^a-z]/g, '')}`)
-                                      : employee.position}
-                                  </div>
-                                  
                                   {/* Hours calculation */}
                                   <div className={`text-xs ${getTextColor(generateShiftColor(employee.id))} mt-1 font-medium`}>
                                     {(() => {
