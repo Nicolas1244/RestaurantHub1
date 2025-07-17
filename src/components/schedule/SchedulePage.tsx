@@ -61,17 +61,29 @@ const SchedulePage: React.FC = () => {
 
   // CRITICAL FIX: Helper function to get active employees for the week
   const getActiveEmployeesForWeek = (employees: Employee[], weekStart: Date): Employee[] => {
-    const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+    // Create a new date object to avoid mutating the original
+    const weekStartCopy = new Date(weekStart);
+    const weekEnd = endOfWeek(weekStartCopy, { weekStartsOn: 1 });
     
     return employees.filter(employee => {
       const contractStart = parseISO(employee.startDate);
       const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
       
-      // Employee is active if:
+      // CRITICAL: Employee is active if:
       // 1. Contract starts before or during the week AND
       // 2. Contract hasn't ended OR ends during or after the week
       const startsBeforeOrDuringWeek = contractStart <= weekEnd;
-      const endsAfterOrDuringWeek = !contractEnd || contractEnd >= weekStart;
+      const endsAfterOrDuringWeek = !contractEnd || contractEnd >= weekStartCopy;
+      
+      console.log(`Week activity check for ${employee.firstName} ${employee.lastName}:`, {
+        weekStart: weekStartCopy.toISOString().split('T')[0],
+        weekEnd: weekEnd.toISOString().split('T')[0],
+        contractStart: employee.startDate,
+        contractEnd: employee.endDate || 'No end date',
+        startsBeforeOrDuringWeek,
+        endsAfterOrDuringWeek,
+        isActive: startsBeforeOrDuringWeek && endsAfterOrDuringWeek
+      });
       
       return startsBeforeOrDuringWeek && endsAfterOrDuringWeek;
     });
@@ -163,15 +175,37 @@ const SchedulePage: React.FC = () => {
   const handleDuplicateWeek = () => {
     if (!currentRestaurant || !schedule) return;
 
+    // Get the next week's start date
     const nextWeekStart = addWeeks(weekStartDate, 1);
-    const duplicatedShifts = schedule.shifts.map(shift => ({
-      ...shift,
-      id: undefined,
-      start: shift.start,
-      end: shift.end
-    }));
+    
+    // CRITICAL: Get active employees for the next week
+    const activeEmployeesForNextWeek = getActiveEmployeesForWeek(allEmployees, nextWeekStart);
+    const activeEmployeeIdsForNextWeek = activeEmployeesForNextWeek.map(emp => emp.id);
+    
+    console.log('Duplicating week to:', format(nextWeekStart, 'yyyy-MM-dd'));
+    console.log('Active employees for next week:', activeEmployeesForNextWeek.length);
+    // Only duplicate shifts for employees who are active in the next week
+    const duplicatedShifts = schedule.shifts
+      .filter(shift => {
+        // Check if the employee is active in the next week
+        const isEmployeeActive = activeEmployeeIdsForNextWeek.includes(shift.employeeId);
+        
+        if (!isEmployeeActive) {
+          console.log(`Skipping shift for employee ${shift.employeeId} - not active in next week`);
+        }
+        
+        return isEmployeeActive;
+      })
+      .map(shift => ({
+        ...shift,
+        id: undefined, // Will be generated when added
+        start: shift.start,
+        end: shift.end
+      }));
 
     try {
+      console.log(`Duplicating ${duplicatedShifts.length} shifts to next week`);
+      
       duplicatedShifts.forEach(shift => {
         addShift(shift);
       });

@@ -194,18 +194,30 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
       }
     });
     
-    setAvailabilityConflicts(newAvailabilityConflicts);
+    // Create a new date object to avoid mutating the original
+    const weekStartCopy = new Date(weekStart);
+    const weekEnd = endOfWeek(weekStartCopy, { weekStartsOn: 1 });
     setPreferenceConflicts(newPreferenceConflicts);
     setPositionConflicts(newPositionConflicts);
   }, [shifts, employees, checkAvailabilityConflicts, getEmployeePreferences]);
 
   // CRITICAL: Group shifts by employee and day
-  const getShiftsForEmployeeDay = (employeeId: string, day: number) => {
-    return shifts.filter(shift => 
-      shift.employeeId === employeeId && 
+      // CRITICAL: Employee is active if:
+      // 1. Contract starts before or during the week AND
+      // 2. Contract hasn't ended OR ends during or after the week
       shift.day === day
     ).sort((a, b) => {
       // Sort by start time
+      console.log(`Week activity check for ${employee.firstName} ${employee.lastName}:`, {
+        weekStart: weekStartCopy.toISOString().split('T')[0],
+        weekEnd: weekEnd.toISOString().split('T')[0],
+        contractStart: employee.startDate,
+        contractEnd: employee.endDate || 'No end date',
+        startsBeforeOrDuringWeek,
+        endsAfterOrDuringWeek,
+        isActive: startsBeforeOrDuringWeek && endsAfterOrDuringWeek
+      });
+      
       return a.start.localeCompare(b.start);
     });
   };
@@ -243,18 +255,29 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
 
   // Contract validation helper
   const isEmployeeActiveOnDay = (employee: Employee, day: number): boolean => {
-    const shiftDate = addDays(weekStartDate, day);
+    // Get the exact date for this day in the schedule
+    const shiftDate = addDays(new Date(weekStartDate), day);
     const contractStart = parseISO(employee.startDate);
     const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
 
+    // Check if the shift date is within the contract period
     const isAfterStart = shiftDate >= contractStart;
     const isBeforeEnd = !contractEnd || shiftDate <= contractEnd;
+
+    console.log(`Contract check for ${employee.firstName} ${employee.lastName} on day ${day}:`, {
+      shiftDate: shiftDate.toISOString().split('T')[0],
+      contractStart: employee.startDate,
+      contractEnd: employee.endDate || 'No end date',
+      isAfterStart,
+      isBeforeEnd,
+      isActive: isAfterStart && isBeforeEnd
+    });
 
     return isAfterStart && isBeforeEnd;
   };
 
   const showContractWarning = (employee: Employee, day: number) => {
-    const shiftDate = addDays(weekStartDate, day);
+    const shiftDate = addDays(new Date(weekStartDate), day);
     const contractStart = parseISO(employee.startDate);
     const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
 
@@ -758,7 +781,8 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                   const dayShifts = getShiftsForEmployeeDay(employee.id, dayIndex);
                   const dayStatus = dayShifts.length > 0 ? dayShifts[0].status : undefined;
                   const dayBgColor = getDayBackgroundColor(dayIndex);
-                  
+
+                  // CRITICAL: Check if employee is active on this day (contract period check)
                   const isEmployeeActiveToday = isEmployeeActiveOnDay(employee, dayIndex);
                   const isTimeInputDisabled = shouldDisableTimeInputs(dayStatus);
                   
@@ -801,8 +825,8 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                       }}
                     >
                       {!isEmployeeActiveToday && (
-                        <div className={`text-gray-400 text-center mb-1 ${gridClasses.employeeContract}`}>
-                          Hors contrat
+                        <div className={`text-gray-500 text-center p-3 border border-gray-200 rounded-lg bg-gray-50 w-full ${gridClasses.employeeContract}`}>
+                          <span className="font-medium">Hors contrat</span>
                         </div>
                       )}
                       

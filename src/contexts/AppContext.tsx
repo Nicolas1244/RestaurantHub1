@@ -136,10 +136,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // CRITICAL: Helper function to create initial schedule for a restaurant
   const createInitialSchedule = (restaurantId: string): Schedule => {
     const currentDate = new Date();
-    const getWeekStartDate = (date: Date) => {
+    const getWeekStartDate = (date: Date): string => {
       const day = date.getDay();
       const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Monday start
-      return new Date(date.setDate(diff)).toISOString().split('T')[0];
+      // Create a new date to avoid mutating the original
+      const newDate = new Date(date);
+      newDate.setDate(diff);
+      return newDate.toISOString().split('T')[0];
     };
 
     const newSchedule: Schedule = {
@@ -172,12 +175,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const getRestaurantSchedule = (restaurantId: string): Schedule | undefined => {
     let schedule = schedules.find(schedule => schedule.restaurantId === restaurantId);
     
-    // CRITICAL: If no schedule exists for this restaurant, create one automatically
+    // If no schedule exists for this restaurant, create one automatically
     if (!schedule) {
       console.log('⚠️ No schedule found for restaurant:', restaurantId, 'Creating initial schedule...');
       schedule = createInitialSchedule(restaurantId);
       
-      // Add the new schedule to the schedules array
+      // Add the new schedule to the schedules array - but don't duplicate shifts
       setSchedules(prev => [...prev, schedule!]);
       
       toast.info('Schedule initialized for new restaurant', { duration: 3000 });
