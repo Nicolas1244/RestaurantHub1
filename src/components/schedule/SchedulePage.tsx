@@ -25,7 +25,7 @@ const SchedulePage: React.FC = () => {
   const { 
     currentRestaurant, 
     getRestaurantEmployees, 
-    getRestaurantSchedule,
+    getRestaurantScheduleForWeek,
     addShift,
     updateShift,
     deleteShift,
@@ -90,7 +90,7 @@ const SchedulePage: React.FC = () => {
   const filteredEmployeeIds = employees.map(emp => emp.id);
     
   const schedule = currentRestaurant 
-    ? getRestaurantSchedule(currentRestaurant.id)
+    ? getRestaurantScheduleForWeek(currentRestaurant.id, weekStartDate)
     : undefined;
     
   // CRITICAL FIX: Filter shifts to match the selected view AND current week only
@@ -128,7 +128,7 @@ const SchedulePage: React.FC = () => {
   // CRITICAL: Initialize auto-save service when component mounts
   useEffect(() => {
     if (currentRestaurant) {
-      const schedule = getRestaurantSchedule(currentRestaurant.id);
+      const schedule = getRestaurantScheduleForWeek(currentRestaurant.id, weekStartDate);
       
       // Initialize auto-save service with current shifts
       scheduleAutoSaveService.initialize(
@@ -149,7 +149,7 @@ const SchedulePage: React.FC = () => {
     return () => {
       scheduleAutoSaveService.cleanup();
     };
-  }, [currentRestaurant]);
+  }, [currentRestaurant, weekStartDate]);
   
   // CRITICAL: Update auto-save service when language changes
   useEffect(() => {
@@ -159,12 +159,12 @@ const SchedulePage: React.FC = () => {
   // CRITICAL: Update auto-save service when shifts change
   useEffect(() => {
     if (currentRestaurant) {
-      const schedule = getRestaurantSchedule(currentRestaurant.id);
+      const schedule = getRestaurantScheduleForWeek(currentRestaurant.id, weekStartDate);
       if (schedule) {
         scheduleAutoSaveService.updateShifts(schedule.shifts);
       }
     }
-  }, [shifts]);
+  }, [shifts, weekStartDate]);
   
   // CRITICAL FIX: Functional week navigation arrows
   const handlePrevWeek = () => {
@@ -186,7 +186,10 @@ const SchedulePage: React.FC = () => {
   };
 
   const handleDuplicateWeek = () => {
-    if (!currentRestaurant || !schedule) return;
+    if (!currentRestaurant) return;
+    
+    const currentWeekSchedule = getRestaurantScheduleForWeek(currentRestaurant.id, weekStartDate);
+    if (!currentWeekSchedule) return;
 
     // Get the next week's start date
     const nextWeekStart = addWeeks(weekStartDate, 1);
@@ -195,15 +198,8 @@ const SchedulePage: React.FC = () => {
     console.log('Duplicating week from:', format(weekStartDate, 'yyyy-MM-dd'), 'to:', format(nextWeekStart, 'yyyy-MM-dd'));
     
     // CRITICAL: Only duplicate shifts from the current week that are valid for the next week
-    const currentWeekShifts = schedule.shifts
+    const currentWeekShifts = currentWeekSchedule.shifts
       .filter(shift => {
-        // Only consider shifts from the current week
-        const shiftDate = addDays(weekStartDate, shift.day);
-        const weekEnd = endOfWeek(weekStartDate, { weekStartsOn: 1 });
-        const isInCurrentWeek = shiftDate >= weekStartDate && shiftDate <= weekEnd;
-        
-        if (!isInCurrentWeek) return false;
-        
         // Check if employee will be active for the corresponding day in next week
         const employee = allEmployees.find(e => e.id === shift.employeeId);
         if (!employee) return false;
@@ -232,7 +228,7 @@ const SchedulePage: React.FC = () => {
       console.log(`Duplicating ${currentWeekShifts.length} shifts to next week`);
       
       currentWeekShifts.forEach(shift => {
-        addShift(shift);
+        addShift(shift, nextWeekStart);
       });
       toast.success(t('success.weekDuplicated'));
       setWeekStartDate(nextWeekStart);
