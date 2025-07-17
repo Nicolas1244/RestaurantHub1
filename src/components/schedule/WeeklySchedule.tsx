@@ -625,26 +625,30 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
       />
 
       {/* CRITICAL: PDF Preview Modal */}
-      <PDFPreviewModal
-        isOpen={showPDFPreviewModal}
-        onClose={() => setShowPDFPreviewModal(false)}
-        restaurant={restaurant}
-        employees={employees}
-        shifts={shifts}
-        weekStartDate={format(weekStartDate, 'yyyy-MM-dd')}
-        viewType={viewType}
-      />
+      {showPDFPreviewModal && (
+        <PDFPreviewModal
+          isOpen={showPDFPreviewModal}
+          onClose={() => setShowPDFPreviewModal(false)}
+          restaurant={restaurant}
+          employees={employees}
+          shifts={shifts}
+          weekStartDate={format(weekStartDate, 'yyyy-MM-dd')}
+          viewType={viewType}
+        />
+      )}
 
       {/* CRITICAL: PDF Export Modal */}
-      <PDFExportModal
-        isOpen={showPDFExportModal}
-        onClose={() => setShowPDFExportModal(false)}
-        restaurant={restaurant}
-        employees={employees}
-        shifts={shifts}
-        weekStartDate={weekStartDate}
-        currentViewType={viewType}
-      />
+      {showPDFExportModal && (
+        <PDFExportModal
+          isOpen={showPDFExportModal}
+          onClose={() => setShowPDFExportModal(false)}
+          restaurant={restaurant}
+          employees={employees}
+          shifts={shifts}
+          weekStartDate={weekStartDate}
+          currentViewType={viewType}
+        />
+      )}
     </div>
   );
 };
