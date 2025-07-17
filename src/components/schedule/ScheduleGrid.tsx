@@ -205,22 +205,17 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
 
   // CRITICAL: Group shifts by employee and day
   const getShiftsForEmployeeDay = (employeeId: string, day: number) => {
+    // First check if employee is active on this specific day
+    const employee = employees.find(e => e.id === employeeId);
+    if (!employee || !isEmployeeActiveOnDay(employee, day)) {
+      return []; // Return empty array if employee is not active on this day
+    }
+    
     return shifts.filter(shift => 
       shift.employeeId === employeeId && 
-      // CRITICAL: Employee is active if:
-      // 1. Contract starts before or during the week AND
-      // 2. Contract hasn't ended OR ends during or after the week
       shift.day === day
     ).sort((a, b) => {
       // Sort by start time
-      console.log(`Week activity check for ${employees.find(e => e.id === employeeId)?.firstName} ${employees.find(e => e.id === employeeId)?.lastName}:`, {
-        weekStart: new Date(weekStartDate).toISOString().split('T')[0],
-        weekEnd: endOfWeek(new Date(weekStartDate), { weekStartsOn: 1 }).toISOString().split('T')[0],
-        contractStart: employees.find(e => e.id === employeeId)?.startDate,
-        contractEnd: employees.find(e => e.id === employeeId)?.endDate || 'No end date',
-        isActive: true
-      });
-      
       return a.start.localeCompare(b.start);
     });
   };

@@ -363,6 +363,20 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
       return;
     }
     
+    // CRITICAL: Validate contract dates before saving
+    const shiftDate = addDays(weekStartDate, selectedDay);
+    const contractStart = parseISO(employee.startDate);
+    const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
+    
+    if (shiftDate < contractStart || (contractEnd && shiftDate > contractEnd)) {
+      setValidationError(
+        i18n.language === 'fr'
+          ? `Impossible de planifier en dehors de la période contractuelle (${employee.startDate} - ${employee.endDate || 'CDI'})`
+          : `Cannot schedule outside contract period (${employee.startDate} - ${employee.endDate || 'CDI'})`
+      );
+      return;
+    }
+    
     if (activeTab === 'shifts') {
       // Validate shifts
       if (shiftItems.length === 0) {

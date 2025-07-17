@@ -349,6 +349,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const addShift = (shiftData: Omit<Shift, 'id'>) => {
+    // CRITICAL: Validate contract dates before adding shift
+    const employee = employees.find(e => e.id === shiftData.employeeId);
+    if (employee) {
+      const shiftDate = new Date();
+      shiftDate.setDate(shiftDate.getDate() + shiftData.day);
+      
+      const contractStart = new Date(employee.startDate);
+      const contractEnd = employee.endDate ? new Date(employee.endDate) : null;
+      
+      // Check if shift date is within contract period
+      if (shiftDate < contractStart || (contractEnd && shiftDate > contractEnd)) {
+        console.warn('Attempted to add shift outside contract period:', {
+          employee: `${employee.firstName} ${employee.lastName}`,
+          shiftDate: shiftDate.toISOString().split('T')[0],
+          contractStart: employee.startDate,
+          contractEnd: employee.endDate
+        });
+        return; // Don't add shift if outside contract period
+      }
+    }
+    
     const newShift: Shift = {
       ...shiftData,
       id: Math.random().toString(36).substr(2, 9)
