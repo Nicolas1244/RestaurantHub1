@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 
 const RestaurantsPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { restaurants, addRestaurant, updateRestaurant, deleteRestaurant } = useAppContext();
   const [showRestaurantForm, setShowRestaurantForm] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | undefined>(undefined);
