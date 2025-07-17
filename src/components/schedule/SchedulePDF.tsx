@@ -405,10 +405,8 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                   <Text style={styles.headerText}>
                     {dayName}
                   </Text>
-                  <Text style={[styles.headerText, { fontSize: 6, marginTop: 1 }]}>
                   <Text style={{...styles.headerText, fontSize: 6, marginTop: 1}}>
                     {i18n.language === 'fr' ? dayDate.replace(/\b\w/g, (char) => char.toUpperCase()) : dayDate}
-                  </Text>
                   </Text>
                 </View>
               );

@@ -87,7 +87,7 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
     backgroundColor: shift.isHolidayWorked ? '#DC262630' : 
                     (shift.status ? `${DAILY_STATUS[shift.status].color}30` : employeeColor),
     borderColor: shift.isHolidayWorked ? '#DC2626' : 
-                (shift.status ? DAILY_STATUS[shift.status].color : undefined),
+                (shift.status ? DAILY_STATUS[shift.status].color : ''),
     color: shift.isHolidayWorked ? getTextColor('#DC2626') : 
           (shift.status ? getTextColor(DAILY_STATUS[shift.status].color) : textColor),
     boxShadow: '0 2px 4px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.06)',
