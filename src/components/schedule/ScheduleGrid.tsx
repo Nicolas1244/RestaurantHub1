@@ -800,6 +800,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                       
                       {/* CRITICAL: If there's a status, show it instead of shifts */}
                       {dayStatus ? (
+                        <>
                         <div 
                           className="mb-2 p-3 rounded-lg cursor-pointer transform transition-all hover:scale-[1.02] hover:shadow-md border-2"
                           onClick={(e) => {
@@ -838,7 +839,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </>
                       ) : (
                         <>
                           {/* CRITICAL: If there are multiple shifts or coupures, show them */}
