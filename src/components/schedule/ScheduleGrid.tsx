@@ -1,662 +1,371 @@
-export default {
-  translation: {
-    common: {
-      appName: 'Kollab',
-      weeklySchedule: 'Planning Hebdomadaire',
-      week: 'Semaine',
-      today: "Aujourd'hui",
-      addShift: 'Ajouter un Service',
-      signIn: 'Connexion',
-      signOut: 'Déconnexion',
-      staffMember: 'Membre du Personnel',
-      selectRestaurant: 'Sélectionner un Restaurant',
-      selectRestaurantPrompt: 'Veuillez sélectionner un restaurant dans la barre latérale.',
-      exportPDF: 'Exporter en PDF',
-      cancel: 'Annuler',
-      save: 'Enregistrer',
-      delete: 'Supprimer',
-      edit: 'Modifier',
-      add: 'Ajouter',
-      close: 'Fermer',
-      viewSchedule: 'Voir le Planning',
-      saving: 'Enregistrement...',
-      create: 'Créer',
-      update: 'Mettre à jour',
-      loading: 'Chargement...',
-      start: 'Début',
-      end: 'Fin',
-      reset: 'Réinitialiser',
-    },
-    nav: {
-      dashboard: 'Tableau de Bord',
-      restaurants: 'Restaurants',
-      staff: 'Personnel',
-      schedule: 'Planning',
-      settings: 'Paramètres'
-    },
-    settings: {
-      title: 'Paramètres',
-      general: {
-        title: 'Paramètres Généraux',
-        timezone: 'Fuseau Horaire',
-        dateFormat: 'Format de Date',
-        currency: 'Devise'
-      },
-      notifications: {
-        title: 'Paramètres de Notifications',
-        emailNotifications: 'Notifications par Email',
-        emailDescription: 'Recevez les mises à jour du planning et les alertes par email',
-        pushNotifications: 'Notifications Push',
-        pushDescription: 'Recevez des notifications en temps réel dans votre navigateur',
-        contractExpiryAlerts: 'Alertes de Fin de Contrat',
-        scheduleChangeAlerts: 'Alertes de Modification du Planning'
-      },
-      security: {
-        title: 'Paramètres de Sécurité',
-        twoFactor: 'Authentification à Deux Facteurs',
-        twoFactorDescription: 'Ajoutez une couche de sécurité supplémentaire à votre compte',
-        changePassword: 'Changer le Mot de Passe',
-        sessionTimeout: 'Délai d\'Expiration de Session',
-        minutes: 'minutes',
-        hour: 'heure',
-        hours: 'heures'
-      },
-      localization: {
-        title: 'Langue et Région',
-        language: 'Langue d\'Affichage',
-        currency: 'Devise'
-      },
-      schedule: {
-        title: 'Paramètres du Planning',
-        timeInputType: 'Méthode de Saisie d\'Heure',
-        timeInputTypes: {
-          dropdown: 'Menu Déroulant',
-          timePicker: 'Sélecteur d\'Heure Visuel',
-          textInput: 'Saisie Directe de Texte'
-        },
-        layoutType: 'Type de Mise en Page',
-        layoutTypes: {
-          optimized: 'Mise en Page Optimisée',
-          classic: 'Mise en Page Classique'
-        },
-        autoSave: 'Sauvegarde Automatique',
-        weekStart: 'Début de la Semaine',
-        payBreakTimes: 'Rémunérer les Temps de Pause',
-        payBreakTimesDescription: 'Inclure les temps de pause dans le calcul des heures travaillées',
-        default: 'Par défaut'
-      },
-      display: {
-        title: 'Paramètres d\'Affichage',
-        theme: 'Thème',
-        themes: {
-          light: 'Thème Clair',
-          dark: 'Thème Sombre',
-          auto: 'Automatique (selon système)'
-        },
-        compactMode: 'Mode Compact',
-        compactModeDescription: 'Réduire l\'espacement et la taille des éléments pour afficher plus de contenu'
-      },
-      integration: {
-        title: 'Paramètres d\'Intégration',
-        posSync: 'Synchronisation Caisse',
-        posSyncDescription: 'Synchroniser automatiquement les données avec votre système de caisse',
-        weatherEnabled: 'Prévisions Météo',
-        weatherDescription: 'Afficher les prévisions météo au-dessus du planning hebdomadaire',
-        weatherAutoLocation: 'Localisation Automatique',
-        weatherAutoLocationDescription: 'Utiliser l\'adresse du restaurant pour les prévisions météo',
-        weatherLocation: 'Localisation Personnalisée',
-        weatherLocationPlaceholder: 'Ville ou code postal',
-        weatherDetectedLocation: 'Localisation détectée'
-      },
-      timeclock: {
-        title: 'Paramètres de la Badgeuse',
-        enabled: 'Activer la Badgeuse',
-        enabledDescription: 'Permettre aux employés de pointer leurs heures d\'arrivée et de départ',
-        featureEnabled: 'Fonction Badgeuse Activée',
-        featureEnabledDescription: 'La fonction Badgeuse est maintenant disponible dans votre application.',
-        accessInstructions: 'Accédez à la Badgeuse via l\'onglet dédié dans le menu principal.'
-      },
-      breakPayment: {
-        title: 'Gestion des Temps de Pause',
-        description: 'Le paramètre "Rémunérer les temps de pause" détermine si les pauses sont incluses dans les calculs d\'heures travaillées. Ce paramètre est activé par défaut et ne peut pas être modifié pour garantir la conformité avec les pratiques courantes de l\'industrie de la restauration où l\'employé reste à disposition.'
-      },
-      weatherIntegration: {
-        title: 'Prévisions Météo Intégrées',
-        description: 'Les prévisions météo s\'affichent automatiquement au-dessus du planning hebdomadaire, avec détection automatique de la localisation basée sur l\'adresse du restaurant. Couvre jusqu\'à 15 jours de prévisions avec températures, conditions météo et vitesse du vent.'
-      },
-      saveSuccess: 'Paramètres sauvegardés avec succès',
-      saveError: 'Erreur lors de la sauvegarde des paramètres',
-      resetSuccess: 'Paramètres réinitialisés'
-    },
-    breakPayment: {
-      description: 'Le paramètre "Rémunérer les temps de pause" détermine si les pauses sont incluses dans les calculs d\'heures travaillées. Lorsqu\'il est activé, les pauses entre les services sont comptées comme du temps rémunéré.'
-    },
-    contractExpiryAlerts: 'Alertes de Fin de Contrat',
-    scheduleChangeAlerts: 'Alertes de Modification du Planning',
-    calendarSync: 'Synchronisation Calendrier',
-    backupEnabled: 'Sauvegardes Automatiques',
-    dashboard: {
-      scheduleMetrics: 'Métriques du Planning',
-      plannedHours: 'Heures Planifiées',
-      scheduledEmployees: 'Employés Planifiés',
-      totalShifts: 'Total des Services',
-      alerts: 'Alertes & Notifications',
-      noAlerts: 'Aucune alerte pour le moment',
-      contractEndsOn: 'Contrat se termine le {{date}}',
-      financialSnapshot: 'Aperçu Financier',
-      estimatedRevenue: 'Revenu Est. du Jour',
-      laborCost: 'Coût du Personnel %',
-      projectedCovers: 'Couverts Prévus',
-      viewSchedule: 'Planning',
-      manageShifts: 'Voir et gérer les services',
-      manageStaff: 'Gestion du Personnel',
-      viewEmployees: 'Voir et gérer les employés',
-      restaurantDetails: 'Détails du Restaurant',
-      updateInfo: 'Mettre à jour les informations du restaurant',
-      financialReports: 'Rapports Financiers',
-      viewMetrics: 'Voir les métriques détaillées',
-    },
-    documents: {
-      title: 'Gestion des Documents',
-      management: 'Gestion des Documents',
-      filterByEmployee: 'Filtrer par Employé',
-      allEmployees: 'Tous les Employés',
-      upload: 'Télécharger un Document',
-      download: 'Télécharger',
-      delete: 'Supprimer',
-      view: 'Voir',
-      category: 'Catégorie',
-      categories: {
-        contract: 'Contrat',
-        payslip: 'Bulletin de paie',
-        dpae: 'DPAE',
-        other: 'Autre'
-      },
-      status: {
-        pending: 'En attente',
-        signed: 'Signé',
-        rejected: 'Rejeté'
-      },
-      noDocuments: 'Aucun document trouvé',
-      uploadSuccess: 'Document téléchargé avec succès',
-      downloadStarted: 'Téléchargement du document démarré',
-      deleteSuccess: 'Document supprimé avec succès',
-      deleteConfirm: 'Êtes-vous sûr de vouloir supprimer ce document ?',
-      createFolder: 'Créer un Dossier',
-      folderName: 'Nom du Dossier',
-      folderCreated: 'Dossier créé avec succès',
-      documentDate: 'Date du Document',
-      documentInfo: 'Informations sur le Document',
-      documentPreview: 'Aperçu du Document',
-      previewNotAvailable: 'Aperçu non disponible',
-      documentStorage: 'Stockage des Documents',
-      documentRetention: 'Rétention des Documents',
-      electronicSignature: 'Signature Électronique',
-      automaticDocumentGeneration: 'Génération Automatique de Documents'
-    },
-    payroll: {
-      title: 'Gestion de la Paie',
-      preparation: 'Préparation de la Paie',
-      export: 'Exporter les Données de Paie',
-      exportFormat: 'Format d\'Export',
-      exportOptions: 'Options d\'Export',
-      softwareIntegration: 'Intégration Logiciel',
-      regularHours: 'Heures Régulières',
-      overtimeHours: 'Heures Supplémentaires',
-      holidayHours: 'Heures Fériées',
-      absenceHours: 'Heures d\'Absence',
-      totalHours: 'Heures Totales',
-      grossSalary: 'Salaire Brut',
-      variableElements: 'Éléments Variables',
-      hoursBreakdown: 'Détail des Heures',
-      payslip: 'Fiche de Paie',
-      generatePayslip: 'Générer la Fiche de Paie',
-      exportHistory: 'Historique des Exports',
-      payrollSetup: 'Configuration Paie',
-      payrollSoftware: 'Logiciel de Paie',
-      exportFrequency: 'Fréquence d\'Export',
-      automaticExport: 'Export Automatique',
-      validationRequired: 'Validation Requise',
-      integrationSetup: 'Configuration de l\'Intégration',
-      apiCredentials: 'Identifiants API',
-      serviceUrl: 'URL du Service',
-      integrationConfigured: 'Intégration configurée avec succès',
-      exportStarted: 'Export démarré',
-      calendar: 'Calendrier de Paie',
-      preparation: 'Préparation',
-      validation: 'Validation',
-      transmission: 'Transmission',
-      deadline: 'Date limite'
-    },
-    auth: {
-      signIn: 'Se Connecter',
-      signUp: "S'Inscrire",
-      signOut: 'Déconnexion',
-      createAccount: 'Créer un Compte',
-      continueWithGoogle: 'Continuer avec Google',
-      orContinueWith: 'Ou continuer avec',
-      alreadyHaveAccount: 'Vous avez déjà un compte ?',
-      dontHaveAccount: "Vous n'avez pas de compte ?",
-      connect: 'Se Connecter',
-      email: 'Email',
-      password: 'Mot de passe',
-      confirmPassword: 'Confirmer le mot de passe',
-      rememberMe: 'Se souvenir de moi',
-      forgotPassword: 'Mot de passe oublié ?',
-      passwordsDoNotMatch: 'Les mots de passe ne correspondent pas',
-      passwordTooShort: 'Le mot de passe doit contenir au moins 6 caractères',
-      passwordRequirements: 'Le mot de passe doit contenir au moins 6 caractères',
-      agreeToTerms: "J'accepte les",
-      termsOfService: "Conditions d'utilisation",
-      and: 'et la',
-      privacyPolicy: 'Politique de confidentialité',
-      checkEmail: 'Vérifiez votre email pour confirmer votre compte',
-      signInDescription: 'Connectez-vous à votre compte pour continuer',
-      createAccountDescription: 'Créez un nouveau compte pour commencer',
-      userProfile: 'Profil Utilisateur',
-      userSettings: 'Paramètres Utilisateur',
-      userSettingsDescription: 'Gérez vos paramètres de compte et préférences',
-      userManagement: 'Gestion des Utilisateurs',
-      userManagementDescription: 'Gérez les utilisateurs et leurs rôles',
-      usersList: 'Liste des Utilisateurs',
-      user: 'Utilisateur',
-      saveChanges: 'Enregistrer les modifications',
-      role: 'Rôle',
-      createdAt: 'Créé le',
-      editUser: "Modifier l'Utilisateur",
-      inviteUser: 'Inviter un Utilisateur',
-      invite: 'Inviter',
-      firstName: 'Prénom',
-      lastName: 'Nom',
-      emailCannotBeChanged: "L'adresse email ne peut pas être modifiée",
-      primaryRestaurant: 'Restaurant Principal',
-      selectRestaurant: 'Sélectionner un restaurant',
-      confirmDeleteUser: 'Êtes-vous sûr de vouloir supprimer cet utilisateur ?',
-      profileNotFound: 'Profil utilisateur non trouvé',
-      appDescription: 'Plateforme de gestion du personnel de restaurant',
-      roles: {
-        admin: 'Administrateur',
-        manager: 'Manager',
-        employee: 'Employé'
-      }
-    },
-    employee: {
-      portal: 'Portail Employé',
-      welcome: 'Bienvenue sur votre portail employé',
-      welcomeBack: 'Bienvenue, {{name}}',
-      myInfo: 'Mes Informations',
-      upcomingShifts: 'Services à Venir',
-      noUpcomingShifts: 'Aucun service planifié à venir',
-      recentActivity: 'Activité Récente',
-      noRecentActivity: 'Aucune activité récente à afficher',
-      noEmployeeRecord: 'Aucun dossier employé trouvé',
-      timeClockUnavailable: 'La badgeuse n\'est pas disponible',
-    },
-    timeclock: {
-      title: 'Badgeuse',
-      clockIn: 'Arrivée',
-      clockOut: 'Départ',
-      currentStatus: 'Statut Actuel',
-      totalHoursToday: 'Heures Totales Aujourd\'hui',
-      history: 'Historique des Pointages',
-      comparison: 'Prévu vs. Réel',
-      summary: 'Résumé des Pointages',
-      exportReport: 'Exporter le Rapport',
-      filterByDate: 'Filtrer par Date',
-      filterByEmployee: 'Filtrer par Employé',
-      status: {
-        clockedIn: 'Pointé',
-        clockedOut: 'Non Pointé',
-        onTime: 'À l\'heure',
-        late: 'En retard',
-        early: 'En avance',
-        overtime: 'Heures supp.',
-        undertime: 'Heures manquantes',
-        missingPunch: 'Pointage manquant'
-      }
-    },
-    days: {
-      monday: 'Lundi',
-      tuesday: 'Mardi',
-      wednesday: 'Mercredi',
-      thursday: 'Jeudi',
-      friday: 'Vendredi',
-      saturday: 'Samedi',
-      sunday: 'Dimanche',
-      mon: 'Lun',
-      tue: 'Mar',
-      wed: 'Mer',
-      thu: 'Jeu',
-      fri: 'Ven',
-      sat: 'Sam',
-      sun: 'Dim',
-    },
-    shifts: {
-      shift: 'Service',
-      shift_plural: 'Services',
-      morning: 'Matin/Déjeuner',
-      evening: 'Soir/Dîner',
-      regularShift: 'Service Normal',
-      paidLeave: 'Congé Payé',
-      publicHoliday: 'Jour Férié',
-      contractEnds: 'Fin de contrat',
-      expired: 'Expiré',
-      endingSoon: 'Se termine bientôt',
-      cp: 'Congé Payé',
-      public_holiday: 'Férié 1er Mai',
-      public_holiday_worked: 'Férié Travaillé (majoré 100%)', 
-      workedOnHoliday: 'Férié travaillé (majoré 100%)',
-      workingDay: 'Journée de travail normale',
-      absenceTypes: {
-        VACATION: 'Congés payés',
-        SICK_LEAVE: 'Maladie',
-        PERSONAL_LEAVE: 'Congé personnel',
-        PUBLIC_HOLIDAY: 'Férié 1er Mai',
-        TRAINING: 'Formation',
-        UNPAID_LEAVE: 'Congé sans solde'
-      },
-      notes: 'Notes',
-      notesPlaceholder: 'Ajouter des notes ou commentaires...',
-      startTime: 'Heure de début',
-      endTime: 'Heure de fin',
-      hours: 'heures',
-      totalHours: 'Total des heures',
-      overtimeWarning: 'Attention: Plus de 8 heures de travail dans la journée',
-      addShift: 'Ajouter un Service',
-      editShift: 'Modifier le Service',
-      deleteShift: 'Supprimer le Service',
-      shiftType: 'Type de Service',
-      leaveType: 'Type d\'Absence',
-      employees: 'Employés',
-      searchEmployees: 'Rechercher des employés...',
-      day: 'Jour',
-      startTime: 'Heure de Début',
-      endTime: 'Heure de Fin',
-      position: 'Poste',
-      updateShift: 'Mettre à jour le Service',
-      addNewShift: 'Ajouter un Nouveau Service',
-      splitShift: 'Service Coupé',
-      coupure: 'Coupure',
-      addAnotherShift: 'Ajouter un autre service',
-      removeShift: 'Supprimer ce service',
-      daySummary: 'Résumé du jour',
-      workingHours: 'Heures travaillées',
-      breakHours: 'Heures de coupure',
-      breakAfterShift: 'Coupure après ce service',
-      overlappingShifts: 'Les services se chevauchent. Veuillez ajuster les heures.',
-      selectEmployee: 'Veuillez sélectionner au moins un employé',
-      addAtLeastOneShift: 'Veuillez ajouter au moins un service',
-      manageDay: 'Gérer la journée',
-      absenceType: 'Type d\'Absence',
-      absenceNote: 'Sélectionner une absence supprimera tous les services planifiés pour ce jour',
-      shiftTab: 'Services',
-      absenceTab: 'Absence',
-      saveEntries: 'Enregistrer',
-      deleteEntries: 'Supprimer Tout',
-    },
-    schedule: {
-      weekly: 'Hebdomadaire',
-      monthly: 'Mensuel',
-      weeklySummary: 'Résumé Hebdomadaire',
-      contractBase: 'Base Contractuelle',
-      planned: 'Heures de Travail Actives',
-      includingLeave: 'Heures de Congé',
-      total: 'Total des Heures',
-      overtime: 'Heures Supplémentaires',
-      exceedsHours: 'Dépasse les heures contractuelles hebdomadaires',
-      shiftTemplates: 'Modèles de Service',
-      newTemplate: 'Nouveau Modèle',
-      templateName: 'Nom du Modèle',
-      templateDescription: 'Description du Modèle',
-      applyTemplate: 'Appliquer le Modèle',
-      repeatOn: 'Répéter le',
-      duplicateWeek: 'Dupliquer la Semaine',
-      totalWorkedHours: 'Total Heures Travaillées',
-      overtimeHours: 'Heures Supp./Manquantes',
-      numberOfShifts: 'Nb de Services',
-      publicHolidayHours: 'dont Heures Majorées 100%',
-      cpHours: 'CP',
-      noEmployees: 'Aucun employé trouvé',
-      // Archive feature translations
-      archive: 'Archiver',
-      archiveWeek: 'Archiver la Semaine',
-      archiveConfirmTitle: 'Archiver le Planning',
-      archiveConfirmMessage: 'Êtes-vous sûr de vouloir archiver le planning de cette semaine ? Cette action créera une sauvegarde permanente.',
-      archiveSuccess: 'Planning archivé avec succès',
-      archiveError: 'Erreur lors de l\'archivage du planning',
-      duplicateDetected: 'Archive Existante Détectée',
-      duplicateMessage: 'Une archive existe déjà pour cette semaine. Voulez-vous la remplacer ?',
-      replaceArchive: 'Remplacer l\'Archive',
-      keepExisting: 'Conserver l\'Existante',
-      archiveReplaced: 'Archive remplacée avec succès',
-      archiveKept: 'Archive existante conservée',
-      archiveInProgress: 'Archivage en cours...',
-      archiveCompleted: 'Archivage terminé',
-      archivePDF: 'Archiver le PDF',
-      archiveToDocuments: 'Archiver dans Documents',
-      archiveSuccess: 'Planning archivé dans Documents',
-      archiveError: 'Erreur lors de l\'archivage',
-      overwriteExisting: 'Écraser l\'ancien',
-      keepNewVersion: 'Conserver une nouvelle version',
-      fileExists: 'Un fichier avec ce nom existe déjà',
-      fileExistsMessage: 'Que souhaitez-vous faire ?',
-      // CRITICAL: Auto-save related translations
-      savingInProgress: 'Enregistrement en cours...',
-      savedSuccessfully: 'Planning sauvegardé',
-      saveFailed: 'Échec de la sauvegarde. Réessayez',
-      savedJustNow: 'à l\'instant',
-      savedMinutesAgo: 'il y a {{minutes}}m',
-      autoSaveEnabled: 'Sauvegarde automatique activée',
-      autoSaveDisabled: 'Sauvegarde automatique désactivée',
-    },
-    weather: {
-      forecast: 'Prévisions Météo',
-      loading: 'Chargement météo...',
-      error: 'Météo indisponible',
-      refresh: 'Actualiser',
-      settings: 'Paramètres météo',
-      disabled: 'Prévisions météo désactivées',
-      enable: 'Activer',
-      location: 'Localisation',
-      temperature: 'Température',
-      wind: 'Vent',
-      humidity: 'Humidité',
-      pressure: 'Pression',
-    },
-    staff: {
-      employee: 'Employé',
-      addToSchedule: 'Ajouter un Employé au Planning',
-      management: 'Gestion du Personnel',
-      addEmployee: 'Ajouter un Employé',
-      editEmployee: 'Modifier un Employé',
-      updateEmployee: 'Mettre à jour l\'Employé',
-      firstName: 'Prénom',
-      lastName: 'Nom',
-      address: 'Adresse',
-      street: 'Adresse',
-      streetAddress: 'Adresse',
-      city: 'Ville',
-      postalCode: 'Code Postal',
-      phone: 'Téléphone',
-      phoneNumber: 'Numéro de Téléphone',
-      socialSecurityNumber: 'Numéro de Sécurité Sociale',
-      position: 'Poste',
-      category: 'Catégorie',
-      contractType: 'Type de Contrat',
-      startDate: 'Date de Début',
-      endDate: 'Date de Fin',
-      weeklyHours: 'Heures Hebdomadaires Contractuelles',
-      weeklyHoursDesc: 'Heures hebdomadaires standard selon le contrat',
-      notificationDays: 'Jours de Préavis',
-      notificationDaysDesc: 'Nombre de jours avant la fin du contrat pour recevoir des notifications',
-      generateRegister: 'Générer le Registre du Personnel',
-      staffList: 'Liste du Personnel',
-      staffRegister: 'Registre du Personnel',
-      selectRestaurantPrompt: 'Veuillez sélectionner un restaurant pour gérer son personnel.',
-      name: 'Nom',
-      contact: 'Contact',
-      contractPeriod: 'Période de Contrat',
-      contractDetails: 'Détails du Contrat',
-      generatedOn: 'Généré le',
-      import: 'Importer',
-      export: 'Exporter',
-      employeesImported: 'Employés importés avec succès',
-      employeesExported: 'Employés exportés avec succès',
-      importFailed: 'Échec de l\'importation des employés',
-      exportFailed: 'Échec de l\'exportation des employés',
-      employeeAdded: 'Employé ajouté avec succès',
-      employeeUpdated: 'Employé mis à jour avec succès',
-      employeeSaveFailed: 'Échec de la sauvegarde de l\'employé',
-      comprehensiveDirectory: 'Répertoire Complet',
-      exportDirectory: 'Exporter le Répertoire',
-      personalInfo: 'Informations Personnelles',
-      contactInfo: 'Coordonnées',
-      employmentInfo: 'Informations d\'Emploi',
-      salaryInfo: 'Informations Salariales',
-      dateOfBirth: 'Date de Naissance',
-      placeOfBirth: 'Lieu de Naissance',
-      countryOfBirth: 'Pays de Naissance',
-      employeeStatus: 'Statut',
-      hiringDate: 'Date d\'embauche',
-      hourlyRate: 'Taux Horaire',
-      grossMonthlySalary: 'Salaire Brut Mensuel',
-      monthlyHours: 'Heures Mensuelles',
-    },
-    positions: {
-      operationsmanager: 'Directeur / Directrice d\'Exploitation',
-      chefdecuisine: 'Chef de Cuisine',
-      seconddecuisine: 'Second de Cuisine',
-      chefdepartie: 'Chef de Partie',
-      commisdecuisine: 'Commis de Cuisine',
-      plongeur: 'Plongeur',
-      barmanbarmaid: 'Barman/Barmaid',
-      waiters: 'Serveur(se)',
-      manager: 'Directeur / Directrice d\'Exploitation',
-      chef: 'Chef de Cuisine',
-      souschef: 'Second de Cuisine',
-      linecook: 'Commis de Cuisine',
-      server: 'Serveur(se)',
-      hostess: 'Chef de Partie',
-      bartender: 'Barman/Barmaid',
-      dishwasher: 'Plongeur',
-    },
-    contractTypes: {
-      cdi: 'CDI',
-      cdd: 'CDD',
-      extra: 'Extra',
-    },
-    categories: {
-      cuisine: 'Cuisine',
-      salle: 'Salle',
-    },
-    employeeStatus: {
-      cadre: 'Cadre',
-      employe: 'Employé(e)',
-    },
-    auth: {
-      email: 'Email',
-      password: 'Mot de passe',
-      signIn: 'Se Connecter',
-      signUp: "S'Inscrire",
-      createAccount: 'Créer un Compte',
-      continueWithGoogle: 'Continuer avec Google',
-      orContinueWith: 'Ou continuer avec',
-      alreadyHaveAccount: 'Vous avez déjà un compte ?',
-      dontHaveAccount: "Vous n'avez pas de compte ?",
-      checkEmail: 'Vérifiez votre email pour confirmer votre compte',
-      signInSuccess: 'Connexion réussie',
-      signInFailed: 'Échec de l\'authentification',
-      signOutSuccess: 'Déconnexion réussie',
-      googleSignInFailed: 'Échec de la connexion Google',
-    },
-    restaurants: {
-      management: 'Gestion des Restaurants',
-      managementDescription: 'Gérez les détails et paramètres de vos restaurants',
-      addRestaurant: 'Ajouter un Restaurant',
-      editRestaurant: 'Modifier le Restaurant',
-      logo: 'Logo du Restaurant',
-      commercialName: 'Nom Commercial',
-      legalName: 'Raison Sociale',
-      siret: 'Numéro SIRET',
-      address: 'Adresse',
-      street: 'Adresse',
-      postalCode: 'Code Postal',
-      city: 'Ville',
-      country: 'Pays',
-      phone: 'Numéro de Téléphone',
-      website: 'Site Web',
-      manager: 'Responsable du Restaurant',
-      managerInfo: 'Informations du Responsable',
-      managerFirstName: 'Prénom',
-      managerLastName: 'Nom',
-      managerPhone: 'Téléphone',
-      managerEmail: 'Email',
-      createSuccess: 'Restaurant créé avec succès',
-      updateSuccess: 'Restaurant mis à jour avec succès',
-      saveFailed: 'Échec de la sauvegarde du restaurant',
-      deleteSuccess: 'Restaurant supprimé avec succès',
-      deleteFailed: 'Échec de la suppression du restaurant',
-      deleteConfirmTitle: 'Supprimer le restaurant',
-      deleteConfirmMessage: 'Êtes-vous sûr de vouloir supprimer ce restaurant ? Cette action est irréversible.',
-      defaultName: 'Restaurant par défaut',
-    },
-    errors: {
-      authenticationFailed: 'Échec de l\'authentification',
-      googleSignInFailed: 'Échec de la connexion Google',
-      fetchUsersFailed: 'Échec de la récupération des utilisateurs',
-      roleUpdateFailed: 'Échec de la mise à jour du rôle',
-      userDeleteFailed: 'Échec de la suppression de l\'utilisateur',
-      userUpdateFailed: 'Échec de la mise à jour de l\'utilisateur',
-      profileUpdateFailed: 'Échec de la mise à jour du profil',
-      unauthorized: 'Vous n\'êtes pas autorisé à effectuer cette action',
-      adminOnly: 'Cette section est accessible uniquement aux administrateurs',
-      importProcessingFailed: 'Échec du traitement du fichier d\'importation',
-      pdfGenerationFailed: 'Échec de la génération du PDF',
-      weekDuplicationFailed: 'Échec de la duplication de la semaine',
-      weatherLoadFailed: 'Échec du chargement des données météo',
-      locationNotFound: 'Localisation introuvable pour la météo',
-    },
-    success: {
-      employeeAdded: 'Employé ajouté avec succès',
-      employeeUpdated: 'Employé mis à jour avec succès',
-      profileUpdated: 'Profil mis à jour avec succès',
-      roleUpdated: 'Rôle utilisateur mis à jour avec succès',
-      userDeleted: 'Utilisateur supprimé avec succès',
-      userUpdated: 'Utilisateur mis à jour avec succès',
-      employeesImported: 'Employés importés avec succès',
-      employeesExported: 'Employés exportés avec succès',
-      weekDuplicated: 'Planning de la semaine dupliqué avec succès',
-      signInSuccess: 'Connexion réussie',
-      signOutSuccess: 'Déconnexion réussie',
-      checkEmail: 'Vérifiez votre email pour confirmer votre compte',
-      weatherEnabled: 'Prévisions météo activées',
-      weatherDisabled: 'Prévisions météo désactivées',
-      weatherLocationUpdated: 'Localisation météo mise à jour',
-      shiftsUpdated: 'Services enregistrés avec succès',
-      absenceAdded: 'Absence enregistrée avec succès',
-    },
-    buttons: {
-      today: 'Aujourd\'hui',
-      duplicateWeek: 'Dupliquer la Semaine',
-      generateStaffRegister: 'Générer le Registre du Personnel (PDF)',
-      viewGlobal: 'Vue Globale',
-      viewCuisine: 'Vue Cuisine',
-      viewSalle: 'Vue Salle',
-    },
-    pdf: {
-      scheduleTitle: 'Planning Hebdomadaire',
-      employee: 'Employé',
-      signature: 'Émargement',
-      weeklySummary: 'Résumé Hebdomadaire',
-      workedHours: 'Heures Travaillées',
-      difference: 'Écart',
-      shifts: 'Services',
-      generatedOn: 'Planning généré le',
-      globalView: 'Vue Globale',
-      kitchenView: 'Vue Cuisine',
-      diningView: 'Vue Salle',
-      week: 'Semaine',
-      optimizedForSinglePage: 'Optimisé pour une page unique',
-    },
-  },
+import React from 'react';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
+import { Plus, Clock, User, AlertTriangle } from 'lucide-react';
+import { format, addDays, parseISO, isWithinInterval, endOfWeek } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { Shift, Employee } from '../../types';
+import { useTranslation } from 'react-i18next';
+
+interface ScheduleGridProps {
+  shifts: Shift[];
+  employees: Employee[];
+  onUpdateShift: (shift: Shift) => void;
+  onAddShift: (shift: Omit<Shift, 'id'>) => void;
+  onDeleteShift: (shiftId: string) => void;
+  weekStartDate: Date;
+  onOpenShiftModal: (employeeId: string, day: number) => void;
+}
+
+const DraggableShift: React.FC<{
+  shift: Shift;
+  employee: Employee;
+  onDelete: () => void;
+}> = ({ shift, employee, onDelete }) => {
+  const { t } = useTranslation();
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    isDragging,
+  } = useDraggable({
+    id: shift.id,
+  });
+
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined;
+
+  const getShiftTypeColor = (type: string) => {
+    switch (type) {
+      case 'regularShift':
+        return 'bg-blue-500 text-white';
+      case 'paidLeave':
+        return 'bg-green-500 text-white';
+      case 'publicHoliday':
+        return 'bg-red-500 text-white';
+      case 'public_holiday_worked':
+        return 'bg-red-600 text-white';
+      default:
+        return 'bg-gray-500 text-white';
+    }
+  };
+
+  const getShiftTypeLabel = (type: string) => {
+    switch (type) {
+      case 'regularShift':
+        return '';
+      case 'paidLeave':
+        return t('shifts.cp');
+      case 'publicHoliday':
+        return t('shifts.public_holiday');
+      case 'public_holiday_worked':
+        return t('shifts.public_holiday_worked');
+      default:
+        return type;
+    }
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className={`
+        relative p-2 rounded text-xs cursor-move mb-1
+        ${getShiftTypeColor(shift.type)}
+        ${isDragging ? 'opacity-50' : ''}
+        hover:shadow-md transition-shadow
+      `}
+    >
+      <div className="flex justify-between items-start">
+        <div className="flex-1">
+          {shift.type === 'regularShift' ? (
+            <>
+              <div className="font-medium">
+                {shift.start} - {shift.end}
+              </div>
+              {shift.position && (
+                <div className="text-xs opacity-90 mt-1">
+                  {shift.position}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="font-medium">
+              {getShiftTypeLabel(shift.type)}
+            </div>
+          )}
+        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="ml-1 text-white hover:text-red-200 transition-colors"
+        >
+          ×
+        </button>
+      </div>
+      {shift.notes && (
+        <div className="text-xs opacity-90 mt-1 truncate">
+          {shift.notes}
+        </div>
+      )}
+    </div>
+  );
 };
+
+const DroppableDay: React.FC<{
+  day: number;
+  employee: Employee;
+  shifts: Shift[];
+  weekStartDate: Date;
+  onAddShift: (shift: Omit<Shift, 'id'>) => void;
+  onDeleteShift: (shiftId: string) => void;
+  onOpenShiftModal: (employeeId: string, day: number) => void;
+}> = ({ day, employee, shifts, weekStartDate, onAddShift, onDeleteShift, onOpenShiftModal }) => {
+  const { t } = useTranslation();
+  const { isOver, setNodeRef } = useDroppable({
+    id: `${employee.id}-${day}`,
+  });
+
+  const dayShifts = shifts.filter(s => s.employeeId === employee.id && s.day === day);
+  const currentDate = addDays(weekStartDate, day);
+  
+  // Check if employee is under contract for this day
+  const contractStart = parseISO(employee.startDate);
+  const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
+  const isEmployeeActive = currentDate >= contractStart && (!contractEnd || currentDate <= contractEnd);
+
+  // Check if contract is ending soon (within 7 days)
+  const isContractEndingSoon = contractEnd && 
+    isWithinInterval(contractEnd, { start: currentDate, end: addDays(currentDate, 7) });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`
+        min-h-[80px] p-2 border border-gray-200 rounded
+        ${isOver ? 'bg-blue-50 border-blue-300' : 'bg-white'}
+        ${!isEmployeeActive ? 'bg-gray-50 opacity-50' : ''}
+        transition-colors
+      `}
+    >
+      {!isEmployeeActive ? (
+        <div className="flex items-center justify-center h-full text-gray-400 text-xs">
+          <AlertTriangle size={16} className="mr-1" />
+          Hors contrat
+        </div>
+      ) : (
+        <>
+          {dayShifts.map((shift) => (
+            <DraggableShift
+              key={shift.id}
+              shift={shift}
+              employee={employee}
+              onDelete={() => onDeleteShift(shift.id)}
+            />
+          ))}
+          
+          {isContractEndingSoon && (
+            <div className="text-xs text-orange-600 mb-1 flex items-center">
+              <AlertTriangle size={12} className="mr-1" />
+              {t('shifts.endingSoon')}
+            </div>
+          )}
+          
+          <button
+            onClick={() => onOpenShiftModal(employee.id, day)}
+            className="w-full py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors flex items-center justify-center"
+          >
+            <Plus size={14} className="mr-1" />
+            {t('shifts.addShift')}
+          </button>
+        </>
+      )}
+    </div>
+  );
+};
+
+const ScheduleGrid: React.FC<ScheduleGridProps> = ({
+  shifts,
+  employees,
+  onUpdateShift,
+  onAddShift,
+  onDeleteShift,
+  weekStartDate,
+  onOpenShiftModal,
+}) => {
+  const { t, i18n } = useTranslation();
+
+  const days = [
+    t('days.monday'),
+    t('days.tuesday'),
+    t('days.wednesday'),
+    t('days.thursday'),
+    t('days.friday'),
+    t('days.saturday'),
+    t('days.sunday'),
+  ];
+
+  const formatDate = (date: Date) => {
+    return format(date, 'd MMMM', { 
+      locale: i18n.language === 'fr' ? fr : undefined 
+    });
+  };
+
+  const calculateEmployeeHours = (employeeId: string) => {
+    const employeeShifts = shifts.filter(s => s.employeeId === employeeId);
+    let totalHours = 0;
+    let overtimeHours = 0;
+    let publicHolidayHours = 0;
+    let cpHours = 0;
+
+    employeeShifts.forEach(shift => {
+      if (shift.type === 'regularShift' && shift.start && shift.end) {
+        const [startHour, startMin] = shift.start.split(':').map(Number);
+        const [endHour, endMin] = shift.end.split(':').map(Number);
+        const hours = (endHour + endMin / 60) - (startHour + startMin / 60);
+        totalHours += hours;
+      } else if (shift.type === 'paidLeave') {
+        cpHours += 8; // Assuming 8 hours for paid leave
+      } else if (shift.type === 'public_holiday_worked') {
+        publicHolidayHours += 8; // Assuming 8 hours for public holiday worked
+      }
+    });
+
+    const employee = employees.find(e => e.id === employeeId);
+    const weeklyHours = employee?.weeklyHours || 35;
+    
+    if (totalHours > weeklyHours) {
+      overtimeHours = totalHours - weeklyHours;
+    }
+
+    return {
+      totalHours,
+      overtimeHours,
+      publicHolidayHours,
+      cpHours,
+      numberOfShifts: employeeShifts.filter(s => s.type === 'regularShift').length
+    };
+  };
+
+  if (employees.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+        <User size={48} className="mx-auto text-gray-400 mb-4" />
+        <p className="text-lg text-gray-500 mb-2">
+          {t('schedule.noEmployees')}
+        </p>
+        <p className="text-sm text-gray-400">
+          {t('staff.selectRestaurantPrompt')}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="grid grid-cols-9 gap-0 border-b border-gray-200">
+        <div className="p-4 bg-gray-50 font-medium text-gray-700 border-r border-gray-200">
+          {t('staff.employee')}
+        </div>
+        {days.map((day, index) => (
+          <div key={index} className="p-4 bg-gray-50 text-center border-r border-gray-200 last:border-r-0">
+            <div className="font-medium text-gray-700">{day}</div>
+            <div className="text-xs text-gray-500 mt-1">
+              {formatDate(addDays(weekStartDate, index))}
+            </div>
+          </div>
+        ))}
+        <div className="p-4 bg-gray-50 font-medium text-gray-700 text-center">
+          {t('schedule.weeklySummary')}
+        </div>
+      </div>
+
+      {/* Employee Rows */}
+      {employees.map((employee) => {
+        const hours = calculateEmployeeHours(employee.id);
+        
+        return (
+          <div key={employee.id} className="grid grid-cols-9 gap-0 border-b border-gray-200 last:border-b-0">
+            {/* Employee Info */}
+            <div className="p-4 border-r border-gray-200 bg-gray-50">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                  {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
+                </div>
+                <div>
+                  <div className="font-medium text-gray-900">
+                    {employee.firstName} {employee.lastName}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {employee.position}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {employee.weeklyHours}H
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {employee.contractType}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Days */}
+            {[0, 1, 2, 3, 4, 5, 6].map((day) => (
+              <div key={day} className="border-r border-gray-200 last:border-r-0">
+                <DroppableDay
+                  day={day}
+                  employee={employee}
+                  shifts={shifts}
+                  weekStartDate={weekStartDate}
+                  onAddShift={onAddShift}
+                  onDeleteShift={onDeleteShift}
+                  onOpenShiftModal={onOpenShiftModal}
+                />
+              </div>
+            ))}
+
+            {/* Weekly Summary */}
+            <div className="p-4 bg-gray-50 text-xs">
+              <div className="space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{t('schedule.totalWorkedHours')}:</span>
+                  <span className="font-medium">{hours.totalHours.toFixed(1)}H</span>
+                </div>
+                {hours.overtimeHours > 0 && (
+                  <div className="flex justify-between text-orange-600">
+                    <span>{t('schedule.overtimeHours')}:</span>
+                    <span className="font-medium">+{hours.overtimeHours.toFixed(1)}H</span>
+                  </div>
+                )}
+                {hours.publicHolidayHours > 0 && (
+                  <div className="flex justify-between text-red-600">
+                    <span>{t('schedule.publicHolidayHours')}:</span>
+                    <span className="font-medium">{hours.publicHolidayHours}H</span>
+                  </div>
+                )}
+                {hours.cpHours > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>{t('schedule.cpHours')}:</span>
+                    <span className="font-medium">{hours.cpHours}H</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{t('schedule.numberOfShifts')}:</span>
+                  <span className="font-medium">{hours.numberOfShifts}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export default ScheduleGrid;
