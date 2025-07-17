@@ -883,6 +883,126 @@ const SchedulePage: React.FC = () => {
         onSaveAbsence={handleSaveAbsence}
         restaurantId={currentRestaurant?.id || ''}
       />
+
+      {/* CRITICAL: Archive Confirmation Modal */}
+      {showArchiveConfirm && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-screen items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setShowArchiveConfirm(false)} />
+            
+            <div className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Archive size={20} className="text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {t('schedule.archiveConfirmTitle')}
+                  </h3>
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-500 mb-6">
+                {t('schedule.archiveConfirmMessage')}
+              </p>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+                <div className="text-sm text-blue-700">
+                  <div className="font-medium mb-1">
+                    {i18n.language === 'fr' ? 'Détails de l\'archive :' : 'Archive details:'}
+                  </div>
+                  <div>
+                    {i18n.language === 'fr' ? 'Semaine' : 'Week'} {getWeek(weekStartDate)}, {weekStartDate.getFullYear()}
+                  </div>
+                  <div>
+                    {formatWeekRange(weekStartDate)}
+                  </div>
+                  <div>
+                    {employees.length} {i18n.language === 'fr' ? 'employé(s)' : 'employee(s)'}, {shifts.length} {i18n.language === 'fr' ? 'service(s)' : 'shift(s)'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowArchiveConfirm(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 rounded-md"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  onClick={() => performArchive(false)}
+                  disabled={isArchiving}
+                  className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md disabled:opacity-50"
+                >
+                  {t('schedule.archive')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CRITICAL: Duplicate Archive Modal */}
+      {showDuplicateModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-screen items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setShowDuplicateModal(false)} />
+            
+            <div className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                    <Archive size={20} className="text-orange-600" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {t('schedule.duplicateDetected')}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowDuplicateModal(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <p className="text-sm text-gray-500 mb-4">
+                {t('schedule.duplicateMessage')}
+              </p>
+
+              {existingArchiveDate && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6">
+                  <div className="text-sm text-yellow-700">
+                    <div className="font-medium mb-1">
+                      {i18n.language === 'fr' ? 'Archive existante :' : 'Existing archive:'}
+                    </div>
+                    <div>
+                      {i18n.language === 'fr' ? 'Créée le' : 'Created on'} {format(new Date(existingArchiveDate), 'dd/MM/yyyy à HH:mm')}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => handleDuplicateChoice(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 rounded-md"
+                >
+                  {t('schedule.keepExisting')}
+                </button>
+                <button
+                  onClick={() => handleDuplicateChoice(true)}
+                  disabled={isArchiving}
+                  className="px-4 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-md disabled:opacity-50"
+                >
+                  {t('schedule.replaceArchive')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
