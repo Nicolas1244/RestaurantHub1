@@ -796,18 +796,17 @@ const SchedulePage: React.FC = () => {
         >
           <div className="space-y-4">
             {/* CRITICAL: Labor Law Compliance Panel - Positioned at top for visibility */}
-            <LaborLawCompliancePanel
-              employees={employees}
-              shifts={shifts}
-              weekStartDate={weekStartDate}
-              isVisible={showCompliancePanel}
-              onToggle={() => setShowCompliancePanel(!showCompliancePanel)}
-            />
 
             {viewMode === 'weekly' ? (
               <>
-                {/* CRITICAL: Pass the correctly filtered data to ScheduleHeader */}
-                <ScheduleHeader
+                {/* CRITICAL: Use enhanced WeeklySchedule component */}
+                <WeeklySchedule
+                  employees={employees}
+                  shifts={shifts}
+                  onAddShift={handleAddShift}
+                  onUpdateShift={handleUpdateShift}
+                  onDeleteShift={handleDeleteShift}
+                  restaurantId={currentRestaurant.id}
                   weekStartDate={weekStartDate}
                   onPrevWeek={handlePrevWeek}
                   onNextWeek={handleNextWeek}
@@ -815,33 +814,7 @@ const SchedulePage: React.FC = () => {
                   onDuplicateWeek={handleDuplicateWeek}
                   onWeekSelect={handleWeekSelect}
                   restaurant={currentRestaurant}
-                  employees={employees}
-                  shifts={shifts}
                   viewType={categoryFilter}
-                />
-
-                {/* CRITICAL: Weather Forecast Integration - Positioned above schedule grid */}
-                {viewLayout === 'grid' && (
-                  <WeatherForecast
-                    weekStartDate={weekStartDate}
-                    restaurantLocation={getRestaurantLocation()}
-                    compact={isCompactLayout}
-                    responsive={window.innerWidth < 640 ? 'xs' : 
-                             window.innerWidth < 768 ? 'sm' : 
-                             window.innerWidth < 1024 ? 'md' : 
-                             window.innerWidth < 1280 ? 'lg' : 'xl'}
-                  />
-                )}
-                
-                {/* Always use grid layout */}
-                <ScheduleGrid
-                  shifts={shifts}
-                  employees={employees}
-                  onUpdateShift={handleUpdateShift}
-                  onAddShift={handleAddShift}
-                  onDeleteShift={handleDeleteShift}
-                  weekStartDate={weekStartDate}
-                  onOpenShiftModal={handleOpenDailyEntryModal}
                 />
               </>
             ) : (

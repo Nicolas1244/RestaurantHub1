@@ -1,24 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Calendar, 
-  Plus, 
-  Shield, 
-  AlertTriangle, 
-  CheckCircle, 
-  Cloud, 
-  Sun, 
-  CloudRain 
-} from 'lucide-react';
-import { format, addDays, addWeeks, subWeeks, startOfWeek } from 'date-fns';
+import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save, FileText, Archive, X, AlertTriangle, CheckCircle } from 'lucide-react';
+import { startOfWeek, addWeeks, format, isWithinInterval, parseISO, addDays, endOfWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Employee, Shift, DAYS_OF_WEEK } from '../../types';
+import { useAppContext } from '../../contexts/AppContext';
+import { Shift, EmployeeCategory, Employee, DAILY_STATUS, POSITIONS } from '../../types';
 import { useTranslation } from 'react-i18next';
-import DroppableDay from './DroppableDay';
-import ShiftForm from './ShiftForm';
+import { calculateEmployeeWeeklySummary, formatHours, formatHoursDiff } from '../../lib/scheduleUtils';
+import DailyEntryModal from './DailyEntryModal';
+import WeatherForecast from '../weather/WeatherForecast';
+import LaborLawCompliancePanel from './LaborLawCompliancePanel';
+import PDFExportModal from './PDFExportModal';
+import toast from 'react-hot-toast';
 
 interface WeeklyScheduleProps {
   employees: Employee[];
@@ -27,7 +20,36 @@ interface WeeklyScheduleProps {
   onUpdateShift: (shift: Shift) => void;
   onDeleteShift: (shiftId: string) => void;
   restaurantId: string;
+  weekStartDate: Date;
+  onPrevWeek: () => void;
+  onNextWeek: () => void;
+  onToday: () => void;
+  onDuplicateWeek: () => void;
+  onWeekSelect: (date: Date) => void;
+  restaurant: any;
+  viewType: 'all' | 'cuisine' | 'salle';
 }
+
+// Generate shift colors based on employee ID
+const generateShiftColor = (employeeId: string): string => {
+  const colors = [
+    '#3B82F6', // blue
+    '#8B5CF6', // purple
+    '#10B981', // green
+    '#F59E0B', // amber
+    '#EF4444', // red
+    '#EC4899', // pink
+    '#06B6D4', // cyan
+    '#6366F1'  // indigo
+  ];
+  
+  let hash = 0;
+  for (let i = 0; i < employeeId.length; i++) {
+    hash = employeeId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  return colors[Math.abs(hash) % colors.length];
+};
 
 const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   employees,
@@ -35,42 +57,78 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   onAddShift,
   onUpdateShift,
   onDeleteShift,
-  restaurantId
+  restaurantId,
+  weekStartDate,
+  onPrevWeek,
+  onNextWeek,
+  onToday,
+  onDuplicateWeek,
+  onWeekSelect,
+  restaurant,
+  viewType
 }) => {
   const { t, i18n } = useTranslation();
-  const [weekStartDate, setWeekStartDate] = useState(() => {
-    // Initialize to Monday of current week
-    return startOfWeek(new Date(), { weekStartsOn: 1 });
-  });
-  const [showShiftForm, setShowShiftForm] = useState(false);
-  const [selectedShift, setSelectedShift] = useState<Shift | undefined>(undefined);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | undefined>(undefined);
-  const [selectedDay, setSelectedDay] = useState<number | undefined>(undefined);
-  const [showCompliancePanel, setShowCompliancePanel] = useState(true);
+  const { settings } = useAppContext();
+  
+  // State for modals and UI
+  const [showDailyEntryModal, setShowDailyEntryModal] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [selectedDay, setSelectedDay] = useState<number>(0);
+  const [showCompliancePanel, setShowCompliancePanel] = useState(false);
+  const [showPDFExportModal, setShowPDFExportModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Mock weather data for demonstration
-  const weatherData = [
-    { day: 0, icon: <Sun size={20} className="text-yellow-500" />, temp: '24°C', wind: '5 km/h' },
-    { day: 1, icon: <Cloud size={20} className="text-gray-500" />, temp: '21°C', wind: '8 km/h' },
-    { day: 2, icon: <Sun size={20} className="text-yellow-500" />, temp: '26°C', wind: '3 km/h' },
-    { day: 3, icon: <CloudRain size={20} className="text-blue-500" />, temp: '19°C', wind: '12 km/h' },
-    { day: 4, icon: <Cloud size={20} className="text-gray-500" />, temp: '22°C', wind: '7 km/h' },
-    { day: 5, icon: <Sun size={20} className="text-yellow-500" />, temp: '25°C', wind: '4 km/h' },
-    { day: 6, icon: <Sun size={20} className="text-yellow-500" />, temp: '27°C', wind: '6 km/h' }
-  ];
+  // CRITICAL: Days of week in French
+  const daysOfWeek = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 
-  const handlePrevWeek = () => {
-    setWeekStartDate(prevDate => subWeeks(prevDate, 1));
+  // CRITICAL: Get restaurant location for weather
+  const getRestaurantLocation = (): string => {
+    if (!restaurant) return '';
+    
+    const locationParts = [];
+    if (restaurant.streetAddress) locationParts.push(restaurant.streetAddress);
+    if (restaurant.postalCode) locationParts.push(restaurant.postalCode);
+    if (restaurant.city) locationParts.push(restaurant.city);
+    if (restaurant.country) locationParts.push(restaurant.country);
+
+    if (locationParts.length > 0) {
+      return locationParts.join(', ');
+    }
+    
+    if (restaurant.location) {
+      return restaurant.location;
+    }
+    
+    return 'France';
   };
 
-  const handleNextWeek = () => {
-    setWeekStartDate(prevDate => addWeeks(prevDate, 1));
+  // CRITICAL: Check if employee is active for the week
+  const isEmployeeActiveForWeek = (employee: Employee): boolean => {
+    const weekEnd = endOfWeek(weekStartDate, { weekStartsOn: 1 });
+    const contractStart = parseISO(employee.startDate);
+    const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
+    
+    return contractStart <= weekEnd && (!contractEnd || contractEnd >= weekStartDate);
   };
 
-  const handleToday = () => {
-    setWeekStartDate(startOfWeek(new Date(), { weekStartsOn: 1 }));
+  // CRITICAL: Check if employee is active on specific day
+  const isEmployeeActiveOnDay = (employee: Employee, day: number): boolean => {
+    const shiftDate = addDays(weekStartDate, day);
+    const contractStart = parseISO(employee.startDate);
+    const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
+    
+    return shiftDate >= contractStart && (!contractEnd || shiftDate <= contractEnd);
   };
 
+  // CRITICAL: Get shifts for specific employee and day
+  const getShiftsForEmployeeDay = (employeeId: string, day: number): Shift[] => {
+    return shifts.filter(shift => 
+      shift.employeeId === employeeId && 
+      shift.day === day
+    );
+  };
+
+  // CRITICAL: Handle drag end
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
@@ -86,250 +144,377 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
     }
   };
 
-  const handleShiftClick = (shift: Shift) => {
-    setSelectedShift(shift);
-    setSelectedEmployeeId(undefined);
-    setSelectedDay(undefined);
-    setShowShiftForm(true);
-  };
-
-  const handleAddShiftClick = (employeeId: string, day: number) => {
-    setSelectedShift(undefined);
-    setSelectedEmployeeId(employeeId);
+  // CRITICAL: Open daily entry modal
+  const handleOpenDailyEntryModal = (employeeId: string, day: number) => {
+    const employee = employees.find(e => e.id === employeeId);
+    if (!employee) return;
+    
+    setSelectedEmployee(employee);
     setSelectedDay(day);
-    setShowShiftForm(true);
+    setShowDailyEntryModal(true);
   };
 
-  const formatWeekRange = (): string => {
-    const endDate = addDays(weekStartDate, 6);
+  // CRITICAL: Handle saving shifts from daily entry modal
+  const handleSaveShifts = (shiftsToSave: Omit<Shift, 'id'>[]) => {
+    if (!selectedEmployee) return;
     
-    if (i18n.language === 'fr') {
-      return `${format(weekStartDate, 'd MMMM', { locale: fr })} - ${format(endDate, 'd MMMM yyyy', { locale: fr })}`;
-    }
+    // First, delete any existing shifts for this employee and day
+    const existingEntries = shifts.filter(
+      s => s.employeeId === selectedEmployee.id && s.day === selectedDay
+    );
     
-    return `${format(weekStartDate, 'MMM d')} - ${format(endDate, 'MMM d, yyyy')}`;
-  };
-
-  // Get shifts for a specific employee and day
-  const getShiftsForEmployeeDay = (employeeId: string, day: number): Shift[] => {
-    return shifts.filter(shift => 
-      shift.employeeId === employeeId && 
-      shift.day === day
+    existingEntries.forEach(shift => {
+      onDeleteShift(shift.id);
+    });
+    
+    // Then add the new shifts
+    shiftsToSave.forEach(shift => {
+      onAddShift(shift);
+    });
+    
+    toast.success(
+      i18n.language === 'fr'
+        ? 'Services enregistrés avec succès'
+        : 'Shifts saved successfully'
     );
   };
 
-  // Check if an employee has any shifts on a specific day
-  const hasShiftsOnDay = (employeeId: string, day: number): boolean => {
-    return getShiftsForEmployeeDay(employeeId, day).length > 0;
+  // CRITICAL: Handle saving absence from daily entry modal
+  const handleSaveAbsence = (absence: Omit<Shift, 'id'>) => {
+    if (!selectedEmployee) return;
+    
+    // First, delete any existing shifts for this employee and day
+    const existingEntries = shifts.filter(
+      s => s.employeeId === selectedEmployee.id && s.day === selectedDay
+    );
+    
+    existingEntries.forEach(shift => {
+      onDeleteShift(shift.id);
+    });
+    
+    // Then add the new absence
+    onAddShift(absence);
+    
+    toast.success(
+      i18n.language === 'fr'
+        ? 'Absence enregistrée avec succès'
+        : 'Absence saved successfully'
+    );
   };
 
-  // Check if an employee already has maximum shifts for a day
-  const hasMaxShifts = (employeeId: string, day: number): boolean => {
-    return getShiftsForEmployeeDay(employeeId, day).length >= 2;
+  // CRITICAL: Manual save function
+  const handleManualSave = () => {
+    setIsSaving(true);
+    
+    try {
+      toast.success(
+        i18n.language === 'fr' 
+          ? 'Planning sauvegardé avec succès' 
+          : 'Schedule saved successfully',
+        {
+          duration: 3000,
+          icon: '✅',
+          style: {
+            background: '#f0fdf4',
+            color: '#166534',
+            border: '1px solid #dcfce7'
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Failed to save schedule:', error);
+      toast.error(
+        i18n.language === 'fr' 
+          ? 'Échec de la sauvegarde du planning' 
+          : 'Failed to save schedule'
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // CRITICAL: Format week range
+  const formatWeekRange = (): string => {
+    const weekEnd = endOfWeek(weekStartDate, { weekStartsOn: 1 });
+    
+    if (i18n.language === 'fr') {
+      const startFormatted = format(weekStartDate, 'd MMMM yyyy', { locale: fr });
+      const endFormatted = format(weekEnd, 'd MMMM yyyy', { locale: fr });
+      
+      const startCapitalized = startFormatted.replace(/\b\w/g, (char) => char.toUpperCase());
+      const endCapitalized = endFormatted.replace(/\b\w/g, (char) => char.toUpperCase());
+      
+      return `Semaine du ${startCapitalized} au ${endCapitalized}`;
+    } else {
+      const startFormatted = format(weekStartDate, 'MMMM d, yyyy');
+      const endFormatted = format(weekEnd, 'MMMM d, yyyy');
+      return `Week of ${startFormatted} to ${endFormatted}`;
+    }
+  };
+
+  // CRITICAL: Render shift cell with enhanced styling
+  const renderShiftCell = (employee: Employee, day: number) => {
+    const dayShifts = getShiftsForEmployeeDay(employee.id, day);
+    const isActive = isEmployeeActiveOnDay(employee, day);
+    const employeeColor = generateShiftColor(employee.id);
+
+    if (!isActive) {
+      return (
+        <div className="min-h-[80px] p-2 bg-gray-100 opacity-50 rounded-md flex items-center justify-center">
+          <div className="text-xs text-gray-400 flex items-center">
+            <AlertTriangle size={12} className="mr-1" />
+            Hors contrat
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-[80px] p-2 space-y-1">
+        {dayShifts.map(shift => {
+          if (shift.status) {
+            // CRITICAL: Absence cell styling matching shift cells
+            const statusConfig = DAILY_STATUS[shift.status];
+            return (
+              <div
+                key={shift.id}
+                className="p-2 rounded-md text-xs cursor-pointer hover:shadow-md transition-all"
+                style={{
+                  backgroundColor: `${statusConfig.color}20`,
+                  borderLeft: `3px solid ${statusConfig.color}`,
+                  color: statusConfig.color
+                }}
+                onClick={() => handleOpenDailyEntryModal(employee.id, day)}
+              >
+                <div className="font-medium">{statusConfig.label}</div>
+                {shift.isHolidayWorked && (
+                  <div className="text-xs mt-1">
+                    {shift.start} - {shift.end} (majoré 100%)
+                  </div>
+                )}
+              </div>
+            );
+          } else if (shift.start && shift.end) {
+            // CRITICAL: Regular shift styling
+            return (
+              <div
+                key={shift.id}
+                className="p-2 rounded-md text-xs cursor-pointer hover:shadow-md transition-all text-white"
+                style={{
+                  backgroundColor: employeeColor,
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}
+                onClick={() => handleOpenDailyEntryModal(employee.id, day)}
+              >
+                <div className="font-medium">
+                  {shift.start} - {shift.end}
+                </div>
+                <div className="text-xs opacity-90 mt-1">
+                  {POSITIONS.includes(shift.position) 
+                    ? t(`positions.${shift.position.toLowerCase().replace(/[^a-z]/g, '')}`)
+                    : shift.position}
+                </div>
+                {shift.hasCoupure && (
+                  <div className="text-xs opacity-75 mt-1">
+                    🍽️ Coupure
+                  </div>
+                )}
+              </div>
+            );
+          }
+          return null;
+        })}
+        
+        {/* Add shift button */}
+        <button
+          onClick={() => handleOpenDailyEntryModal(employee.id, day)}
+          className="w-full py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors flex items-center justify-center border border-dashed border-blue-300"
+        >
+          <Plus size={12} className="mr-1" />
+          Ajouter
+        </button>
+      </div>
+    );
+  };
+
+  // CRITICAL: Calculate weekly summary for employee
+  const calculateWeeklySummary = (employee: Employee) => {
+    const employeeShifts = shifts.filter(s => s.employeeId === employee.id);
+    
+    return calculateEmployeeWeeklySummary(
+      employeeShifts,
+      employee.weeklyHours || 35,
+      employee.startDate,
+      employee.endDate,
+      weekStartDate,
+      settings?.payBreakTimes ?? true
+    );
   };
 
   return (
     <div className="space-y-4">
-      {/* Week Navigation */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={handleToday}
-            className="px-4 py-2 text-sm font-medium bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {t('buttons.today')}
-          </button>
+      {/* CRITICAL: Weather Forecast Integration */}
+      <WeatherForecast
+        weekStartDate={weekStartDate}
+        restaurantLocation={getRestaurantLocation()}
+        compact={settings?.scheduleLayoutType === 'optimized'}
+        responsive={window.innerWidth < 640 ? 'xs' : 
+                   window.innerWidth < 768 ? 'sm' : 
+                   window.innerWidth < 1024 ? 'md' : 
+                   window.innerWidth < 1280 ? 'lg' : 'xl'}
+      />
 
-          <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
-            <button
-              onClick={handlePrevWeek}
-              className="p-2 bg-white hover:bg-gray-50 focus:outline-none"
-            >
-              <ChevronLeft size={18} />
-            </button>
+      {/* CRITICAL: Labor Law Compliance Panel */}
+      <LaborLawCompliancePanel
+        employees={employees}
+        shifts={shifts}
+        weekStartDate={weekStartDate}
+        isVisible={showCompliancePanel}
+        onToggle={() => setShowCompliancePanel(!showCompliancePanel)}
+      />
 
-            <div className="px-3 py-2 bg-white border-l border-r border-gray-300 flex items-center">
-              <Calendar size={18} className="text-blue-600 mr-2" />
-              <span className="text-sm font-medium">
-                {formatWeekRange()}
-              </span>
-            </div>
-
-            <button
-              onClick={handleNextWeek}
-              className="p-2 bg-white hover:bg-gray-50 focus:outline-none"
-            >
-              <ChevronRight size={18} />
-            </button>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setShowCompliancePanel(!showCompliancePanel)}
-          className={`px-4 py-2 flex items-center gap-2 rounded-lg border transition-colors ${
-            showCompliancePanel
-              ? 'bg-blue-50 text-blue-600 border-blue-300'
-              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-          }`}
-          title="Afficher/masquer le panneau de conformité Code du travail"
-        >
-          <Shield size={18} />
-          <span className="hidden md:inline">Conformité</span>
-        </button>
-      </div>
-
-      {/* Labor Law Compliance Panel */}
-      {showCompliancePanel && (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
-          <div className="p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors bg-green-50 border-green-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm">
-                  <Shield className="text-blue-600" size={20} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="text-green-600" size={20} />
-                    <h3 className="font-semibold text-green-600">
-                      Conformité Code du Travail
-                    </h3>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    {formatWeekRange()} • {employees.length} employé(s) analysé(s)
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                  <CheckCircle size={12} />
-                  Conforme
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Weather Forecast */}
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Cloud className="text-blue-600 mr-2" size={20} />
-              <div>
-                <h3 className="text-base font-medium text-gray-800">
-                  {i18n.language === 'fr' ? 'Prévisions Météo' : 'Weather Forecast'}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  {i18n.language === 'fr' ? 'Paris, France' : 'Paris, France'}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-7 gap-px bg-gray-200">
-          {DAYS_OF_WEEK.map((day, index) => (
-            <div key={day} className="bg-white p-3 text-center">
-              <div className="text-sm font-medium text-gray-700 mb-1">
-                {t(`days.${day.toLowerCase()}`)}
-              </div>
-              <div className="flex flex-col items-center">
-                {weatherData[index].icon}
-                <div className="text-sm font-medium mt-1">{weatherData[index].temp}</div>
-                <div className="text-xs text-gray-500">{weatherData[index].wind}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Schedule Grid */}
+      {/* CRITICAL: Enhanced Schedule Grid */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         {/* Header Row */}
-        <div className="grid grid-cols-[200px_repeat(7,1fr)] bg-gray-50 border-b">
+        <div className="grid grid-cols-[200px_repeat(7,1fr)_180px] bg-gray-50 border-b">
           <div className="p-3 font-medium text-gray-700 border-r">
-            {t('staff.employee')}
+            Employé
           </div>
           
-          {DAYS_OF_WEEK.map((day, index) => {
+          {daysOfWeek.map((day, index) => {
             const date = addDays(weekStartDate, index);
             return (
               <div key={day} className="p-3 font-medium text-gray-700 text-center border-r">
-                <div>{t(`days.${day.toLowerCase()}`)}</div>
+                <div>{day}</div>
                 <div className="text-sm text-gray-500">
-                  {format(date, 'd MMM')}
+                  {format(date, 'd MMM', { locale: fr })}
                 </div>
               </div>
             );
           })}
+          
+          <div className="p-3 font-medium text-gray-700 text-center">
+            Résumé Hebdomadaire
+          </div>
         </div>
 
         {/* Employee Rows */}
         <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-          {employees.map(employee => (
-            <div key={employee.id} className="grid grid-cols-[200px_repeat(7,1fr)] border-b hover:bg-gray-50">
-              {/* Employee Info */}
-              <div className="p-3 bg-gray-50 border-r">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center mr-2 bg-blue-500 text-white">
-                    {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-800">
-                      {employee.firstName} {employee.lastName}
+          {employees.map(employee => {
+            const isActiveForWeek = isEmployeeActiveForWeek(employee);
+            const summary = calculateWeeklySummary(employee);
+            
+            return (
+              <div key={employee.id} className={`grid grid-cols-[200px_repeat(7,1fr)_180px] border-b hover:bg-gray-50 ${!isActiveForWeek ? 'opacity-75' : ''}`}>
+                {/* CRITICAL: Employee Info with Photo */}
+                <div className="p-3 bg-gray-50 border-r">
+                  <div className="flex items-center">
+                    {/* CRITICAL: Employee Photo Display */}
+                    <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center mr-3 bg-blue-500 text-white">
+                      {employee.profilePicture ? (
+                        <img 
+                          src={employee.profilePicture} 
+                          alt={`${employee.firstName} ${employee.lastName}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="font-bold text-sm">
+                          {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
+                        </span>
+                      )}
                     </div>
-                    <div className="text-xs text-gray-600">
-                      {employee.position}
+                    <div>
+                      <div className="font-medium text-gray-800">
+                        {employee.firstName} {employee.lastName}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        {POSITIONS.includes(employee.position) 
+                          ? t(`positions.${employee.position.toLowerCase().replace(/[^a-z]/g, '')}`)
+                          : employee.position}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {employee.weeklyHours}H - {employee.contractType}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              
-              {/* Days */}
-              {Array.from({ length: 7 }, (_, dayIndex) => (
-                <SortableContext key={dayIndex} items={getShiftsForEmployeeDay(employee.id, dayIndex).map(s => s.id)} strategy={verticalListSortingStrategy}>
-                  <DroppableDay
-                    dayIndex={dayIndex}
-                    shifts={getShiftsForEmployeeDay(employee.id, dayIndex)}
-                    employees={[employee]}
-                    onShiftClick={handleShiftClick}
-                  />
-                  
-                  {/* Add Shift Button - only if less than 2 shifts */}
-                  {!hasMaxShifts(employee.id, dayIndex) && (
-                    <div className="px-2 pb-2">
-                      <button
-                        onClick={() => handleAddShiftClick(employee.id, dayIndex)}
-                        className="w-full flex items-center justify-center text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg border border-dashed border-blue-300 py-1.5 text-xs"
-                      >
-                        <Plus size={14} className="mr-1" />
-                        <span>
-                          {i18n.language === 'fr' ? 'Ajouter' : 'Add'}
-                        </span>
-                      </button>
+                
+                {/* Days */}
+                {Array.from({ length: 7 }, (_, dayIndex) => (
+                  <div key={dayIndex} className="border-r">
+                    {renderShiftCell(employee, dayIndex)}
+                  </div>
+                ))}
+
+                {/* CRITICAL: Enhanced Weekly Summary */}
+                <div className="p-3 bg-gray-50 text-xs">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Travaillées:</span>
+                      <span className="font-medium">{formatHours(summary.totalWorkedHours)}</span>
                     </div>
-                  )}
-                </SortableContext>
-              ))}
-            </div>
-          ))}
+                    {summary.totalAssimilatedHours > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>CP:</span>
+                        <span className="font-medium">{formatHours(summary.totalAssimilatedHours)}</span>
+                      </div>
+                    )}
+                    {summary.totalPublicHolidayHours > 0 && (
+                      <div className="flex justify-between text-red-600">
+                        <span>Majorées:</span>
+                        <span className="font-medium">{formatHours(summary.totalPublicHolidayHours)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between border-t pt-1">
+                      <span className="text-gray-600">Écart:</span>
+                      <span className={`font-medium ${
+                        summary.hoursDiff > 0 ? 'text-red-600' : 
+                        summary.hoursDiff < 0 ? 'text-blue-600' : 'text-green-600'
+                      }`}>
+                        {formatHoursDiff(summary.hoursDiff)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Services:</span>
+                      <span className="font-medium">{summary.shiftCount}</span>
+                    </div>
+                    {summary.proRatedContractHours !== (employee.weeklyHours || 35) && (
+                      <div className="text-xs text-orange-600 italic">
+                        Pro-rata: {formatHours(summary.proRatedContractHours)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </DndContext>
       </div>
 
-      {/* Shift Form Modal */}
-      <ShiftForm
-        isOpen={showShiftForm}
-        onClose={() => setShowShiftForm(false)}
-        shift={selectedShift}
-        employees={employees}
-        onSave={onAddShift}
-        onUpdate={onUpdateShift}
-        onDelete={onDeleteShift}
+      {/* CRITICAL: Daily Entry Modal */}
+      <DailyEntryModal
+        isOpen={showDailyEntryModal}
+        onClose={() => setShowDailyEntryModal(false)}
+        employee={selectedEmployee}
+        day={selectedDay}
+        weekStartDate={weekStartDate}
+        existingShifts={shifts}
+        onSaveShifts={handleSaveShifts}
+        onUpdateShift={onUpdateShift}
+        onDeleteShift={onDeleteShift}
+        onSaveAbsence={handleSaveAbsence}
         restaurantId={restaurantId}
-        preSelectedEmployeeId={selectedEmployeeId}
-        preSelectedDay={selectedDay}
+      />
+
+      {/* CRITICAL: PDF Export Modal */}
+      <PDFExportModal
+        isOpen={showPDFExportModal}
+        onClose={() => setShowPDFExportModal(false)}
+        restaurant={restaurant}
+        employees={employees}
+        shifts={shifts}
+        weekStartDate={weekStartDate}
+        currentViewType={viewType}
       />
     </div>
   );
