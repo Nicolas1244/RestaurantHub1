@@ -227,10 +227,8 @@ const SchedulePage: React.FC = () => {
 
   // CRITICAL: Check if employee already has maximum shifts for a day
   const hasMaxShifts = (employeeId: string, day: number): boolean => {
-    const dayShifts = shifts.filter(shift => 
-      shift.employeeId === employeeId && shift.day === day
-    );
-    return dayShifts.length >= 2;
+    // Always return false to remove the limit
+    return false;
   };
 
   // Enhanced addShift with contract validation and max shifts check
@@ -239,14 +237,6 @@ const SchedulePage: React.FC = () => {
     
     if (!validation.isValid) {
       toast.error(validation.message || 'Invalid shift timing');
-      return;
-    }
-
-    // CRITICAL: Check if employee already has maximum shifts for this day
-    if (!shiftData.status && hasMaxShifts(shiftData.employeeId, shiftData.day)) {
-      toast.error(i18n.language === 'fr' 
-        ? 'Vous ne pouvez pas ajouter plus de 2 services par employé par jour.' 
-        : 'You cannot add more than 2 services per employee per day.');
       return;
     }
 

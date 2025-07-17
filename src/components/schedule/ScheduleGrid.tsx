@@ -763,7 +763,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                   // CRITICAL: Check if employee already has maximum shifts for this day
                   const reachedMaxShifts = hasMaxShifts(employee.id, dayIndex);
                   
-                  // CRITICAL: Check for availability or preference conflicts
+                  // CRITICAL: Check for availability or preference conflicts only
                   const hasAvailabilityConflict = dayShifts.some(shift => {
                     const conflictKey = `${employee.id}-${dayIndex}-${shift.id}`;
                     return availabilityConflicts[conflictKey];

@@ -388,7 +388,7 @@ export default {
       addAtLeastOneShift: 'Veuillez ajouter au moins un service',
       manageDay: 'Gérer la journée',
       absenceType: 'Type d\'Absence',
-      absenceNote: 'Sélectionner une absence supprimera tous les services planifiés pour ce jour.',
+      absenceNote: 'Sélectionner une absence supprimera tous les services planifiés pour ce jour',
       shiftTab: 'Services',
       absenceTab: 'Absence',
       saveEntries: 'Enregistrer',
