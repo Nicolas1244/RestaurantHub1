@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
-import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save, FileText, Archive, X, AlertTriangle, CheckCircle } from 'lucide-react';
-import { startOfWeek, addWeeks, format, isWithinInterval, parseISO, addDays, endOfWeek } from 'date-fns';
+import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save, FileText, Archive, X, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Copy } from 'lucide-react';
+import { startOfWeek, addWeeks, format, isWithinInterval, parseISO, addDays, endOfWeek, getWeek, setWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAppContext } from '../../contexts/AppContext';
 import { Shift, EmployeeCategory, Employee, DAILY_STATUS, POSITIONS } from '../../types';
@@ -11,6 +11,7 @@ import DailyEntryModal from './DailyEntryModal';
 import WeatherForecast from '../weather/WeatherForecast';
 import LaborLawCompliancePanel from './LaborLawCompliancePanel';
 import PDFExportModal from './PDFExportModal';
+import { PDFPreviewModal } from './PDFPreviewModal';
 import toast from 'react-hot-toast';
 
 interface WeeklyScheduleProps {
@@ -51,6 +52,27 @@ const generateShiftColor = (employeeId: string): string => {
   return colors[Math.abs(hash) % colors.length];
 };
 
+// Calculate shift duration in hours
+const calculateShiftDuration = (start: string, end: string): number => {
+  const [startHour, startMin] = start.split(':').map(Number);
+  const [endHour, endMin] = end.split(':').map(Number);
+  
+  let hours = endHour - startHour;
+  let minutes = endMin - startMin;
+  
+  // Handle overnight shifts
+  if (hours < 0) {
+    hours += 24;
+  }
+  
+  if (minutes < 0) {
+    hours -= 1;
+    minutes += 60;
+  }
+  
+  return parseFloat((hours + minutes / 60).toFixed(1));
+};
+
 const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   employees,
   shifts,
@@ -76,6 +98,8 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   const [selectedDay, setSelectedDay] = useState<number>(0);
   const [showCompliancePanel, setShowCompliancePanel] = useState(false);
   const [showPDFExportModal, setShowPDFExportModal] = useState(false);
+  const [showPDFPreviewModal, setShowPDFPreviewModal] = useState(false);
+  const [showWeekPicker, setShowWeekPicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   // CRITICAL: Days of week in French
@@ -100,15 +124,6 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
     }
     
     return 'France';
-  };
-
-  // CRITICAL: Check if employee is active for the week
-  const isEmployeeActiveForWeek = (employee: Employee): boolean => {
-    const weekEnd = endOfWeek(weekStartDate, { weekStartsOn: 1 });
-    const contractStart = parseISO(employee.startDate);
-    const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
-    
-    return contractStart <= weekEnd && (!contractEnd || contractEnd >= weekStartDate);
   };
 
   // CRITICAL: Check if employee is active on specific day
@@ -233,7 +248,20 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
     }
   };
 
-  // CRITICAL: Format week range
+  // CRITICAL: Week selector functionality
+  const currentWeek = getWeek(weekStartDate);
+  const currentYear = weekStartDate.getFullYear();
+
+  const handleWeekSelect = (weekNumber: number) => {
+    const newDate = startOfWeek(setWeek(new Date(currentYear, 0), weekNumber), { weekStartsOn: 1 });
+    onWeekSelect(newDate);
+    setShowWeekPicker(false);
+  };
+
+  // Generate array of week numbers for the current year
+  const weeks = Array.from({ length: 53 }, (_, i) => i + 1);
+
+  // CRITICAL: Format week range with start and end dates
   const formatWeekRange = (): string => {
     const weekEnd = endOfWeek(weekStartDate, { weekStartsOn: 1 });
     
@@ -252,7 +280,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
     }
   };
 
-  // CRITICAL: Render shift cell with enhanced styling
+  // CRITICAL: Render shift cell with enhanced styling and logic
   const renderShiftCell = (employee: Employee, day: number) => {
     const dayShifts = getShiftsForEmployeeDay(employee.id, day);
     const isActive = isEmployeeActiveOnDay(employee, day);
@@ -260,7 +288,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
 
     if (!isActive) {
       return (
-        <div className="min-h-[80px] p-2 bg-gray-100 opacity-50 rounded-md flex items-center justify-center">
+        <div className="min-h-[100px] p-2 bg-gray-100 opacity-50 rounded-md flex items-center justify-center">
           <div className="text-xs text-gray-400 flex items-center">
             <AlertTriangle size={12} className="mr-1" />
             Hors contrat
@@ -269,70 +297,82 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
       );
     }
 
+    // CRITICAL: Check if employee has 2 shifts already (hide + Ajouter button)
+    const hasMaxShifts = dayShifts.filter(s => !s.status).length >= 2;
+
     return (
-      <div className="min-h-[80px] p-2 space-y-1">
+      <div className="min-h-[100px] p-2 space-y-1">
         {dayShifts.map(shift => {
           if (shift.status) {
-            // CRITICAL: Absence cell styling matching shift cells
+            // CRITICAL: Absence cell styling - same width as shift cells, centered text
             const statusConfig = DAILY_STATUS[shift.status];
             return (
               <div
                 key={shift.id}
-                className="p-2 rounded-md text-xs cursor-pointer hover:shadow-md transition-all"
+                className="w-full p-3 rounded-md text-sm cursor-pointer hover:shadow-md transition-all text-center font-medium"
                 style={{
                   backgroundColor: `${statusConfig.color}20`,
-                  borderLeft: `3px solid ${statusConfig.color}`,
-                  color: statusConfig.color
+                  borderLeft: `4px solid ${statusConfig.color}`,
+                  color: statusConfig.color,
+                  minHeight: '60px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
                 onClick={() => handleOpenDailyEntryModal(employee.id, day)}
               >
-                <div className="font-medium">{statusConfig.label}</div>
-                {shift.isHolidayWorked && (
-                  <div className="text-xs mt-1">
-                    {shift.start} - {shift.end} (majoré 100%)
-                  </div>
-                )}
+                <div>
+                  <div className="font-semibold">{statusConfig.label}</div>
+                  {shift.isHolidayWorked && (
+                    <div className="text-xs mt-1">
+                      {shift.start} - {shift.end} (majoré 100%)
+                    </div>
+                  )}
+                </div>
               </div>
             );
           } else if (shift.start && shift.end) {
-            // CRITICAL: Regular shift styling
+            // CRITICAL: Regular shift styling with hours at bottom left, no position name
+            const duration = calculateShiftDuration(shift.start, shift.end);
             return (
               <div
                 key={shift.id}
-                className="p-2 rounded-md text-xs cursor-pointer hover:shadow-md transition-all text-white"
+                className="w-full p-3 rounded-md text-sm cursor-pointer hover:shadow-md transition-all text-white relative"
                 style={{
                   backgroundColor: employeeColor,
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  minHeight: '60px'
                 }}
                 onClick={() => handleOpenDailyEntryModal(employee.id, day)}
               >
-                <div className="font-medium">
+                <div className="font-semibold text-center">
                   {shift.start} - {shift.end}
                 </div>
-                <div className="text-xs opacity-90 mt-1">
-                  {POSITIONS.includes(shift.position) 
-                    ? t(`positions.${shift.position.toLowerCase().replace(/[^a-z]/g, '')}`)
-                    : shift.position}
-                </div>
                 {shift.hasCoupure && (
-                  <div className="text-xs opacity-75 mt-1">
+                  <div className="text-xs opacity-75 mt-1 text-center">
                     🍽️ Coupure
                   </div>
                 )}
+                {/* CRITICAL: Hours display at bottom left */}
+                <div className="absolute bottom-1 left-2 text-xs opacity-90 font-medium">
+                  {duration}h
+                </div>
               </div>
             );
           }
           return null;
         })}
         
-        {/* Add shift button */}
-        <button
-          onClick={() => handleOpenDailyEntryModal(employee.id, day)}
-          className="w-full py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors flex items-center justify-center border border-dashed border-blue-300"
-        >
-          <Plus size={12} className="mr-1" />
-          Ajouter
-        </button>
+        {/* CRITICAL: + Ajouter button - only show if less than 2 shifts */}
+        {!hasMaxShifts && (
+          <button
+            onClick={() => handleOpenDailyEntryModal(employee.id, day)}
+            className="w-full py-2 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors flex items-center justify-center border border-dashed border-blue-300"
+          >
+            <Plus size={12} className="mr-1" />
+            + Ajouter
+          </button>
+        )}
       </div>
     );
   };
@@ -353,6 +393,91 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
 
   return (
     <div className="space-y-4">
+      {/* CRITICAL: Enhanced Header with Week Selector showing start and end dates */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={onToday}
+            className="px-4 py-2 text-sm font-medium bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Aujourd'hui
+          </button>
+
+          <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
+            <button
+              onClick={onPrevWeek}
+              className="p-2 bg-white hover:bg-gray-50 focus:outline-none"
+            >
+              <ChevronLeft size={18} />
+            </button>
+
+            <div className="relative">
+              <button
+                onClick={() => setShowWeekPicker(!showWeekPicker)}
+                className="px-3 py-2 bg-white border-l border-r border-gray-300 flex items-center gap-2 hover:bg-gray-50"
+              >
+                <CalendarIcon size={18} className="text-blue-600" />
+                <span className="text-sm font-medium">
+                  Semaine {currentWeek}, {currentYear}
+                </span>
+                <ChevronRight size={18} className="rotate-90" />
+              </button>
+
+              {showWeekPicker && (
+                <div className="absolute top-full left-0 mt-1 w-64 max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                  <div className="grid grid-cols-4 gap-1 p-2">
+                    {weeks.map(week => (
+                      <button
+                        key={week}
+                        onClick={() => handleWeekSelect(week)}
+                        className={`p-2 text-sm rounded ${
+                          week === currentWeek
+                            ? 'bg-blue-100 text-blue-700 font-medium'
+                            : 'hover:bg-gray-100'
+                        }`}
+                      >
+                        {week}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={onNextWeek}
+              className="p-2 bg-white hover:bg-gray-50 focus:outline-none"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+
+        {/* CRITICAL: Action Buttons - Dupliquer la Semaine and Exporter PDF */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onDuplicateWeek}
+            className="px-4 py-2 text-sm font-medium bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-2"
+          >
+            <Copy size={18} />
+            Dupliquer la Semaine
+          </button>
+
+          <button
+            onClick={() => setShowPDFPreviewModal(true)}
+            className="px-4 py-2 text-sm font-medium bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center gap-2 transition-colors"
+          >
+            <FileText size={18} />
+            Exporter en PDF
+          </button>
+        </div>
+      </div>
+
+      {/* CRITICAL: Week Range Display */}
+      <div className="text-center text-gray-600 mb-4">
+        {formatWeekRange()}
+      </div>
+
       {/* CRITICAL: Weather Forecast Integration */}
       <WeatherForecast
         weekStartDate={weekStartDate}
@@ -376,24 +501,24 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
       {/* CRITICAL: Enhanced Schedule Grid */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         {/* Header Row */}
-        <div className="grid grid-cols-[200px_repeat(7,1fr)_180px] bg-gray-50 border-b">
-          <div className="p-3 font-medium text-gray-700 border-r">
+        <div className="grid grid-cols-[200px_repeat(7,1fr)_200px] bg-gray-50 border-b">
+          <div className="p-4 font-semibold text-gray-700 border-r">
             Employé
           </div>
           
           {daysOfWeek.map((day, index) => {
             const date = addDays(weekStartDate, index);
             return (
-              <div key={day} className="p-3 font-medium text-gray-700 text-center border-r">
-                <div>{day}</div>
-                <div className="text-sm text-gray-500">
-                  {format(date, 'd MMM', { locale: fr })}
+              <div key={day} className="p-4 font-semibold text-gray-700 text-center border-r">
+                <div className="text-base">{day}</div>
+                <div className="text-sm text-gray-500 mt-1">
+                  {format(date, 'd juil.', { locale: fr })}
                 </div>
               </div>
             );
           })}
           
-          <div className="p-3 font-medium text-gray-700 text-center">
+          <div className="p-4 font-semibold text-gray-700 text-center">
             Résumé Hebdomadaire
           </div>
         </div>
@@ -401,16 +526,15 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
         {/* Employee Rows */}
         <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
           {employees.map(employee => {
-            const isActiveForWeek = isEmployeeActiveForWeek(employee);
             const summary = calculateWeeklySummary(employee);
             
             return (
-              <div key={employee.id} className={`grid grid-cols-[200px_repeat(7,1fr)_180px] border-b hover:bg-gray-50 ${!isActiveForWeek ? 'opacity-75' : ''}`}>
+              <div key={employee.id} className="grid grid-cols-[200px_repeat(7,1fr)_200px] border-b hover:bg-gray-50">
                 {/* CRITICAL: Employee Info with Photo */}
-                <div className="p-3 bg-gray-50 border-r">
+                <div className="p-4 bg-gray-50 border-r">
                   <div className="flex items-center">
                     {/* CRITICAL: Employee Photo Display */}
-                    <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center mr-3 bg-blue-500 text-white">
+                    <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center mr-3 bg-blue-500 text-white flex-shrink-0">
                       {employee.profilePicture ? (
                         <img 
                           src={employee.profilePicture} 
@@ -423,16 +547,16 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                         </span>
                       )}
                     </div>
-                    <div>
-                      <div className="font-medium text-gray-800">
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-gray-900 text-base">
                         {employee.firstName} {employee.lastName}
                       </div>
-                      <div className="text-xs text-gray-600">
+                      <div className="text-sm text-gray-600">
                         {POSITIONS.includes(employee.position) 
                           ? t(`positions.${employee.position.toLowerCase().replace(/[^a-z]/g, '')}`)
                           : employee.position}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-sm text-gray-500">
                         {employee.weeklyHours}H - {employee.contractType}
                       </div>
                     </div>
@@ -446,40 +570,40 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                   </div>
                 ))}
 
-                {/* CRITICAL: Enhanced Weekly Summary */}
-                <div className="p-3 bg-gray-50 text-xs">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Travaillées:</span>
-                      <span className="font-medium">{formatHours(summary.totalWorkedHours)}</span>
+                {/* CRITICAL: Enhanced Weekly Summary with larger, more visible text */}
+                <div className="p-4 bg-gray-50 text-sm">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700 font-medium">Travaillées:</span>
+                      <span className="font-bold text-lg text-gray-900">{summary.totalWorkedHours.toFixed(0)}H{((summary.totalWorkedHours % 1) * 60).toFixed(0).padStart(2, '0')}</span>
                     </div>
                     {summary.totalAssimilatedHours > 0 && (
-                      <div className="flex justify-between text-green-600">
-                        <span>CP:</span>
-                        <span className="font-medium">{formatHours(summary.totalAssimilatedHours)}</span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-green-700 font-medium">CP:</span>
+                        <span className="font-bold text-lg text-green-800">{summary.totalAssimilatedHours.toFixed(0)}H{((summary.totalAssimilatedHours % 1) * 60).toFixed(0).padStart(2, '0')}</span>
                       </div>
                     )}
                     {summary.totalPublicHolidayHours > 0 && (
-                      <div className="flex justify-between text-red-600">
-                        <span>Majorées:</span>
-                        <span className="font-medium">{formatHours(summary.totalPublicHolidayHours)}</span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-red-700 font-medium text-xs">dont Heures Majorées 100%:</span>
+                        <span className="font-bold text-lg text-red-800">{summary.totalPublicHolidayHours.toFixed(0)}H{((summary.totalPublicHolidayHours % 1) * 60).toFixed(0).padStart(2, '0')}</span>
                       </div>
                     )}
-                    <div className="flex justify-between border-t pt-1">
-                      <span className="text-gray-600">Écart:</span>
-                      <span className={`font-medium ${
+                    <div className="flex justify-between items-center border-t pt-2">
+                      <span className="text-gray-700 font-medium">Écart:</span>
+                      <span className={`font-bold text-lg ${
                         summary.hoursDiff > 0 ? 'text-red-600' : 
                         summary.hoursDiff < 0 ? 'text-blue-600' : 'text-green-600'
                       }`}>
                         {formatHoursDiff(summary.hoursDiff)}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Services:</span>
-                      <span className="font-medium">{summary.shiftCount}</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700 font-medium">Services:</span>
+                      <span className="font-bold text-lg text-gray-900">{summary.shiftCount}</span>
                     </div>
                     {summary.proRatedContractHours !== (employee.weeklyHours || 35) && (
-                      <div className="text-xs text-orange-600 italic">
+                      <div className="text-xs text-orange-600 italic mt-2">
                         Pro-rata: {formatHours(summary.proRatedContractHours)}
                       </div>
                     )}
@@ -504,6 +628,17 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
         onDeleteShift={onDeleteShift}
         onSaveAbsence={handleSaveAbsence}
         restaurantId={restaurantId}
+      />
+
+      {/* CRITICAL: PDF Preview Modal */}
+      <PDFPreviewModal
+        isOpen={showPDFPreviewModal}
+        onClose={() => setShowPDFPreviewModal(false)}
+        restaurant={restaurant}
+        employees={employees}
+        shifts={shifts}
+        weekStartDate={format(weekStartDate, 'yyyy-MM-dd')}
+        viewType={viewType}
       />
 
       {/* CRITICAL: PDF Export Modal */}
