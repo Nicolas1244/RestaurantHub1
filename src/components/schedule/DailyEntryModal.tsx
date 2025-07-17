@@ -608,6 +608,7 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
                           {i18n.language === 'fr' ? 'Services' : 'Shifts'}
                         </h4>
                         {/* Only show "Add service" button if less than 2 shifts */}
+                        {/* This is only for UI display purposes, not for validation */}
                         {shiftItems.length < 2 && (
                           <button
                             type="button"

@@ -760,8 +760,9 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                   // CRITICAL: Get shift groups for this day
                   const shiftGroups = getShiftGroups(employee.id, dayIndex);
                   
-                  // CRITICAL: Check if employee already has maximum shifts for this day
-                  const reachedMaxShifts = hasMaxShifts(employee.id, dayIndex);
+                  // CRITICAL: Check if employee already has 2 or more shifts for this day
+                  // This is only for UI display purposes, not for validation
+                  const hasAtLeastTwoShifts = dayShifts.length >= 2;
                   
                   // CRITICAL: Check for availability or preference conflicts only
                   const hasAvailabilityConflict = dayShifts.some(shift => {
@@ -877,7 +878,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                           ))}
                           
                           {/* CRITICAL: Add shift button - ONLY if less than 2 shifts */}
-                          {isEmployeeActiveToday && !reachedMaxShifts && (
+                          {isEmployeeActiveToday && !hasAtLeastTwoShifts && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();

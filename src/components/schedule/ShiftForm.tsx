@@ -707,6 +707,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                         {i18n.language === 'fr' ? 'Services' : 'Shifts'}
                       </h4>
                       {/* CRITICAL: Only show "Add service" button if less than 2 shifts */}
+                      {/* This is only for UI display purposes, not for validation */}
                       {shifts.length < 2 && (
                         <button
                           type="button"
