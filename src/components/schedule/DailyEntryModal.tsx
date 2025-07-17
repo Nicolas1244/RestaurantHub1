@@ -367,7 +367,7 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
     }
     
     // CRITICAL: Validate contract dates before saving
-    const shiftDate = addDays(weekStartDate, selectedDay);
+    const shiftDate = addDays(weekStartDate, day);
     const contractStart = parseISO(employee.startDate);
     const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
     
