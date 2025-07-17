@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
-import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save, FileText, Archive, X, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Copy } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, Clock, Users, ChefHat, Shield, Save, X, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Copy } from 'lucide-react';
 import { startOfWeek, addWeeks, format, isWithinInterval, parseISO, addDays, endOfWeek, getWeek, setWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAppContext } from '../../contexts/AppContext';
@@ -10,8 +10,6 @@ import { calculateEmployeeWeeklySummary, formatHours, formatHoursDiff } from '..
 import DailyEntryModal from './DailyEntryModal';
 import WeatherForecast from '../weather/WeatherForecast';
 import LaborLawCompliancePanel from './LaborLawCompliancePanel';
-import PDFExportModal from './PDFExportModal';
-import { PDFPreviewModal } from './PDFPreviewModal';
 import toast from 'react-hot-toast';
 
 interface WeeklyScheduleProps {
@@ -97,8 +95,6 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [selectedDay, setSelectedDay] = useState<number>(0);
   const [showCompliancePanel, setShowCompliancePanel] = useState(false);
-  const [showPDFExportModal, setShowPDFExportModal] = useState(false);
-  const [showPDFPreviewModal, setShowPDFPreviewModal] = useState(false);
   const [showWeekPicker, setShowWeekPicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -456,14 +452,6 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
             <Copy size={18} />
             Dupliquer la Semaine
           </button>
-
-          <button
-            onClick={() => setShowPDFPreviewModal(true)}
-            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-2 transition-colors"
-          >
-            <FileText size={18} />
-            {i18n.language === 'fr' ? 'Exporter PDF' : 'Export PDF'}
-          </button>
         </div>
       </div>
 
@@ -623,32 +611,6 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
         onSaveAbsence={handleSaveAbsence}
         restaurantId={restaurantId}
       />
-
-      {/* CRITICAL: PDF Preview Modal */}
-      {showPDFPreviewModal && (
-        <PDFPreviewModal
-          isOpen={showPDFPreviewModal}
-          onClose={() => setShowPDFPreviewModal(false)}
-          restaurant={restaurant}
-          employees={employees}
-          shifts={shifts}
-          weekStartDate={format(weekStartDate, 'yyyy-MM-dd')}
-          viewType={viewType}
-        />
-      )}
-
-      {/* CRITICAL: PDF Export Modal */}
-      {showPDFExportModal && (
-        <PDFExportModal
-          isOpen={showPDFExportModal}
-          onClose={() => setShowPDFExportModal(false)}
-          restaurant={restaurant}
-          employees={employees}
-          shifts={shifts}
-          weekStartDate={weekStartDate}
-          currentViewType={viewType}
-        />
-      )}
     </div>
   );
 };
