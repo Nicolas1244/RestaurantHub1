@@ -512,7 +512,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
               <div key={day} className="p-4 font-semibold text-gray-700 text-center border-r">
                 <div className="text-base">{day}</div>
                 <div className="text-sm text-gray-500 mt-1">
-                  {format(date, 'd juil.', { locale: fr })}
+                  {format(date, "d 'juil.'", { locale: fr })}
                 </div>
               </div>
             );
