@@ -190,24 +190,36 @@ const SchedulePage: React.FC = () => {
 
     // Get the next week's start date
     const nextWeekStart = addWeeks(weekStartDate, 1);
+    const nextWeekEnd = endOfWeek(nextWeekStart, { weekStartsOn: 1 });
     
-    // CRITICAL: Get active employees for the next week
-    const activeEmployeesForNextWeek = getActiveEmployeesForWeek(allEmployees, nextWeekStart);
-    const activeEmployeeIdsForNextWeek = activeEmployeesForNextWeek.map(emp => emp.id);
+    console.log('Duplicating week from:', format(weekStartDate, 'yyyy-MM-dd'), 'to:', format(nextWeekStart, 'yyyy-MM-dd'));
     
-    console.log('Duplicating week to:', format(nextWeekStart, 'yyyy-MM-dd'));
-    console.log('Active employees for next week:', activeEmployeesForNextWeek.length);
-    // Only duplicate shifts for employees who are active in the next week
-    const duplicatedShifts = schedule.shifts
+    // CRITICAL: Only duplicate shifts from the current week that are valid for the next week
+    const currentWeekShifts = schedule.shifts
       .filter(shift => {
-        // Check if the employee is active in the next week
-        const isEmployeeActive = activeEmployeeIdsForNextWeek.includes(shift.employeeId);
+        // Only consider shifts from the current week
+        const shiftDate = addDays(weekStartDate, shift.day);
+        const weekEnd = endOfWeek(weekStartDate, { weekStartsOn: 1 });
+        const isInCurrentWeek = shiftDate >= weekStartDate && shiftDate <= weekEnd;
         
-        if (!isEmployeeActive) {
-          console.log(`Skipping shift for employee ${shift.employeeId} - not active in next week`);
+        if (!isInCurrentWeek) return false;
+        
+        // Check if employee will be active for the corresponding day in next week
+        const employee = allEmployees.find(e => e.id === shift.employeeId);
+        if (!employee) return false;
+        
+        const nextWeekShiftDate = addDays(nextWeekStart, shift.day);
+        const contractStart = parseISO(employee.startDate);
+        const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
+        
+        const isEmployeeActiveOnNextWeekDay = nextWeekShiftDate >= contractStart && 
+                                            (!contractEnd || nextWeekShiftDate <= contractEnd);
+        
+        if (!isEmployeeActiveOnNextWeekDay) {
+          console.log(`Skipping shift for employee ${employee.firstName} ${employee.lastName} - not active on ${format(nextWeekShiftDate, 'yyyy-MM-dd')}`);
         }
         
-        return isEmployeeActive;
+        return isEmployeeActiveOnNextWeekDay;
       })
       .map(shift => ({
         ...shift,
@@ -217,9 +229,9 @@ const SchedulePage: React.FC = () => {
       }));
 
     try {
-      console.log(`Duplicating ${duplicatedShifts.length} shifts to next week`);
+      console.log(`Duplicating ${currentWeekShifts.length} shifts to next week`);
       
-      duplicatedShifts.forEach(shift => {
+      currentWeekShifts.forEach(shift => {
         addShift(shift);
       });
       toast.success(t('success.weekDuplicated'));
