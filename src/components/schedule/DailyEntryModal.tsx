@@ -13,6 +13,7 @@ interface DailyEntryModalProps {
   onClose: () => void;
   employee: Employee | null;
   day: number;
+  weekStartDate: Date;
   existingShifts: Shift[];
   onSaveShifts: (shifts: Omit<Shift, 'id'>[]) => void;
   onUpdateShift: (shift: Shift) => void;
@@ -60,6 +61,7 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
   onClose,
   employee,
   day,
+  weekStartDate,
   existingShifts,
   onSaveShifts,
   onUpdateShift,
