@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { X, Printer, Download, Archive, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { parseISO } from 'date-fns';
 import { Restaurant, Employee, Shift } from '../../types';
 import SchedulePDF from './SchedulePDF';
 import { useReactToPrint } from 'react-to-print';
@@ -32,6 +33,8 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
   const [isArchiving, setIsArchiving] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
+  const weekStartDateObj = parseISO(weekStartDate);
+
   const filteredEmployees = viewType === 'all' 
     ? employees 
     : employees.filter(emp => {
@@ -59,7 +62,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
           restaurant={restaurant}
           employees={filteredEmployees}
           shifts={filteredShifts}
-          weekStartDate={weekStartDate}
+          weekStartDate={weekStartDateObj}
           viewType={viewType}
           payBreakTimes={settings.payBreakTimes}
         />
@@ -96,7 +99,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
           restaurant={restaurant}
           employees={filteredEmployees}
           shifts={filteredShifts}
-          weekStartDate={weekStartDate}
+          weekStartDate={weekStartDateObj}
           viewType={viewType}
           payBreakTimes={settings.payBreakTimes}
         />
@@ -149,7 +152,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
               restaurant={restaurant}
               employees={filteredEmployees}
               shifts={filteredShifts}
-              weekStartDate={weekStartDate}
+              weekStartDate={weekStartDateObj}
               viewType={viewType}
               payBreakTimes={settings.payBreakTimes}
             />
