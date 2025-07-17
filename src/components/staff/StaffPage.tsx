@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Users, UserPlus, Database, Heart, Calendar } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
+import { autoSaveService } from '../../lib/autoSaveService';
 import { Employee, EmployeePreference, EmployeeAvailability } from '../../types';
 import EmployeeList from '../employees/EmployeeList';
 import EmployeeForm from '../employees/EmployeeForm';
@@ -35,6 +36,34 @@ const StaffPage: React.FC = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | undefined>(undefined);
   const [currentView, setCurrentView] = useState<StaffView>('list');
 
+  // Initialize auto-save service for staff
+  React.useEffect(() => {
+    autoSaveService.initialize(i18n.language as 'en' | 'fr');
+    
+    // Register save callback for employees
+    autoSaveService.registerSaveCallback('employee', async (data) => {
+      try {
+        switch (data.operation) {
+          case 'create':
+            await addEmployee(data.data);
+            break;
+          case 'update':
+            await updateEmployee(data.data);
+            break;
+          case 'delete':
+            // Employee deletion would be handled here if needed
+            break;
+        }
+      } catch (error) {
+        console.error('Auto-save failed for employee:', error);
+        throw error;
+      }
+    });
+    
+    return () => {
+      autoSaveService.cleanup();
+    };
+  }, [addEmployee, updateEmployee, i18n.language]);
   const employees = currentRestaurant 
     ? getRestaurantEmployees(currentRestaurant.id)
     : [];
@@ -64,24 +93,39 @@ const StaffPage: React.FC = () => {
     setShowDocumentsModal(true);
   };
 
-  // CRITICAL FIX: Remove duplicate toast notifications - let AppContext handle them
+  // CRITICAL: Auto-save implementation for employee creation
   const handleSaveEmployee = async (employeeData: Omit<Employee, 'id'>) => {
     try {
-      await addEmployee(employeeData);
+      // Queue for auto-save instead of immediate save
+      autoSaveService.queueSave({
+        type: 'employee',
+        data: employeeData,
+        operation: 'create'
+      });
+      
+      // Force immediate save for form submission
+      await autoSaveService.saveNow();
       setShowEmployeeForm(false);
-      // REMOVED: Duplicate toast notification - AppContext already shows success message
     } catch (error) {
       console.error('Error adding employee:', error);
       toast.error(error instanceof Error ? error.message : t('staff.employeeSaveFailed'));
     }
   };
 
-  // CRITICAL FIX: Remove duplicate toast notifications - let AppContext handle them
+  // CRITICAL: Auto-save implementation for employee updates
   const handleUpdateEmployee = async (employee: Employee) => {
     try {
-      await updateEmployee(employee);
+      // Queue for auto-save instead of immediate save
+      autoSaveService.queueSave({
+        type: 'employee',
+        id: employee.id,
+        data: employee,
+        operation: 'update'
+      });
+      
+      // Force immediate save for form submission
+      await autoSaveService.saveNow();
       setShowEmployeeForm(false);
-      // REMOVED: Duplicate toast notification - AppContext already shows success message
     } catch (error) {
       console.error('Error updating employee:', error);
       toast.error(error instanceof Error ? error.message : t('staff.employeeSaveFailed'));
@@ -97,21 +141,44 @@ const StaffPage: React.FC = () => {
       const existingPreferences = getEmployeePreferences(employeeId);
       
       if (existingPreferences) {
-        await updateEmployeePreference({
+        const preferenceData = {
           ...preferences,
           id: existingPreferences.id,
           employeeId,
           createdAt: existingPreferences.createdAt,
           updatedAt: new Date().toISOString()
+        };
+        
+        // Auto-save preferences update
+        autoSaveService.queueSave({
+          type: 'employee',
+          id: employeeId,
+          data: { preferences: preferenceData },
+          operation: 'update'
         });
+        
+        await updateEmployeePreference(preferenceData);
       } else {
-        await addEmployeePreference({
+        const preferenceData = {
           ...preferences,
           employeeId,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
+        };
+        
+        // Auto-save preferences creation
+        autoSaveService.queueSave({
+          type: 'employee',
+          id: employeeId,
+          data: { preferences: preferenceData },
+          operation: 'update'
         });
+        
+        await addEmployeePreference(preferenceData);
       }
+      
+      // Force immediate save
+      await autoSaveService.saveNow();
     } catch (error) {
       console.error('Error saving employee preferences:', error);
       throw error;
@@ -124,12 +191,25 @@ const StaffPage: React.FC = () => {
     availability: Omit<EmployeeAvailability, 'id' | 'employeeId' | 'createdAt' | 'updatedAt'>
   ) => {
     try {
-      await addEmployeeAvailability({
+      const availabilityData = {
         ...availability,
         employeeId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
+      };
+      
+      // Auto-save availability creation
+      autoSaveService.queueSave({
+        type: 'employee',
+        id: employeeId,
+        data: { availability: availabilityData },
+        operation: 'update'
       });
+      
+      await addEmployeeAvailability(availabilityData);
+      
+      // Force immediate save
+      await autoSaveService.saveNow();
     } catch (error) {
       console.error('Error saving employee availability:', error);
       throw error;
@@ -139,7 +219,18 @@ const StaffPage: React.FC = () => {
   // Handle deleting employee availability
   const handleDeleteAvailability = async (availabilityId: string) => {
     try {
+      // Auto-save availability deletion
+      autoSaveService.queueSave({
+        type: 'employee',
+        id: availabilityId,
+        data: null,
+        operation: 'delete'
+      });
+      
       await deleteEmployeeAvailability(availabilityId);
+      
+      // Force immediate save
+      await autoSaveService.saveNow();
     } catch (error) {
       console.error('Error deleting employee availability:', error);
       throw error;

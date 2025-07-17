@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Building2, Plus } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
+import { autoSaveService } from '../../lib/autoSaveService';
 import { Restaurant } from '../../types';
 import RestaurantList from './RestaurantList';
 import RestaurantForm from './RestaurantForm';
@@ -13,6 +14,34 @@ const RestaurantsPage: React.FC = () => {
   const [showRestaurantForm, setShowRestaurantForm] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | undefined>(undefined);
 
+  // Initialize auto-save service
+  React.useEffect(() => {
+    autoSaveService.initialize(i18n.language as 'en' | 'fr');
+    
+    // Register save callback for restaurants
+    autoSaveService.registerSaveCallback('restaurant', async (data) => {
+      try {
+        switch (data.operation) {
+          case 'create':
+            await addRestaurant(data.data);
+            break;
+          case 'update':
+            await updateRestaurant(data.data);
+            break;
+          case 'delete':
+            await deleteRestaurant(data.id!);
+            break;
+        }
+      } catch (error) {
+        console.error('Auto-save failed for restaurant:', error);
+        throw error;
+      }
+    });
+    
+    return () => {
+      autoSaveService.cleanup();
+    };
+  }, [addRestaurant, updateRestaurant, deleteRestaurant, i18n.language]);
   const handleAddRestaurant = () => {
     setSelectedRestaurant(undefined);
     setShowRestaurantForm(true);
@@ -23,35 +52,58 @@ const RestaurantsPage: React.FC = () => {
     setShowRestaurantForm(true);
   };
 
-  // CRITICAL: Implement save functionality
+  // CRITICAL: Auto-save implementation for restaurant creation
   const handleSaveRestaurant = async (restaurantData: Omit<Restaurant, 'id'>) => {
     try {
-      await addRestaurant(restaurantData);
+      // Queue for auto-save instead of immediate save
+      autoSaveService.queueSave({
+        type: 'restaurant',
+        data: restaurantData,
+        operation: 'create'
+      });
+      
+      // Force immediate save for form submission
+      await autoSaveService.saveNow();
       setShowRestaurantForm(false);
-      toast.success(t('restaurants.createSuccess'));
     } catch (error) {
       console.error('Error adding restaurant:', error);
       toast.error(t('restaurants.saveFailed'));
     }
   };
 
-  // CRITICAL: Implement update functionality
+  // CRITICAL: Auto-save implementation for restaurant updates
   const handleUpdateRestaurant = async (restaurant: Restaurant) => {
     try {
-      await updateRestaurant(restaurant);
+      // Queue for auto-save instead of immediate save
+      autoSaveService.queueSave({
+        type: 'restaurant',
+        id: restaurant.id,
+        data: restaurant,
+        operation: 'update'
+      });
+      
+      // Force immediate save for form submission
+      await autoSaveService.saveNow();
       setShowRestaurantForm(false);
-      toast.success(t('restaurants.updateSuccess'));
     } catch (error) {
       console.error('Error updating restaurant:', error);
       toast.error(t('restaurants.saveFailed'));
     }
   };
 
-  // CRITICAL: Implement delete functionality
+  // CRITICAL: Auto-save implementation for restaurant deletion
   const handleDeleteRestaurant = async (restaurantId: string) => {
     try {
-      await deleteRestaurant(restaurantId);
-      toast.success('Restaurant supprimé avec succès');
+      // Queue for auto-save instead of immediate save
+      autoSaveService.queueSave({
+        type: 'restaurant',
+        id: restaurantId,
+        data: null,
+        operation: 'delete'
+      });
+      
+      // Force immediate save for deletion
+      await autoSaveService.saveNow();
     } catch (error) {
       console.error('Error deleting restaurant:', error);
       toast.error('Échec de la suppression du restaurant');

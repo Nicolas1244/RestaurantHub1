@@ -3,6 +3,7 @@ import { FileText, Upload, Download, Trash2, Search, Filter, Eye, File, FilePlus
 import { useTranslation } from 'react-i18next';
 import { useAppContext } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { autoSaveService } from '../../lib/autoSaveService';
 import toast from 'react-hot-toast';
 
 // Document types
@@ -44,6 +45,38 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
   const [loading, setLoading] = useState(true);
   const [uploadProgress, setUploadProgress] = useState(0);
   
+  // Initialize auto-save service for documents
+  useEffect(() => {
+    autoSaveService.initialize(i18n.language as 'en' | 'fr');
+    
+    // Register save callback for documents
+    autoSaveService.registerSaveCallback('document', async (data) => {
+      try {
+        switch (data.operation) {
+          case 'create':
+            // Handle document creation
+            console.log('Auto-saving document creation:', data.data);
+            break;
+          case 'update':
+            // Handle document update
+            console.log('Auto-saving document update:', data.data);
+            break;
+          case 'delete':
+            // Handle document deletion
+            console.log('Auto-saving document deletion:', data.id);
+            break;
+        }
+      } catch (error) {
+        console.error('Auto-save failed for document:', error);
+        throw error;
+      }
+    });
+    
+    return () => {
+      autoSaveService.cleanup();
+    };
+  }, [i18n.language]);
+
   // Get employees
   const employees = currentRestaurant ? getRestaurantEmployees(currentRestaurant.id) : [];
   
@@ -170,7 +203,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
     filterDocuments(documents, searchTerm, category);
   };
 
-  // Handle document upload
+  // Handle document upload with auto-save
   const handleUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     
@@ -206,13 +239,21 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
       status: 'pending'
     };
     
+    // Auto-save document upload
+    autoSaveService.queueSave({
+      type: 'document',
+      id: newDoc.id,
+      data: newDoc,
+      operation: 'create'
+    });
+    
     setDocuments(prev => [newDoc, ...prev]);
     filterDocuments([newDoc, ...documents], searchTerm, categoryFilter);
     
     setShowUploadModal(false);
-    toast.success(i18n.language === 'fr' 
-      ? 'Document téléchargé avec succès' 
-      : 'Document uploaded successfully');
+    
+    // Force immediate save for upload
+    await autoSaveService.saveNow();
   };
 
   // Handle document download
@@ -223,18 +264,25 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
       : 'Document download started');
   };
 
-  // Handle document delete
+  // Handle document delete with auto-save
   const handleDelete = (doc: Document) => {
     if (confirm(i18n.language === 'fr' 
       ? 'Êtes-vous sûr de vouloir supprimer ce document ?' 
       : 'Are you sure you want to delete this document?')) {
       
+      // Auto-save document deletion
+      autoSaveService.queueSave({
+        type: 'document',
+        id: doc.id,
+        data: null,
+        operation: 'delete'
+      });
+      
       setDocuments(prev => prev.filter(d => d.id !== doc.id));
       filterDocuments(documents.filter(d => d.id !== doc.id), searchTerm, categoryFilter);
       
-      toast.success(i18n.language === 'fr' 
-        ? 'Document supprimé avec succès' 
-        : 'Document deleted successfully');
+      // Force immediate save for deletion
+      autoSaveService.saveNow();
     }
   };
 
