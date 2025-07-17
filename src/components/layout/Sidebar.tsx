@@ -251,23 +251,11 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
                 isActive={currentTab === 'payroll'}
               />
               <NavItem 
-                icon={<File size={20} />} 
-                label={i18n.language === 'fr' ? 'Documents' : 'Documents'} 
-                tab="documents"
-                isActive={currentTab === 'documents'}
-              />
-              <NavItem 
                 icon={<FileText size={20} />} 
                 label={i18n.language === 'fr' ? 'Documents' : 'Documents'} 
                 tab="documents"
                 isActive={currentTab === 'documents'}
               />
-              {/* CRITICAL: Time Clock nav item - only visible when enabled in settings */}
-              <NavItem 
-                icon={<Fingerprint size={20} />} 
-                label={i18n.language === 'fr' ? 'Badgeuse' : 'Time Clock'} 
-                tab="timeclock"
-                isActive={currentTab === 'timeclock'}
               />
               
               {/* Employee Portal - only for non-managers */}
