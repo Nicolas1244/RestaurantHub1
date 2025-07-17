@@ -6,7 +6,7 @@ import { TIME_INPUT_TYPES, TimeInputType, SCHEDULE_LAYOUT_TYPES, ScheduleLayoutT
 import toast from 'react-hot-toast';
 
 const SettingsPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   // TEMPORARY: Enable all settings by default
   const { settings: appSettings, updateSettings } = useAppContext();
   const defaultSettings = {
