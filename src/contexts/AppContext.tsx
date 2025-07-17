@@ -290,7 +290,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // CRITICAL: Enhanced user settings management with break payment setting
   const updateSettings = async (newSettings: Partial<UserSettings>) => {
     try {
-      console.log('Updating settings:', newSettings);
+      console.log('Updating settings:', JSON.stringify(newSettings));
       
       // CRITICAL: Force payBreakTimes to be true regardless of user input
       if (newSettings.payBreakTimes === false) {
@@ -298,7 +298,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         newSettings.payBreakTimes = true;
       }
       
-      const updatedSettings = { ...settings, ...newSettings };
+      // Create a deep copy of settings to avoid reference issues
+      const updatedSettings = JSON.parse(JSON.stringify({ ...settings, ...newSettings }));
       setSettings(updatedSettings);
       
       // Save to localStorage for persistence

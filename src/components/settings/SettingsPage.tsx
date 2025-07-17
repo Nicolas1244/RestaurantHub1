@@ -39,7 +39,8 @@ const SettingsPage: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      await updateSettings(localSettings);
+      // Fix: Pass a copy of localSettings to avoid reference issues
+      await updateSettings({...localSettings});
       setHasChanges(false);
       toast.success(t('settings.saveSuccess'));
     } catch (error) {
@@ -49,7 +50,7 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleReset = () => {
-    setLocalSettings(settings);
+    setLocalSettings(appSettings);
     setHasChanges(false);
     toast.success(t('settings.resetSuccess'));
   };
