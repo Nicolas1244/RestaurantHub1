@@ -816,22 +816,24 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                               {/* Employee avatar/initials */}
                               <div className="font-medium text-sm flex items-center justify-between mb-2">
                                 <div className="flex items-center w-full justify-center">
-                                  <div className="w-7 h-7 rounded-full flex items-center justify-center mr-2 bg-white bg-opacity-20 shadow-sm overflow-hidden">
-                                    {employee.profilePicture ? (
-                                      <img 
-                                        src={employee.profilePicture} 
-                                        alt={`${employee.firstName} ${employee.lastName}`} 
-                                        className="w-full h-full object-cover"
-                                      />
-                                    ) : (
-                                      <span style={{ color: DAILY_STATUS[dayStatus].color }}>
-                                        {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <span className="font-semibold">
-                                    {DAILY_STATUS[dayStatus].label}
-                                  </span>
+                                  <>
+                                    <div className="w-7 h-7 rounded-full flex items-center justify-center mr-2 bg-white bg-opacity-20 shadow-sm overflow-hidden">
+                                      {employee.profilePicture ? (
+                                        <img 
+                                          src={employee.profilePicture} 
+                                          alt={`${employee.firstName} ${employee.lastName}`} 
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <span style={{ color: DAILY_STATUS[dayStatus].color }}>
+                                          {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="font-semibold">
+                                      {DAILY_STATUS[dayStatus].label}
+                                    </span>
+                                  </>
                                 </div>
                               </div>
                             </div>
