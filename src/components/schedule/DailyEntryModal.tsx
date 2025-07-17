@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { calculateTimeInHours } from '../../lib/scheduleUtils';
 import { useAppContext } from '../../contexts/AppContext'; 
 import toast from 'react-hot-toast';
+import { addDays, parseISO } from 'date-fns';
 
 interface DailyEntryModalProps {
   isOpen: boolean;
