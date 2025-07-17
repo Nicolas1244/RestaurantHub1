@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Copy, FileText, Us
 import { format, getWeek, setWeek, addWeeks, startOfWeek } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import PDFExportModal from './PDFExportModal';
-import PDFPreviewModal from './PDFPreviewModal';
+import { PDFPreviewModal } from './PDFPreviewModal';
 import { Employee, Shift, Restaurant } from '../../types';
 
 interface ScheduleHeaderProps {

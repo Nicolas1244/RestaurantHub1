@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { X, Printer, Download, Archive, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Restaurant, Employee, Shift } from '../../types';
-import { SchedulePDF } from './SchedulePDF';
+import SchedulePDF from './SchedulePDF';
 import { useReactToPrint } from 'react-to-print';
 import { pdf } from '@react-pdf/renderer';
 import { useAppContext } from '../../contexts/AppContext';
