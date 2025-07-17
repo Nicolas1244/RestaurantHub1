@@ -326,12 +326,12 @@ export const mockSchedules: Schedule[] = [
     id: '1',
     restaurantId: '1',
     weekStartDate: getWeekStartDate(currentDate),
-    shifts: generateMockShifts().filter(shift => shift.restaurantId === '1')
+    shifts: [] // CRITICAL: Start with empty shifts to prevent auto-replication
   },
   {
     id: '2',
     restaurantId: '2',
     weekStartDate: getWeekStartDate(currentDate),
-    shifts: generateMockShifts().filter(shift => shift.restaurantId === '2')
+    shifts: [] // CRITICAL: Start with empty shifts to prevent auto-replication
   }
 ];

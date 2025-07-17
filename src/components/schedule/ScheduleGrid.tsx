@@ -205,12 +205,6 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
 
   // CRITICAL: Group shifts by employee and day
   const getShiftsForEmployeeDay = (employeeId: string, day: number) => {
-    // First check if employee is active on this specific day
-    const employee = employees.find(e => e.id === employeeId);
-    if (!employee || !isEmployeeActiveOnDay(employee, day)) {
-      return []; // Return empty array if employee is not active on this day
-    }
-    
     return shifts.filter(shift => 
       shift.employeeId === employeeId && 
       shift.day === day

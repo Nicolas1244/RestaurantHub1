@@ -61,32 +61,8 @@ const SchedulePage: React.FC = () => {
 
   // CRITICAL FIX: Helper function to get active employees for the week
   const getActiveEmployeesForWeek = (employees: Employee[], weekStart: Date): Employee[] => {
-    // Create a new date object to avoid mutating the original
-    const weekStartCopy = new Date(weekStart);
-    const weekEnd = endOfWeek(weekStartCopy, { weekStartsOn: 1 });
-    
-    return employees.filter(employee => {
-      const contractStart = parseISO(employee.startDate);
-      const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
-      
-      // CRITICAL: Employee is active if:
-      // 1. Contract starts before or during the week AND
-      // 2. Contract hasn't ended OR ends during or after the week
-      const startsBeforeOrDuringWeek = contractStart <= weekEnd;
-      const endsAfterOrDuringWeek = !contractEnd || contractEnd >= weekStartCopy;
-      
-      console.log(`Week activity check for ${employee.firstName} ${employee.lastName}:`, {
-        weekStart: weekStartCopy.toISOString().split('T')[0],
-        weekEnd: weekEnd.toISOString().split('T')[0],
-        contractStart: employee.startDate,
-        contractEnd: employee.endDate || 'No end date',
-        startsBeforeOrDuringWeek,
-        endsAfterOrDuringWeek,
-        isActive: startsBeforeOrDuringWeek && endsAfterOrDuringWeek
-      });
-      
-      return startsBeforeOrDuringWeek && endsAfterOrDuringWeek;
-    });
+    // Return all employees - contract validation will be done at the day level
+    return employees;
   };
 
   // CRITICAL FIX: Filter employees based on contract dates for the selected week
