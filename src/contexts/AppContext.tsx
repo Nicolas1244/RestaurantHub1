@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Restaurant, Employee, Schedule, Shift, UserSettings, TimeInputType, ScheduleLayoutType, EmployeePreference, EmployeeAvailability } from '../types';
 import { mockRestaurants, mockEmployees, mockSchedules } from '../data/mockData';
+import { format, startOfWeek, addDays, parseISO, isWithinInterval } from 'date-fns';
 import toast from 'react-hot-toast';
 
 interface AppContextType {
@@ -16,9 +17,9 @@ interface AppContextType {
   addEmployee: (employee: Omit<Employee, 'id'>) => Promise<void>;
   updateEmployee: (employee: Employee) => Promise<void>;
   deleteEmployee: (employeeId: string) => Promise<void>;
-  addShift: (shift: Omit<Shift, 'id'>) => void;
-  updateShift: (shift: Shift) => void;
-  deleteShift: (shiftId: string) => void;
+  addShift: (shift: Omit<Shift, 'id'>, weekStartDate: Date) => void;
+  updateShift: (shift: Shift, weekStartDate: Date) => void;
+  deleteShift: (shiftId: string, weekStartDate: Date) => void;
   showAuthModal: boolean;
   setShowAuthModal: (show: boolean) => void;
   addRestaurant: (restaurant: Omit<Restaurant, 'id'>) => Promise<void>;
@@ -173,14 +174,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const getRestaurantSchedule = (restaurantId: string): Schedule | undefined => {
-    let schedule = schedules.find(schedule => schedule.restaurantId === restaurantId);
+    // CRITICAL: Find schedule for restaurant - there should be one per restaurant
+    let schedule = schedules.find(s => s.restaurantId === restaurantId);
     
     // If no schedule exists for this restaurant, create one automatically
     if (!schedule) {
       console.log('⚠️ No schedule found for restaurant:', restaurantId, 'Creating initial schedule...');
       schedule = createInitialSchedule(restaurantId);
       
-      // Add the new schedule to the schedules array - but don't duplicate shifts
+      // Add the new schedule to the schedules array
       setSchedules(prev => [...prev, schedule!]);
       
       toast.info('Schedule initialized for new restaurant', { duration: 3000 });
@@ -348,13 +350,57 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const addShift = (shiftData: Omit<Shift, 'id'>) => {
+  // CRITICAL: Generate week-specific shift ID to prevent cross-week conflicts
+  const generateWeekSpecificShiftId = (weekStartDate: Date): string => {
+    const weekKey = format(weekStartDate, 'yyyy-MM-dd');
+    const randomId = Math.random().toString(36).substr(2, 9);
+    return `${weekKey}-${randomId}`;
+  };
+
+  // CRITICAL: Add week-specific shift storage
+  const addShift = (shiftData: Omit<Shift, 'id'>, weekStartDate: Date) => {
+    // CRITICAL: Validate that the shift date is within the specified week
+    const shiftDate = addDays(weekStartDate, shiftData.day);
+    const weekEnd = addDays(weekStartDate, 6);
+    
+    if (!isWithinInterval(shiftDate, { start: weekStartDate, end: weekEnd })) {
+      console.error('❌ Attempted to add shift outside of specified week:', {
+        shiftDate: format(shiftDate, 'yyyy-MM-dd'),
+        weekStart: format(weekStartDate, 'yyyy-MM-dd'),
+        weekEnd: format(weekEnd, 'yyyy-MM-dd')
+      });
+      return;
+    }
+
+    // CRITICAL: Validate employee contract for the specific shift date
+    const employee = employees.find(e => e.id === shiftData.employeeId);
+    if (employee) {
+      const contractStart = parseISO(employee.startDate);
+      const contractEnd = employee.endDate ? parseISO(employee.endDate) : null;
+      
+      if (shiftDate < contractStart || (contractEnd && shiftDate > contractEnd)) {
+        console.error('❌ Attempted to add shift outside employee contract period:', {
+          employee: `${employee.firstName} ${employee.lastName}`,
+          shiftDate: format(shiftDate, 'yyyy-MM-dd'),
+          contractStart: employee.startDate,
+          contractEnd: employee.endDate || 'No end date'
+        });
+        return;
+      }
+    }
+
     const newShift: Shift = {
       ...shiftData,
-      id: Math.random().toString(36).substr(2, 9)
+      id: generateWeekSpecificShiftId(weekStartDate)
     };
 
-    console.log('➕ Adding new shift:', newShift);
+    console.log('➕ Adding week-specific shift:', {
+      shiftId: newShift.id,
+      employee: employee ? `${employee.firstName} ${employee.lastName}` : 'Unknown',
+      week: format(weekStartDate, 'yyyy-MM-dd'),
+      day: shiftData.day,
+      shiftDate: format(shiftDate, 'yyyy-MM-dd')
+    });
 
     setSchedules(prev => 
       prev.map(schedule => {
@@ -372,8 +418,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setLastScheduleSave(new Date());
   };
 
-  const updateShift = (updatedShift: Shift) => {
-    console.log('🔄 Updating shift:', updatedShift.id);
+  const updateShift = (updatedShift: Shift, weekStartDate: Date) => {
+    // CRITICAL: Validate that the updated shift date is within the specified week
+    const shiftDate = addDays(weekStartDate, updatedShift.day);
+    const weekEnd = addDays(weekStartDate, 6);
+    
+    if (!isWithinInterval(shiftDate, { start: weekStartDate, end: weekEnd })) {
+      console.error('❌ Attempted to update shift outside of specified week:', {
+        shiftId: updatedShift.id,
+        shiftDate: format(shiftDate, 'yyyy-MM-dd'),
+        weekStart: format(weekStartDate, 'yyyy-MM-dd'),
+        weekEnd: format(weekEnd, 'yyyy-MM-dd')
+      });
+      return;
+    }
+
+    console.log('🔄 Updating week-specific shift:', {
+      shiftId: updatedShift.id,
+      week: format(weekStartDate, 'yyyy-MM-dd'),
+      day: updatedShift.day,
+      shiftDate: format(shiftDate, 'yyyy-MM-dd')
+    });
     
     setSchedules(prev => 
       prev.map(schedule => {
@@ -393,8 +458,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setLastScheduleSave(new Date());
   };
 
-  const deleteShift = (shiftId: string) => {
-    console.log('🗑️ Deleting shift:', shiftId);
+  const deleteShift = (shiftId: string, weekStartDate: Date) => {
+    console.log('🗑️ Deleting week-specific shift:', {
+      shiftId,
+      week: format(weekStartDate, 'yyyy-MM-dd')
+    });
     
     setSchedules(prev => 
       prev.map(schedule => {

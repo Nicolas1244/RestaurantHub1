@@ -246,6 +246,8 @@ export interface Shift {
   coupureStart?: string; // Start time of coupure (end time of this shift)
   coupureEnd?: string; // End time of coupure (start time of next shift)
   coupureDuration?: number; // Duration of coupure in minutes
+  // CRITICAL: Add week identifier to prevent cross-week conflicts
+  weekStartDate?: string; // ISO date string of the week start (Monday)
 }
 
 export interface Schedule {

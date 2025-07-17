@@ -299,13 +299,8 @@ const SchedulePage: React.FC = () => {
       return;
     }
 
-    // Generate a unique ID if not provided
-    const newShift = {
-      ...shiftData,
-      id: uuidv4()
-    };
-    
-    addShift(newShift);
+    // CRITICAL: Pass weekStartDate to ensure week-specific storage
+    addShift(shiftData, weekStartDate);
   };
 
   // Enhanced updateShift with contract validation
@@ -325,7 +320,13 @@ const SchedulePage: React.FC = () => {
       }
     }
 
-    updateShift(shift);
+    // CRITICAL: Pass weekStartDate to ensure week-specific updates
+    updateShift(shift, weekStartDate);
+  };
+
+  // CRITICAL: Enhanced deleteShift with week-specific deletion
+  const handleDeleteShift = (shiftId: string) => {
+    deleteShift(shiftId, weekStartDate);
   };
   
   // CRITICAL: Manual save function
@@ -383,7 +384,7 @@ const SchedulePage: React.FC = () => {
     );
     
     existingEntries.forEach(shift => {
-      deleteShift(shift.id);
+      handleDeleteShift(shift.id);
     });
     
     // Then add the new shifts
@@ -408,7 +409,7 @@ const SchedulePage: React.FC = () => {
     );
     
     existingEntries.forEach(shift => {
-      deleteShift(shift.id);
+      handleDeleteShift(shift.id);
     });
     
     // Then add the new absence
@@ -653,7 +654,7 @@ const SchedulePage: React.FC = () => {
                   employees={employees}
                   onUpdateShift={handleUpdateShift}
                   onAddShift={handleAddShift}
-                  onDeleteShift={deleteShift}
+                  onDeleteShift={handleDeleteShift}
                   weekStartDate={weekStartDate}
                   onOpenShiftModal={handleOpenDailyEntryModal}
                 />
@@ -693,7 +694,7 @@ const SchedulePage: React.FC = () => {
         existingShifts={shifts}
         onSaveShifts={handleSaveShifts}
         onUpdateShift={handleUpdateShift}
-        onDeleteShift={deleteShift}
+       onDeleteShift={handleDeleteShift}
         onSaveAbsence={handleSaveAbsence}
         restaurantId={currentRestaurant?.id || ''}
       />
