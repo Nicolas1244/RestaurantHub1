@@ -607,7 +607,7 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
                         <h4 className="text-sm font-medium text-gray-700">
                           {i18n.language === 'fr' ? 'Services' : 'Shifts'}
                         </h4>
-                        {/* CRITICAL: Only show "Add service" button if less than 2 shifts */}
+                        {/* Only show "Add service" button if less than 2 shifts */}
                         {shiftItems.length < 2 && (
                           <button
                             type="button"

@@ -230,9 +230,6 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
     // Clear any previous validation errors
     setValidationError(null);
     
-    // Clear any previous validation errors
-    setValidationError(null);
-    
     if (!employeeId) {
       setValidationError(
         i18n.language === 'fr'
@@ -261,6 +258,17 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
         // Set the isHolidayWorked flag for PUBLIC_HOLIDAY
         isHolidayWorked: (status === 'PUBLIC_HOLIDAY' && isHolidayWorked) ? true : undefined
       };
+      
+      // When dealing with status/absence, we need to remove all existing shifts
+      // Get all existing shifts for this employee and day
+      const existingShifts = existingShifts.filter(
+        s => s.employeeId === employeeId && s.day === day
+      );
+      
+      // Delete all existing shifts
+      existingShifts.forEach(shift => {
+        onDelete(shift.id);
+      });
       
       if (shift) {
         // Update the existing shift
@@ -299,60 +307,135 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
       return;
     }
     
+    // Get existing shifts for this employee and day
+    const existingDayShifts = existingShifts.filter(
+      s => s.employeeId === employeeId && s.day === day && !s.status
+    );
+    
     // Generate a shared shiftGroup ID for related shifts
     const shiftGroupId = uuidv4();
     
-    // If we're editing a single shift, we need to handle it specially
+    // If we're editing a single shift
     if (shift) {
-      // Find the index of the shift we're editing
-      const editingShiftIndex = shifts.findIndex(s => s.id === shift.id);
+      // Find the shift we're editing
+      const editingShift = existingDayShifts.find(s => s.id === shift.id);
       
-      if (editingShiftIndex !== -1) {
+      if (editingShift) {
         // We're updating an existing shift
-        const currentShift = shifts[editingShiftIndex];
+        const currentShift = shifts.find(s => s.id === shift.id);
         
-        const shiftData = {
-          id: shift.id,
-          restaurantId,
-          employeeId,
-          day,
-          start: currentShift.start,
-          end: currentShift.end,
-          position: employee.position,
-          color: editingShiftIndex === 0 ? '#3B82F6' : '#8B5CF6',
-          type: currentShift.type,
-          hasCoupure: hasCoupure || shifts.length > 1,
-          shiftGroup: shift.shiftGroup || shiftGroupId,
-          shiftOrder: editingShiftIndex + 1,
-          notes
-        };
-        
-        // Update just this shift
-        onUpdate(shiftData);
+        if (currentShift) {
+          const shiftData = {
+            id: shift.id,
+            restaurantId,
+            employeeId,
+            day,
+            start: currentShift.start,
+            end: currentShift.end,
+            position: employee.position,
+            color: editingShift.color || '#3B82F6',
+            type: currentShift.type,
+            hasCoupure: hasCoupure || shifts.length > 1,
+            shiftGroup: shift.shiftGroup || shiftGroupId,
+            shiftOrder: editingShift.shiftOrder || 1,
+            notes
+          };
+          
+          // Update just this shift
+          onUpdate(shiftData);
+        }
       }
     } else {
-      // We're creating new shifts
-      for (let i = 0; i < shifts.length; i++) {
-        const currentShift = shifts[i];
+      // Compare existing shifts with new shifts
+      if (existingDayShifts.length === shifts.length) {
+        // Update existing shifts
+        existingDayShifts.forEach((existingShift, index) => {
+          const currentShift = shifts[index];
+          const shiftData = {
+            id: existingShift.id,
+            restaurantId,
+            employeeId,
+            day,
+            start: currentShift.start,
+            end: currentShift.end,
+            position: employee.position,
+            color: existingShift.color || (index === 0 ? '#3B82F6' : '#8B5CF6'),
+            type: currentShift.type,
+            hasCoupure: hasCoupure || shifts.length > 1,
+            shiftGroup: existingShift.shiftGroup || shiftGroupId,
+            shiftOrder: index + 1,
+            notes
+          };
+          onUpdate(shiftData);
+        });
+      } else if (existingDayShifts.length > shifts.length) {
+        // Update shifts we're keeping, delete the rest
+        shifts.forEach((currentShift, index) => {
+          if (index < existingDayShifts.length) {
+            const shiftData = {
+              id: existingDayShifts[index].id,
+              restaurantId,
+              employeeId,
+              day,
+              start: currentShift.start,
+              end: currentShift.end,
+              position: employee.position,
+              color: existingDayShifts[index].color || (index === 0 ? '#3B82F6' : '#8B5CF6'),
+              type: currentShift.type,
+              hasCoupure: hasCoupure || shifts.length > 1,
+              shiftGroup: existingDayShifts[index].shiftGroup || shiftGroupId,
+              shiftOrder: index + 1,
+              notes
+            };
+            onUpdate(shiftData);
+          }
+        });
         
-        const shiftData = {
-          restaurantId,
-          employeeId,
-          day,
-          start: currentShift.start,
-          end: currentShift.end,
-          position: employee.position,
-          color: i === 0 ? '#3B82F6' : '#8B5CF6', // Blue for first shift, purple for second
-          type: currentShift.type,
-          // Add coupure information
-          hasCoupure: hasCoupure || shifts.length > 1,
-          shiftGroup: shiftGroupId,
-          shiftOrder: i + 1,
-          notes
-        };
+        // Delete extra shifts
+        for (let i = shifts.length; i < existingDayShifts.length; i++) {
+          onDelete(existingDayShifts[i].id);
+        }
+      } else {
+        // Update existing shifts and add new ones
+        existingDayShifts.forEach((existingShift, index) => {
+          const currentShift = shifts[index];
+          const shiftData = {
+            id: existingShift.id,
+            restaurantId,
+            employeeId,
+            day,
+            start: currentShift.start,
+            end: currentShift.end,
+            position: employee.position,
+            color: existingShift.color || (index === 0 ? '#3B82F6' : '#8B5CF6'),
+            type: currentShift.type,
+            hasCoupure: hasCoupure || shifts.length > 1,
+            shiftGroup: existingShift.shiftGroup || shiftGroupId,
+            shiftOrder: index + 1,
+            notes
+          };
+          onUpdate(shiftData);
+        });
         
-        // Create new shift
-        onSave(shiftData);
+        // Add new shifts
+        for (let i = existingDayShifts.length; i < shifts.length; i++) {
+          const currentShift = shifts[i];
+          const shiftData = {
+            restaurantId,
+            employeeId,
+            day,
+            start: currentShift.start,
+            end: currentShift.end,
+            position: employee.position,
+            color: i === 0 ? '#3B82F6' : '#8B5CF6',
+            type: currentShift.type,
+            hasCoupure: hasCoupure || shifts.length > 1,
+            shiftGroup: shiftGroupId,
+            shiftOrder: i + 1,
+            notes
+          };
+          onSave(shiftData);
+        }
       }
     }
     
