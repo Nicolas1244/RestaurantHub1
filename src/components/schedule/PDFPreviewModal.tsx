@@ -27,7 +27,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
   weekStartDate,
   viewType
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { settings } = useAppContext();
   const [isGenerating, setIsGenerating] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
@@ -38,8 +38,8 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
   const filteredEmployees = viewType === 'all' 
     ? employees 
     : employees.filter(emp => {
-        if (viewType === 'cuisine') return emp.category === 'cuisine';
-        if (viewType === 'salle') return emp.category === 'salle';
+        if (viewType === 'cuisine') return emp.category === 'Cuisine';
+        if (viewType === 'salle') return emp.category === 'Salle';
         return true;
       });
 
@@ -104,7 +104,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
           shifts={filteredShifts}
           weekStartDate={weekStartDateObj}
           viewType={viewType}
-          payBreakTimes={settings.payBreakTimes}
+          payBreakTimes={settings?.payBreakTimes}
         />
       ).toBlob();
 
@@ -140,7 +140,9 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">{t('pdf.scheduleTitle')} - {restaurant.name}</h2>
+          <h2 className="text-lg font-semibold">
+            {i18n.language === 'fr' ? 'Aperçu PDF - Planning Hebdomadaire' : 'PDF Preview - Weekly Schedule'} - {restaurant.name}
+          </h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -157,7 +159,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
               shifts={filteredShifts}
               weekStartDate={weekStartDateObj}
               viewType={viewType}
-              payBreakTimes={settings.payBreakTimes}
+              payBreakTimes={settings?.payBreakTimes}
             />
           </div>
         </div>
@@ -168,21 +170,21 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Printer className="w-4 h-4" />
-            {t('common.print', 'Imprimer')}
+            {i18n.language === 'fr' ? 'Imprimer' : 'Print'}
           </button>
 
           <button
             onClick={handleArchive}
             disabled={isArchiving}
             className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-            title={t('documents.archiveToDocuments', 'Archiver dans Documents')}
+            title={i18n.language === 'fr' ? 'Archiver dans Documents' : 'Archive to Documents'}
           >
             {isArchiving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <Archive className="w-4 h-4" />
             )}
-            {t('schedule.archive', 'Archiver')}
+            {i18n.language === 'fr' ? 'Archiver' : 'Archive'}
           </button>
 
           <button
@@ -195,7 +197,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
             ) : (
               <Download className="w-4 h-4" />
             )}
-            {t('common.download', 'Télécharger')}
+            {i18n.language === 'fr' ? 'Télécharger' : 'Download'}
           </button>
         </div>
       </div>

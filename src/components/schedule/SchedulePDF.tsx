@@ -24,187 +24,182 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
   },
   
-  // Header Section - Optimized for single page
+  // Header Section - Professional layout
   header: {
-    marginBottom: 10,
+    marginBottom: 15,
     borderBottom: 2,
     borderBottomColor: '#2563eb',
-    paddingBottom: 10,
+    paddingBottom: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   headerLeft: {
     flex: 1,
+    alignItems: 'flex-start',
+  },
+  headerCenter: {
+    flex: 2,
+    alignItems: 'center',
   },
   headerRight: {
-    width: 60,
-    alignItems: 'center',
+    flex: 1,
+    alignItems: 'flex-end',
   },
   restaurantLogo: {
     width: 50,
     height: 50,
     objectFit: 'contain',
+    marginBottom: 8,
   },
   restaurantName: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#1f2937',
     marginBottom: 3,
   },
   restaurantAddress: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#6b7280',
-    marginBottom: 6,
-  },
-  weekInfo: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#2563eb',
-    marginBottom: 3,
   },
   
-  // Main Title - Centered at the top
+  // Center title
   mainTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1f2937',
-    position: 'absolute',
-    top: 15,
-    left: 0,
-    right: 0,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  weekRange: {
+    fontSize: 12,
+    color: '#4b5563',
     textAlign: 'center',
   },
   
-  // View Type Indicator - Compact
+  // View type indicator
   viewTypeContainer: {
-    position: 'absolute',
-    top: 15,
-    right: 90,
     backgroundColor: '#f3f4f6',
     border: 1,
     borderColor: '#d1d5db',
-    borderRadius: 3,
-    padding: 6,
+    borderRadius: 4,
+    padding: 8,
+    alignItems: 'center',
   },
   viewTypeText: {
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: 'bold',
     color: '#374151',
     textAlign: 'center',
   },
   
-  // Table Styles - Optimized for single page
+  // Table Styles - Optimized for A4 landscape
   table: {
     display: 'table',
     width: '100%',
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: '#d1d5db',
-    marginTop: 8,
+    marginTop: 10,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#d1d5db',
-    minHeight: 24, // Reduced from 30
+    minHeight: 28,
     alignItems: 'center',
   },
   tableHeader: {
     backgroundColor: '#f9fafb',
     borderBottomWidth: 2,
     borderBottomColor: '#2563eb',
-    minHeight: 28, // Reduced from 35
+    minHeight: 32,
   },
   
-  // CRITICAL: Optimized column widths for single page with signature column
+  // Column widths optimized for signature column
   employeeCell: {
-    width: '11%', // Reduced from 12%
-    padding: 4, // Reduced from 6
+    width: '12%',
+    padding: 4,
     borderRightWidth: 1,
     borderRightColor: '#d1d5db',
   },
   dayCell: {
-    width: '8.5%', // Reduced from 10%
-    padding: 3, // Reduced from 4
+    width: '9%',
+    padding: 3,
     borderRightWidth: 1,
     borderRightColor: '#d1d5db',
     textAlign: 'center',
   },
   summaryCell: {
-    width: '16%', // Reduced from 18%
-    padding: 4, // Reduced from 6
+    width: '16%',
+    padding: 4,
     borderRightWidth: 1,
     borderRightColor: '#d1d5db',
   },
-  // CRITICAL: Signature column - EMPTY BOX ONLY
   signatureCell: {
-    width: '8%', // New column for signatures
+    width: '8%',
     padding: 4,
     borderRightWidth: 0,
     textAlign: 'center',
-    // REMOVED: All content styling - keeping only the empty cell
   },
   
-  // Text Styles - Optimized for readability
+  // Text Styles
   headerText: {
-    fontSize: 7, // Reduced from 9
+    fontSize: 8,
     fontWeight: 'bold',
     color: '#374151',
     textAlign: 'center',
     lineHeight: 1.2,
   },
   employeeName: {
-    fontSize: 7, // Reduced from 9
+    fontSize: 8,
     fontWeight: 'bold',
     color: '#1f2937',
     marginBottom: 1,
     lineHeight: 1.1,
   },
   employeePosition: {
-    fontSize: 6, // Reduced from 7
+    fontSize: 7,
     color: '#6b7280',
     marginBottom: 1,
     lineHeight: 1.1,
   },
   employeeContract: {
-    fontSize: 6, // Reduced from 7
+    fontSize: 6,
     color: '#9ca3af',
     lineHeight: 1.1,
   },
   shiftTime: {
-    fontSize: 6, // Reduced from 8
+    fontSize: 7,
     color: '#374151',
     marginBottom: 0.5,
     lineHeight: 1.1,
   },
   statusText: {
-    fontSize: 6, // Reduced from 7
+    fontSize: 7,
     color: '#dc2626',
     fontStyle: 'italic',
     lineHeight: 1.1,
   },
-  // CRITICAL: Compact summary styling for single page
   summaryTitle: {
-    fontSize: 6, // Reduced from 8
+    fontSize: 7,
     fontWeight: 'bold',
     color: '#374151',
     marginBottom: 1,
     lineHeight: 1.1,
   },
   summaryValue: {
-    fontSize: 7, // Reduced from 9
+    fontSize: 8,
     fontWeight: 'bold',
     color: '#1f2937',
     lineHeight: 1.1,
   },
   summaryDetail: {
-    fontSize: 5, // Reduced from 7
+    fontSize: 6,
     color: '#6b7280',
     marginTop: 0.5,
     lineHeight: 1.1,
   },
-  // CRITICAL: Pro-rated indicator styling
   proRatedIndicator: {
     fontSize: 5,
     color: '#d97706',
@@ -212,9 +207,8 @@ const styles = StyleSheet.create({
     marginTop: 0.5,
     lineHeight: 1.1,
   },
-  // CRITICAL: Compact summary layout
   summarySection: {
-    marginBottom: 2, // Reduced spacing
+    marginBottom: 2,
   },
   summaryInline: {
     flexDirection: 'row',
@@ -223,27 +217,18 @@ const styles = StyleSheet.create({
     marginBottom: 1,
   },
   
-  // CRITICAL: REMOVED all signature styling - keeping only header text
-  signatureHeaderText: {
-    fontSize: 7,
-    fontWeight: 'bold',
-    color: '#374151',
-    textAlign: 'center',
-    lineHeight: 1.2,
-  },
-  
-  // Footer - Compact
+  // Footer
   footer: {
     position: 'absolute',
     bottom: 15,
     left: 15,
     right: 15,
     textAlign: 'center',
-    fontSize: 7, // Reduced from 8
+    fontSize: 7,
     color: '#9ca3af',
     borderTop: 1,
     borderTopColor: '#e5e7eb',
-    paddingTop: 6, // Reduced from 10
+    paddingTop: 8,
   },
 });
 
@@ -257,33 +242,32 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
 
-  // CRITICAL: French day names mapping
+  // Get day names based on language
   const getDayName = (dayIndex: number): string => {
     const days = i18n.language === 'fr' 
       ? ['LUNDI', 'MARDI', 'MERCREDI', 'JEUDI', 'VENDREDI', 'SAMEDI', 'DIMANCHE']
       : ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
-    return days[dayIndex] || `Jour ${dayIndex}`;
+    return days[dayIndex] || `Day ${dayIndex}`;
   };
 
-  // Helper function to format week range with full French localization
+  // Format week range with proper localization
   const formatWeekRange = (startDate: Date): string => {
     const endDate = addDays(startDate, 6);
     
     if (i18n.language === 'fr') {
       const startFormatted = format(startDate, 'd MMMM', { locale: fr });
       const endFormatted = format(endDate, 'd MMMM yyyy', { locale: fr });
-      // CRITICAL: Capitalize month names in French
       const startCapitalized = startFormatted.replace(/\b\w/g, (char) => char.toUpperCase());
       const endCapitalized = endFormatted.replace(/\b\w/g, (char) => char.toUpperCase());
-      return `${startCapitalized} - ${endCapitalized}`;
+      return `${t('pdf.week')} ${i18n.language === 'fr' ? 'du' : 'from'} ${startCapitalized} ${i18n.language === 'fr' ? 'au' : 'to'} ${endCapitalized}`;
     } else {
       const startFormatted = format(startDate, 'MMM d');
       const endFormatted = format(endDate, 'MMM d, yyyy');
-      return `${startFormatted} - ${endFormatted}`;
+      return `${t('pdf.week')} from ${startFormatted} to ${endFormatted}`;
     }
   };
 
-  // CRITICAL: Full French localization for view type labels
+  // Get view type label with translation
   const getViewTypeLabel = (): string => {
     switch (viewType) {
       case 'cuisine':
@@ -295,7 +279,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
     }
   };
 
-  // Helper function to get shifts for employee and day
+  // Get shifts for employee and day
   const getShiftsForDay = (employeeId: string, day: number) => {
     return shifts.filter(shift => 
       shift.employeeId === employeeId && 
@@ -303,7 +287,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
     );
   };
 
-  // Helper function to format shift display
+  // Format shift display
   const formatShiftDisplay = (dayShifts: Shift[]): { times: string[]; status: string | null } => {
     const times: string[] = [];
     let status: string | null = null;
@@ -319,15 +303,15 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
     return { times, status };
   };
 
-  // CRITICAL: French localization for status labels
+  // Get status label with translation
   const getStatusLabel = (status: string): string => {
     const statusLabels: Record<string, string> = {
-      'WEEKLY_REST': 'Repos Hebdo',
+      'WEEKLY_REST': i18n.language === 'fr' ? 'Repos Hebdo' : 'Weekly Rest',
       'CP': 'CP',
-      'PUBLIC_HOLIDAY': 'Férié',
-      'SICK_LEAVE': 'Maladie',
-      'ACCIDENT': 'Accident',
-      'ABSENCE': 'Absence'
+      'PUBLIC_HOLIDAY': i18n.language === 'fr' ? 'Férié' : 'Holiday',
+      'SICK_LEAVE': i18n.language === 'fr' ? 'Maladie' : 'Sick Leave',
+      'ACCIDENT': i18n.language === 'fr' ? 'Accident' : 'Accident',
+      'ABSENCE': i18n.language === 'fr' ? 'Absence' : 'Absence'
     };
     return statusLabels[status] || status;
   };
@@ -346,40 +330,61 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
     return addressParts.length > 0 ? addressParts.join(', ') : restaurant.location;
   };
 
+  // Translate position
+  const getPositionDisplay = (position: string): string => {
+    if (POSITIONS.includes(position)) {
+      const translations: Record<string, string> = {
+        'Operations Manager': i18n.language === 'fr' ? 'Directeur / Directrice d\'Exploitation' : 'Operations Manager',
+        'Chef de Cuisine': 'Chef de Cuisine',
+        'Second de Cuisine': i18n.language === 'fr' ? 'Second de Cuisine' : 'Sous Chef',
+        'Chef de Partie': 'Chef de Partie',
+        'Commis de Cuisine': i18n.language === 'fr' ? 'Commis de Cuisine' : 'Commis Chef',
+        'Plongeur': i18n.language === 'fr' ? 'Plongeur' : 'Dishwasher',
+        'Barman/Barmaid': i18n.language === 'fr' ? 'Barman/Barmaid' : 'Bartender',
+        'Waiter(s)': i18n.language === 'fr' ? 'Serveur(se)' : 'Server'
+      };
+      return translations[position] || position;
+    } else {
+      return position;
+    }
+  };
+
   const weekNumber = getWeek(weekStartDate);
   const year = weekStartDate.getFullYear();
-  const weekRange = formatWeekRange(weekStartDate);
 
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
-        {/* Header Section with Logo */}
+        {/* Professional Header */}
         <View style={styles.header}>
+          {/* Left: Restaurant Info */}
           <View style={styles.headerLeft}>
-            <Text style={styles.restaurantName}>{restaurant.name}</Text>
-            <Text style={styles.restaurantAddress}>{formatRestaurantAddress()}</Text>
-            <Text style={styles.weekInfo}>
-              {i18n.language === 'fr' ? 'Semaine' : 'Week'} {weekNumber}, {year} - Du {format(weekStartDate, 'd MMMM', { locale: fr }).replace(/^\w/, c => c.toUpperCase())} au {format(addDays(weekStartDate, 6), 'd MMMM yyyy', { locale: fr }).replace(/^\w/, c => c.toUpperCase())}
-            </Text>
-          </View>
-          
-          {/* Restaurant Logo */}
-          {restaurant.image && (
-            <View style={styles.headerRight}>
+            {restaurant.image && (
               <Image
                 src={restaurant.image}
                 style={styles.restaurantLogo}
               />
+            )}
+            <Text style={styles.restaurantName}>{restaurant.name}</Text>
+            <Text style={styles.restaurantAddress}>{formatRestaurantAddress()}</Text>
+          </View>
+          
+          {/* Center: Main Title */}
+          <View style={styles.headerCenter}>
+            <Text style={styles.mainTitle}>
+              {i18n.language === 'fr' ? 'Planning Hebdomadaire' : 'Weekly Schedule'}
+            </Text>
+            <Text style={styles.weekRange}>
+              {formatWeekRange(weekStartDate)}
+            </Text>
+          </View>
+
+          {/* Right: View Type */}
+          <View style={styles.headerRight}>
+            <View style={styles.viewTypeContainer}>
+              <Text style={styles.viewTypeText}>{getViewTypeLabel()}</Text>
             </View>
-          )}
-        </View>
-
-        {/* Main Title - Absolutely positioned at the top center */}
-        <Text style={styles.mainTitle}>Planning Hebdomadaire</Text>
-
-        {/* View Type Indicator */}
-        <View style={styles.viewTypeContainer}>
-          <Text style={styles.viewTypeText}>{getViewTypeLabel()}</Text>
+          </View>
         </View>
 
         {/* Schedule Table */}
@@ -392,7 +397,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
               </Text>
             </View>
             
-            {/* Day Headers with French localization */}
+            {/* Day Headers */}
             {Array.from({ length: 7 }, (_, index) => {
               const date = addDays(weekStartDate, index);
               const dayName = getDayName(index);
@@ -418,9 +423,9 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
               </Text>
             </View>
 
-            {/* CRITICAL: Signature Column Header - ONLY HEADER TEXT */}
+            {/* Signature Column Header */}
             <View style={styles.signatureCell}>
-              <Text style={styles.signatureHeaderText}>
+              <Text style={styles.headerText}>
                 {i18n.language === 'fr' ? 'ÉMARGEMENT' : 'SIGNATURE'}
               </Text>
             </View>
@@ -430,7 +435,6 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
           {employees.map((employee) => {
             const employeeShifts = shifts.filter(s => s.employeeId === employee.id);
             
-            // CRITICAL: Use enhanced calculation with pro-rated hours
             const { 
               totalWorkedHours,
               totalAssimilatedHours,
@@ -441,13 +445,12 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
             } = calculateEmployeeWeeklySummary(
               employeeShifts, 
               employee.weeklyHours || 35,
-              employee.startDate,  // CRITICAL: Pass employee contract dates
-              employee.endDate,    // CRITICAL: Pass employee contract dates
-              weekStartDate,       // CRITICAL: Pass week start date
-              payBreakTimes ?? true // CRITICAL: Pass break payment setting with default to true
+              employee.startDate,
+              employee.endDate,
+              weekStartDate,
+              payBreakTimes ?? true
             );
 
-            // CRITICAL: Check if pro-rated hours differ from full contract
             const isProRated = Math.abs(proRatedContractHours - (employee.weeklyHours || 35)) > 0.1;
 
             return (
@@ -462,7 +465,6 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                   </Text>
                   <Text style={styles.employeeContract}>
                     {employee.weeklyHours || 35}H - {employee.contractType}
-                    {/* CRITICAL: Show pro-rated indicator in PDF */}
                     {isProRated && (
                       <Text style={styles.proRatedIndicator}>
                         {'\n'}Pro-rata: {formatHours(proRatedContractHours)}
@@ -493,7 +495,7 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                   );
                 })}
 
-                {/* CRITICAL: Enhanced Weekly Summary with Pro-rated Hours Display */}
+                {/* Weekly Summary */}
                 <View style={styles.summaryCell}>
                   <View style={styles.summarySection}>
                     <View style={styles.summaryInline}>
@@ -522,7 +524,6 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                     <View style={styles.summaryInline}>
                       <Text style={styles.summaryTitle}>
                         {i18n.language === 'fr' ? 'Écart:' : 'Diff:'}
-                        {/* CRITICAL: Show pro-rated indicator in PDF */}
                         {isProRated && (
                           <Text style={styles.proRatedIndicator}> (Pro-rata)</Text>
                         )}
@@ -534,7 +535,6 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                         {formatHoursDiff(hoursDiff)}
                       </Text>
                     </View>
-                    {/* CRITICAL: Show pro-rated base hours for transparency */}
                     {isProRated && (
                       <Text style={styles.proRatedIndicator}>
                         Base: {formatHours(proRatedContractHours)}
@@ -554,16 +554,16 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
                   </View>
                 </View>
 
-                {/* CRITICAL: EMPTY Signature Column - NO CONTENT, JUST THE CELL */}
+                {/* Signature Column - Empty for manual signatures */}
                 <View style={styles.signatureCell}>
-                  {/* COMPLETELY EMPTY - No signature lines, no content */}
+                  {/* Empty cell for manual signatures */}
                 </View>
               </View>
             );
           })}
         </View>
 
-        {/* Footer with French localization */}
+        {/* Footer */}
         <Text style={styles.footer}>
           {i18n.language === 'fr' 
             ? `Planning généré le ${format(new Date(), 'd MMMM yyyy à HH:mm', { locale: fr }).replace(/\b\w/g, (char) => char.toUpperCase())} - ${restaurant.name}`
@@ -573,27 +573,6 @@ const SchedulePDF: React.FC<SchedulePDFProps> = ({
       </Page>
     </Document>
   );
-};
-
-// CRITICAL FIX: Check if position is in predefined list before translating
-const getPositionDisplay = (position: string): string => {
-  // For predefined positions, use the position key for translation
-  if (POSITIONS.includes(position)) {
-    const translations: Record<string, string> = {
-      'Operations Manager': 'Directeur / Directrice d\'Exploitation',
-      'Chef de Cuisine': 'Chef de Cuisine',
-      'Second de Cuisine': 'Second de Cuisine',
-      'Chef de Partie': 'Chef de Partie',
-      'Commis de Cuisine': 'Commis de Cuisine',
-      'Plongeur': 'Plongeur',
-      'Barman/Barmaid': 'Barman/Barmaid',
-      'Waiter(s)': 'Serveur(se)'
-    };
-    return translations[position] || position;
-  } else {
-    // For custom positions, display directly
-    return position;
-  }
 };
 
 export default SchedulePDF;

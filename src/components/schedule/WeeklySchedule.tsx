@@ -459,10 +459,10 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
 
           <button
             onClick={() => setShowPDFPreviewModal(true)}
-            className="px-4 py-2 text-sm font-medium bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center gap-2 transition-colors"
+            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-2 transition-colors"
           >
             <FileText size={18} />
-            Exporter en PDF
+            {i18n.language === 'fr' ? 'Exporter PDF' : 'Export PDF'}
           </button>
         </div>
       </div>
