@@ -435,7 +435,8 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
   // CRITICAL: Check if employee already has maximum shifts for a day
   const hasMaxShifts = (employeeId: string, day: number): boolean => {
     const dayShifts = getShiftsForEmployeeDay(employeeId, day);
-    return dayShifts.length >= 2; 
+    // Only count actual shifts, not status-only entries
+    return dayShifts.filter(s => s.start && s.end && !s.status).length >= 2; 
   };
 
   // CRITICAL: Show helpful message if no employees

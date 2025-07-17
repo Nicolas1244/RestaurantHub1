@@ -88,6 +88,9 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
   // Initialize modal state based on existing shifts or absences
   useEffect(() => {
     if (isOpen && employee) {
+      // Clear any previous validation errors
+      setValidationError(null);
+      
       // Filter shifts for this employee and day
       const employeeShifts = existingShifts.filter(
         s => s.employeeId === employee.id && s.day === day
@@ -155,7 +158,7 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
   const handleAddShift = () => {
     // CRITICAL: Limit to maximum 2 shifts per day
     if (shiftItems.length >= 2) {
-      toast.error(
+      setValidationError(
         i18n.language === 'fr' 
           ? 'Vous ne pouvez pas ajouter plus de 2 services par employé par jour.' 
           : 'You cannot add more than 2 services per employee per day.'

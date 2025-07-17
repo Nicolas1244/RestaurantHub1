@@ -52,12 +52,20 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
       // Editing a single existing shift
       setEmployeeId(shift.employeeId);
       setDay(shift.day);
-      setShifts([{
-        id: shift.id,
-        start: shift.start,
-        end: shift.end,
-        type: shift.type
-      }]);
+      // Find all shifts for this employee and day
+      const employeeShifts = existingShifts.filter(
+        s => s.employeeId === shift.employeeId && s.day === shift.day
+      );
+      
+      // Initialize with all existing shifts for this employee and day
+      setShifts(
+        employeeShifts.map(s => ({
+          id: s.id,
+          start: s.start,
+          end: s.end,
+          type: s.type
+        }))
+      );
       setHasCoupure(shift.hasCoupure || false);
       setStatus(shift.status || '');
       setNotes(shift.notes || '');
@@ -83,11 +91,10 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
   const handleAddShift = () => {
     // CRITICAL: Limit to maximum 2 shifts per day
     if (shifts.length >= 2) {
-      toast.error(
-        i18n.language === 'fr' 
-          ? 'Vous ne pouvez pas ajouter plus de 2 services par employé par jour.' 
-          : 'You cannot add more than 2 services per employee per day.'
-      );
+      setValidationError(
+        i18n.language === 'fr'
+          ? 'Vous ne pouvez pas ajouter plus de 2 services par employé par jour.'
+          : 'You cannot add more than 2 services per employee per day.');
       return;
     }
     
@@ -228,6 +235,9 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Clear any previous validation errors
+    setValidationError(null);
     
     if (!employeeId) {
       setValidationError(
