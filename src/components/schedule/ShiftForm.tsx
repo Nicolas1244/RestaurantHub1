@@ -239,6 +239,9 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
     // Clear any previous validation errors
     setValidationError(null);
     
+    // Clear any previous validation errors
+    setValidationError(null);
+    
     if (!employeeId) {
       setValidationError(
         i18n.language === 'fr'
@@ -250,7 +253,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
     
     if (status) {
       // If it's an absence/status, create a single shift with status
-      const absenceShift = {
+      const absenceShift: any = {
         restaurantId,
         employeeId,
         day,
@@ -269,8 +272,10 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
       };
       
       if (shift) {
+        // Update the existing shift
         onUpdate({ ...absenceShift, id: shift.id });
       } else {
+        // Create a new absence shift
         onSave(absenceShift);
       }
       
@@ -306,30 +311,55 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
     // Generate a shared shiftGroup ID for related shifts
     const shiftGroupId = uuidv4();
     
-    // Process each shift
-    for (let i = 0; i < shifts.length; i++) {
-      const currentShift = shifts[i];
+    // If we're editing a single shift, we need to handle it specially
+    if (shift) {
+      // Find the index of the shift we're editing
+      const editingShiftIndex = shifts.findIndex(s => s.id === shift.id);
       
-      const shiftData = {
-        restaurantId,
-        employeeId,
-        day,
-        start: currentShift.start,
-        end: currentShift.end,
-        position: employee.position,
-        color: i === 0 ? '#3B82F6' : '#8B5CF6', // Blue for first shift, purple for second
-        type: currentShift.type,
-        // Add coupure information
-        hasCoupure: hasCoupure || shifts.length > 1,
-        shiftGroup: shiftGroupId,
-        shiftOrder: i + 1,
-        notes
-      };
-      
-      if (shift && currentShift.id === shift.id) {
-        // Update existing shift
-        onUpdate({ ...shiftData, id: shift.id });
-      } else {
+      if (editingShiftIndex !== -1) {
+        // We're updating an existing shift
+        const currentShift = shifts[editingShiftIndex];
+        
+        const shiftData = {
+          id: shift.id,
+          restaurantId,
+          employeeId,
+          day,
+          start: currentShift.start,
+          end: currentShift.end,
+          position: employee.position,
+          color: editingShiftIndex === 0 ? '#3B82F6' : '#8B5CF6',
+          type: currentShift.type,
+          hasCoupure: hasCoupure || shifts.length > 1,
+          shiftGroup: shift.shiftGroup || shiftGroupId,
+          shiftOrder: editingShiftIndex + 1,
+          notes
+        };
+        
+        // Update just this shift
+        onUpdate(shiftData);
+      }
+    } else {
+      // We're creating new shifts
+      for (let i = 0; i < shifts.length; i++) {
+        const currentShift = shifts[i];
+        
+        const shiftData = {
+          restaurantId,
+          employeeId,
+          day,
+          start: currentShift.start,
+          end: currentShift.end,
+          position: employee.position,
+          color: i === 0 ? '#3B82F6' : '#8B5CF6', // Blue for first shift, purple for second
+          type: currentShift.type,
+          // Add coupure information
+          hasCoupure: hasCoupure || shifts.length > 1,
+          shiftGroup: shiftGroupId,
+          shiftOrder: i + 1,
+          notes
+        };
+        
         // Create new shift
         onSave(shiftData);
       }
