@@ -89,15 +89,6 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
   }, [shift, isOpen, preSelectedEmployeeId, preSelectedDay]);
 
   const handleAddShift = () => {
-    // CRITICAL: Limit to maximum 2 shifts per day
-    if (shifts.length >= 2) {
-      setValidationError(
-        i18n.language === 'fr'
-          ? 'Vous ne pouvez pas ajouter plus de 2 services par employé par jour.'
-          : 'You cannot add more than 2 services per employee per day.');
-      return;
-    }
-    
     setShifts(prev => [
       ...prev,
       {

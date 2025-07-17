@@ -421,7 +421,6 @@ export default {
       overlappingShifts: 'Shifts are overlapping. Please adjust the times.',
       selectEmployee: 'Please select at least one employee',
       addAtLeastOneShift: 'Please add at least one shift',
-      maxShiftsReached: 'Maximum 2 shifts per day reached for this employee',
       manageDay: 'Manage Day',
       absenceType: 'Absence Type',
       absenceNote: 'Selecting an absence will remove any scheduled shifts for this day',

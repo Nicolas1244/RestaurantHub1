@@ -386,7 +386,6 @@ export default {
       overlappingShifts: 'Les services se chevauchent. Veuillez ajuster les heures.',
       selectEmployee: 'Veuillez sélectionner au moins un employé',
       addAtLeastOneShift: 'Veuillez ajouter au moins un service',
-      maxShiftsReached: 'Maximum 2 services par jour atteints pour cet employé.',
       manageDay: 'Gérer la journée',
       absenceType: 'Type d\'Absence',
       absenceNote: 'Sélectionner une absence supprimera tous les services planifiés pour ce jour.',

@@ -67,14 +67,6 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   }, [shift, isOpen, preSelectedEmployeeId, preSelectedDay]);
 
   const handleAddShift = () => {
-    // CRITICAL: Enforce maximum 2 shifts per day
-    if (shifts.length >= 2) {
-      toast.error(i18n.language === 'fr' 
-        ? 'Vous ne pouvez pas ajouter plus de 2 services par employé par jour.' 
-        : 'You cannot add more than 2 services per employee per day.');
-      return;
-    }
-    
     setShifts(prev => [
       ...prev, 
       {

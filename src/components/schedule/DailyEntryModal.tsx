@@ -156,16 +156,6 @@ const DailyEntryModal: React.FC<DailyEntryModalProps> = ({
 
   // Handle adding a new shift
   const handleAddShift = () => {
-    // CRITICAL: Limit to maximum 2 shifts per day
-    if (shiftItems.length >= 2) {
-      setValidationError(
-        i18n.language === 'fr' 
-          ? 'Vous ne pouvez pas ajouter plus de 2 services par employé par jour.' 
-          : 'You cannot add more than 2 services per employee per day.'
-      );
-      return;
-    }
-    
     setShiftItems(prev => [
       ...prev,
       {
