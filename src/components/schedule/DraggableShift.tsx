@@ -173,6 +173,18 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
                 strokeLinejoin="round" 
                 className="mr-1"
               >
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12,6 12,12 16,14"></polyline>
+              </svg>
+              {shift.start && shift.end && `${formatTime(shift.start)} - ${formatTime(shift.end)}`}
+            </div>
+            
+            {/* Position */}
+            {shift.position && (
+              <div className="text-xs opacity-70 mt-1 font-medium">
+                {getPositionDisplay(shift.position)}
+              </div>
+            )}
           </>
         )}
         
