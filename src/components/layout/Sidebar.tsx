@@ -281,12 +281,6 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
                   <User size={20} />
                 </span>
                 {!isCollapsed && <span className="font-medium">{t('employee.portal')}</span>}
-              </li>
-            </ul>
-          </nav>
-
-          {/* CRITICAL: Settings at Bottom - Clean without auto-expand hints */}
-          <div className={`border-t border-gray-200 transition-all duration-300 ${isCollapsed ? 'p-2' : 'p-4'}`}>
             <NavItem 
               icon={<Settings size={20} />} 
               label={t('nav.settings')} 
@@ -304,7 +298,7 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
               <span className={isCollapsed ? '' : 'mr-3'}>
                 <User size={20} />
               </span>
-              {!isCollapsed && <span className="font-medium">{t('auth.userSettings')}</span>}
+              {!isCollapsed && <span className="font-medium">{i18n.language === 'fr' ? 'Paramètres Utilisateur' : 'User Settings'}</span>}
             </li>
             
             {/* Sign Out */}
@@ -317,7 +311,7 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({
               <span className={isCollapsed ? '' : 'mr-3'}>
                 <LogOut size={20} />
               </span>
-              {!isCollapsed && <span className="font-medium">{t('auth.signOut')}</span>}
+              {!isCollapsed && <span className="font-medium">{i18n.language === 'fr' ? 'Déconnexion' : 'Sign Out'}</span>}
             </li>
           </div>
         </div>
