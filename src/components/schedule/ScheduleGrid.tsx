@@ -800,18 +800,41 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                       
                       {/* CRITICAL: If there's a status, show it instead of shifts */}
                       {dayStatus ? (
-                        <div className="flex flex-col items-center justify-center h-full">
-                          <div className="px-2 py-1 rounded-md text-center text-xs font-medium"
+                        <div 
+                          className="mb-2 p-3 rounded-lg cursor-pointer transform transition-all hover:scale-[1.02] hover:shadow-md border-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onOpenShiftModal(employee.id, dayIndex);
+                          }}
                             style={{
-                              backgroundColor: `${DAILY_STATUS[dayStatus].color}30`,
+                              backgroundColor: `${DAILY_STATUS[dayStatus].color}20`,
                               color: DAILY_STATUS[dayStatus].color,
-                              border: `1px solid ${DAILY_STATUS[dayStatus].color}50`,
-                              padding: '6px 10px',
-                              borderRadius: '6px',
-                              fontWeight: 'bold'
+                              borderColor: DAILY_STATUS[dayStatus].color,
                             }}
                           >
-                            {DAILY_STATUS[dayStatus].label}
+                            <div className="relative">
+                              {/* Employee avatar/initials */}
+                              <div className="font-medium text-sm flex items-center justify-between mb-2">
+                                <div className="flex items-center w-full justify-center">
+                                  <div className="w-7 h-7 rounded-full flex items-center justify-center mr-2 bg-white bg-opacity-20 shadow-sm overflow-hidden">
+                                    {employee.profilePicture ? (
+                                      <img 
+                                        src={employee.profilePicture} 
+                                        alt={`${employee.firstName} ${employee.lastName}`} 
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <span style={{ color: DAILY_STATUS[dayStatus].color }}>
+                                        {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="font-semibold">
+                                    {DAILY_STATUS[dayStatus].label}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ) : (

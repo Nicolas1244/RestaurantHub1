@@ -121,14 +121,14 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
       {...listeners} 
       onClick={() => onShiftClick(shift)}
       className={`mb-2 p-3 rounded-lg cursor-move transform transition-all hover:scale-[1.02] hover:shadow-md ${
-        shift.status ? 'bg-opacity-15 border-2' : 'border border-transparent'
+        'border-2'
       }`}
       style={style}
     >
       <div className="relative">
         {/* Employee avatar/initials */}
         <div className="font-medium text-sm flex items-center justify-between mb-2">
-          <div className={`flex items-center ${shift.status && !shift.isHolidayWorked ? 'w-full justify-center' : ''}`}>
+          <div className={`flex items-center ${shift.status ? 'w-full justify-center' : ''}`}>
             <div className="w-7 h-7 rounded-full flex items-center justify-center mr-2 bg-white bg-opacity-20 shadow-sm overflow-hidden">
               {employee.profilePicture ? (
                 <img 
@@ -179,12 +179,6 @@ const DraggableShift: React.FC<DraggableShiftProps> = ({ shift, employee, onShif
               {shift.start && shift.end && `${formatTime(shift.start)} - ${formatTime(shift.end)}`}
             </div>
             
-            {/* Position */}
-            {shift.position && (
-              <div className="text-xs opacity-70 mt-1 font-medium">
-                {getPositionDisplay(shift.position)}
-              </div>
-            )}
           </>
         )}
         
